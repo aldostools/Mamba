@@ -376,6 +376,9 @@ LV2_SYSCALL2(int64_t, syscall8, (uint64_t function, uint64_t param1, uint64_t pa
 				case PS3MAPI_OPCODE_SET_PROC_MEM:
 					return ps3mapi_set_process_mem((process_id_t)param2, param3, (char *)param4, (int)param5);
 				break;
+				case PS3MAPI_OPCODE_PROC_PAGE_ALLOCATE:
+					return ps3mapi_process_page_allocate((process_id_t)param2, param3, param4, param5, (uint32_t *)param6); // TheRouletteBoi
+				break;
 				//----------
 				//MODULE
 				//----------
@@ -390,6 +393,9 @@ LV2_SYSCALL2(int64_t, syscall8, (uint64_t function, uint64_t param1, uint64_t pa
 				break;
 				case PS3MAPI_OPCODE_GET_PROC_MODULE_INFO:
 					return ps3mapi_get_process_module_info((process_t)param2, (sys_prx_id_t)param3, (char *)param4, (char *)param5);
+				break;
+				case PS3MAPI_OPCODE_GET_PROC_MODULE_SEGMENTS:
+					return ps3mapi_get_process_module_segments((process_id_t)param2, (sys_prx_id_t)param3, (sys_prx_module_info_t *)param4); // TheRouletteBoi
 				break;
 				case PS3MAPI_OPCODE_LOAD_PROC_MODULE:
 					return ps3mapi_load_process_modules((process_id_t)param2, (char *)param3, (void *)param4, (uint32_t)param5);
@@ -742,6 +748,13 @@ LV2_SYSCALL2(int64_t, syscall8, (uint64_t function, uint64_t param1, uint64_t pa
 		case SYSCALL8_OPCODE_GET_ACCESS:
 		case SYSCALL8_OPCODE_REMOVE_ACCESS:
 			return SUCCEEDED; //needed for mmCM
+		break;
+
+		//--------------------------
+		// PROCESS
+		//--------------------------
+		case SYSCALL8_OPCODE_PROC_CREATE_THREAD:
+			return ps3mapi_create_process_thread((process_id_t)param1, (thread_t *)param2, (void *)param3, (uint64_t)param4, (int)param5, (size_t)param6, (const char *)param7); // TheRouletteBoi
 		break;
 
 		//--------------------------

@@ -86,6 +86,8 @@
 
 #define SYSCALL8_OPCODE_DISABLE_COBRA_STAGE				0x6A13 // 8.01 HABIB
 
+#define SYSCALL8_OPCODE_PROC_CREATE_THREAD				0x6E03 // not enough params for PS3MAPI_OPCODE // TheRouletteBoi
+
 #ifdef DEBUG
 // These debug opcode changed to odd numbers in version 7.0 to minmize crashes with lv1 peek apps
 #define SYSCALL8_OPCODE_DUMP_STACK_TRACE				0x5003
