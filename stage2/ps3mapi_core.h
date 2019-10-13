@@ -59,7 +59,7 @@ int ps3mapi_get_current_process(process_t process);
 
 int ps3mapi_set_process_mem(process_id_t pid, uint64_t addr, char *buf, int size);
 int ps3mapi_get_process_mem(process_id_t pid, uint64_t addr, char *buf, int size);
-int ps3mapi_process_page_allocate(process_id_t pid, uint64_t size, uint64_t page_size, uint64_t flags, uint32_t *start_address); // TheRouletteBoi
+int ps3mapi_process_page_allocate(process_id_t pid, uint64_t size, uint64_t page_size, uint64_t flags, uint64_t is_executable, uint64_t *page_address); // TheRouletteBoi
 
 //-----------------------------------------------
 //MODULES
@@ -98,7 +98,7 @@ int prx_start_modules(sys_prx_id_t id, process_t process, uint64_t flags, uint64
 
 //#define SYSCALL8_OPCODE_PROC_CREATE_THREAD			0x6E03 // not enough params for PS3MAPI_OPCODE
 
-int ps3mapi_create_process_thread(process_id_t pid, thread_t *thread, void *entry, uint64_t arg, int prio, size_t stacksize, const char *threadname); // TheRouletteBoi
+int ps3mapi_create_process_thread(process_id_t pid, thread_t *thread, void *entry, uint64_t arg, int prio, size_t stacksize, char *threadname); // TheRouletteBoi
 
 //-----------------------------------------------
 //SYSCALL

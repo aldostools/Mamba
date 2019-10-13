@@ -64,6 +64,7 @@
     #define run_thread_symbol                                0x2357C
     #define register_thread_symbol                           0x26794C
     #define allocate_user_stack_symbol                       0x268134
+    #define mmapper_flags_temp_patch                         0x70F78
     #define mutex_create_symbol                              0x1363C
     #define mutex_destroy_symbol                             0x135D4
     #define mutex_lock_symbol                                0x135CC

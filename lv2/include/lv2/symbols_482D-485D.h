@@ -82,6 +82,7 @@
 	#define	register_thread_symbol							0x26E270
 	#define	allocate_user_stack_symbol						0x26EA58
 	#define	deallocate_user_stack_symbol					0x26E9C0
+	#define mmapper_flags_temp_patch						0x74C08
 
 	#define	mutex_create_symbol								0x13C8C
 	#define	mutex_destroy_symbol							0x13C24
