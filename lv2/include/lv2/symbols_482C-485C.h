@@ -84,6 +84,7 @@
     #define cellFsLseek_symbol                               0x296E98
     #define cellFsStat_symbol                                0x29711C
     #define cellFsUnlink_internal_symbol                     0x19C64C
+    #define cellFsRename_internal_symbol                     0x197104
     #define cellFsUtilMount_symbol                           0x296C78
     #define cellFsUtilUmount_symbol                          0x296C4C
     #define pathdup_from_user_symbol                         0x29C8E4

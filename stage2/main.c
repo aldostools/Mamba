@@ -110,6 +110,20 @@ static INLINE int sys_get_version2(uint16_t *version)
 //----------------------------------------
 #define CB_LOCATION "/dev_blind/rebug/cobra/stage2.cex"
 
+#ifdef cellFsRename_internal
+int disable_cobra_stage()
+{
+	cellFsUtilMount_h("CELL_FS_IOS:BUILTIN_FLSH1", "CELL_FS_FAT", "/dev_blind", 0, 0, 0, 0, 0);
+	cellFsRename(CB_LOCATION, CB_LOCATION".bak");
+	cellFsRename(CB_LOCATION_DEX, CB_LOCATION_DEX".bak");
+	uint64_t size = 0x5343450000000000;
+	int dst;
+	cellFsOpen("/dev_hdd0/tmp/loadoptical", CELL_FS_O_WRONLY | CELL_FS_O_CREAT | CELL_FS_O_TRUNC, &dst, 0666, NULL, 0);
+	cellFsWrite(dst, &size, 4, &size);
+	cellFsClose(dst);
+	return 0;
+}
+#else
 int disable_cobra_stage()
 {
 	cellFsUtilMount_h("CELL_FS_IOS:BUILTIN_FLSH1", "CELL_FS_FAT", "/dev_blind", 0, 0, 0, 0, 0);
@@ -124,41 +138,41 @@ int disable_cobra_stage()
 	int (*cellFsRename)(const char *, const char *) = (void *)&fn;
 
 	cellFsRename(CB_LOCATION, CB_LOCATION ".bak");
-/*
-	CellFsStat stat;
-	cellFsStat(CB_LOCATION, &stat);
-	uint64_t len = stat.st_size;
-	uint8_t *buf;
-	uint64_t size;
-	int src;
-	int dst;
-	
-	page_allocate_auto(NULL, 0x40000, 0x2F, (void **)&buf);
-	if(cellFsOpen(CB_LOCATION, CELL_FS_O_RDONLY, &src, 0, NULL, 0) == SUCCEEDED)
-	{
-		cellFsRead(src, buf, len, &size);
-		cellFsClose(src);
-	}
-	else
-	{
-		page_free(NULL, buf, 0x2F);
-		return -1;
-	}
 
-	if((len == size) && cellFsOpen(CB_LOCATION ".bak", CELL_FS_O_WRONLY | CELL_FS_O_CREAT | CELL_FS_O_TRUNC, &dst, 0666, NULL, 0) == SUCCEEDED)
-	{	
-		cellFsWrite(dst, buf, len, &size);
-		cellFsClose(dst);
-	}
-	else
-	{
-		page_free(NULL, buf, 0x2F);
-		return -1;
-	}
-	
-	page_free(NULL, buf, 0x2F);
-	cellFsUnlink(CB_LOCATION);
-*/
+//	CellFsStat stat;
+//	cellFsStat(CB_LOCATION, &stat);
+//	uint64_t len = stat.st_size;
+//	uint8_t *buf;
+//	uint64_t size;
+//	int src;
+//	int dst;
+//	
+//	page_allocate_auto(NULL, 0x40000, 0x2F, (void **)&buf);
+//	if(cellFsOpen(CB_LOCATION, CELL_FS_O_RDONLY, &src, 0, NULL, 0) == SUCCEEDED)
+//	{
+//		cellFsRead(src, buf, len, &size);
+//		cellFsClose(src);
+//	}
+//	else
+//	{
+//		page_free(NULL, buf, 0x2F);
+//		return -1;
+//	}
+//
+//	if((len == size) && cellFsOpen(CB_LOCATION ".bak", CELL_FS_O_WRONLY | CELL_FS_O_CREAT | CELL_FS_O_TRUNC, &dst, 0666, NULL, 0) == SUCCEEDED)
+//	{	
+//		cellFsWrite(dst, buf, len, &size);
+//		cellFsClose(dst);
+//	}
+//	else
+//	{
+//		page_free(NULL, buf, 0x2F);
+//		return -1;
+//	}
+//	
+//	page_free(NULL, buf, 0x2F);
+//	cellFsUnlink(CB_LOCATION);
+
 	// force load optical ps2 disk
 	uint64_t size = 0x534345000000000;
 	int dst;
@@ -168,6 +182,7 @@ int disable_cobra_stage()
 
 	return SUCCEEDED;
 }
+#endif
 
 //----------------------------------------
 //SYSCALL 8 MAMBA

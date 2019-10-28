@@ -126,6 +126,7 @@
 	#define	cellFsStat_symbol								0x2B20B4
 	#define	cellFsUtime_symbol								0x2B3A24
 	#define	cellFsUnlink_internal_symbol					0x1A29D8
+	#define cellFsRename_internal_symbol					0x19D490
 
 	#define	cellFsUtilMount_symbol							0x2B1D70
 	#define	cellFsUtilUmount_symbol							0x2B1D44
