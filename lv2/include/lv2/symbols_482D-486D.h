@@ -1,4 +1,4 @@
-#if	defined(FIRMWARE_482D) || defined(FIRMWARE_483D) || defined(FIRMWARE_484D) || defined(FIRMWARE_485D)
+#if	defined(FIRMWARE_482D) || defined(FIRMWARE_483D) || defined(FIRMWARE_484D) || defined(FIRMWARE_485D) || defined(FIRMWARE_486D)
 
 	#if	defined(FIRMWARE_482D)
 		#define	FIRMWARE_VERSION							0x482
@@ -8,6 +8,8 @@
 		#define	FIRMWARE_VERSION							0x484
 	#elif defined(FIRMWARE_485D)
 		#define	FIRMWARE_VERSION							0x485
+	#elif defined(FIRMWARE_486D)
+		#define	FIRMWARE_VERSION							0x486
 	#endif
 	#define	FIRMWARE_DEX									FIRMWARE_VERSION
 
@@ -245,7 +247,7 @@
 	#define	process_rtoc_entry_1							-0x77A0
 
 	#define	bt_rtoc_entry_1									-0x3558
-	
+
 	#define	shutdown_copy_params_call						 0xAB4C
 
 	/* Permissions */
@@ -328,7 +330,7 @@
 	#define	EMULATOR_DRM_DATA_HASH							0x2f3ab00000010000
 	#define	LIBSYSUTIL_SAVEDATA_PSP_HASH					0x0dfdc00000003000
 	#define	LIBAUDIO_HASH									0x2200600000002000
-	
+
 	/* download_plugin */
 	#define	elf_patch1_download								0x42DC0	// 0x42e2c
 	#define	elf_patch2_download								0x42DC8	// 0x42e34

@@ -328,6 +328,20 @@ LV2_HOOKED_FUNCTION_POSTCALL_2(void, open_path_hook, (char *path0, int mode))
 		{
 			//DPRINTF("?: [%s]\n", path);
 
+			if(strncmp(path, "/dev_flash/vsh/resource/qgl/earth.qrc", 37) == 0)
+			{
+				char new_earth[30];
+				static uint8_t earth_id = 0;
+				sprintf(new_earth, "/dev_bdvd/tmp/earth/%i.qrc", ++earth_id);
+
+				CellFsStat stat;
+				if(cellFsStat(new_earth, &stat) == 0)
+					set_patched_func_param(1, (uint64_t)new_earth);
+				else
+					earth_id = 0;
+				return;
+			}
+
 			////////////////////////////////////////////////////////////////////////////////////
 			// Photo_GUI integration with webMAN MOD - DeViL303 & AV                          //
 			////////////////////////////////////////////////////////////////////////////////////

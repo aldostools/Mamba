@@ -73,8 +73,8 @@ int ps3mapi_process_page_allocate(process_id_t pid, uint64_t size, uint64_t page
 #define PS3MAPI_OPCODE_UNLOAD_PROC_MODULE			0x0045
 #define PS3MAPI_OPCODE_UNLOAD_VSH_PLUGIN			0x0046 //Look in modulespatch.c for code.
 #define PS3MAPI_OPCODE_GET_VSH_PLUGIN_INFO			0x0047 //Look in modulespatch.c for code.
-#define PS3MAPI_OPCODE_GET_VSH_PLUGIN_BY_NAME		0x0048
-#define PS3MAPI_OPCODE_GET_PROC_MODULE_SEGMENTS		0x0049 // TheRouletteBoi
+#define PS3MAPI_OPCODE_GET_PROC_MODULE_SEGMENTS		0x0048 // TheRouletteBoi
+#define PS3MAPI_OPCODE_GET_VSH_PLUGIN_BY_NAME		0x004F
 
 #define MAX_FILE_LEN	256
 

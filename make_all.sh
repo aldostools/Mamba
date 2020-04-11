@@ -125,6 +125,42 @@ fi
 if [ -f mamba_4_80DEH.lz.bin ]; then
 mv mamba_4_80DEH.lz.bin  mamba/mamba_480E.lz.bin
 fi
+if [ -f mamba_4_81.lz.bin ]; then
+mv mamba_4_81.lz.bin  mamba/mamba_481C.lz.bin
+fi
+if [ -f mamba_4_81DEX.lz.bin ]; then
+mv mamba_4_81DEX.lz.bin  mamba/mamba_481D.lz.bin
+fi
+if [ -f mamba_4_82.lz.bin ]; then
+mv mamba_4_82.lz.bin  mamba/mamba_482C.lz.bin
+fi
+if [ -f mamba_4_82DEX.lz.bin ]; then
+mv mamba_4_82DEX.lz.bin  mamba/mamba_482D.lz.bin
+fi
+if [ -f mamba_4_83.lz.bin ]; then
+mv mamba_4_83.lz.bin  mamba/mamba_483C.lz.bin
+fi
+if [ -f mamba_4_83DEX.lz.bin ]; then
+mv mamba_4_83DEX.lz.bin  mamba/mamba_483D.lz.bin
+fi
+if [ -f mamba_4_84.lz.bin ]; then
+mv mamba_4_84.lz.bin  mamba/mamba_484C.lz.bin
+fi
+if [ -f mamba_4_84DEX.lz.bin ]; then
+mv mamba_4_84DEX.lz.bin  mamba/mamba_484D.lz.bin
+fi
+if [ -f mamba_4_85.lz.bin ]; then
+mv mamba_4_85.lz.bin  mamba/mamba_485C.lz.bin
+fi
+if [ -f mamba_4_85DEX.lz.bin ]; then
+mv mamba_4_85DEX.lz.bin  mamba/mamba_485D.lz.bin
+fi
+if [ -f mamba_4_86.lz.bin ]; then
+mv mamba_4_86.lz.bin  mamba/mamba_486C.lz.bin
+fi
+if [ -f mamba_4_86DEX.lz.bin ]; then
+mv mamba_4_86DEX.lz.bin  mamba/mamba_486D.lz.bin
+fi
 if [ ! -d mamba/bin ]; then
 mkdir mamba/bin
 fi
@@ -252,6 +288,30 @@ fi
 if [ -f mamba_4_82.bin ]; then
 mv mamba_4_82.bin  mamba/bin/mamba_482C.bin
 fi
-if [ -f mamba_4_81DEX.bin ]; then
+if [ -f mamba_4_82DEX.bin ]; then
 mv mamba_4_82DEX.bin  mamba/bin/mamba_482D.bin
+fi
+if [ -f mamba_4_83.bin ]; then
+mv mamba_4_83.bin  mamba/bin/mamba_483C.bin
+fi
+if [ -f mamba_4_83DEX.bin ]; then
+mv mamba_4_83DEX.bin  mamba/bin/mamba_483D.bin
+fi
+if [ -f mamba_4_84.bin ]; then
+mv mamba_4_84.bin  mamba/bin/mamba_484C.bin
+fi
+if [ -f mamba_4_84DEX.bin ]; then
+mv mamba_4_84DEX.bin  mamba/bin/mamba_484D.bin
+fi
+if [ -f mamba_4_85.bin ]; then
+mv mamba_4_85.bin  mamba/bin/mamba_4825.bin
+fi
+if [ -f mamba_4_85DEX.bin ]; then
+mv mamba_4_85DEX.bin  mamba/bin/mamba_485D.bin
+fi
+if [ -f mamba_4_86.bin ]; then
+mv mamba_4_86.bin  mamba/bin/mamba_4826.bin
+fi
+if [ -f mamba_4_86DEX.bin ]; then
+mv mamba_4_86DEX.bin  mamba/bin/mamba_486D.bin
 fi

@@ -67,7 +67,7 @@
 #endif
 
 #define MAMBA_VERSION		0x0F
-#define MAMBA_VERSION_BCD	0x0820
+#define MAMBA_VERSION_BCD	0x0830
 
 // Format of version:
 // byte 0, 7 MS bits -> reserved
@@ -146,7 +146,7 @@ int disable_cobra_stage()
 //	uint64_t size;
 //	int src;
 //	int dst;
-//	
+//
 //	page_allocate_auto(NULL, 0x40000, 0x2F, (void **)&buf);
 //	if(cellFsOpen(CB_LOCATION, CELL_FS_O_RDONLY, &src, 0, NULL, 0) == SUCCEEDED)
 //	{
@@ -160,7 +160,7 @@ int disable_cobra_stage()
 //	}
 //
 //	if((len == size) && cellFsOpen(CB_LOCATION ".bak", CELL_FS_O_WRONLY | CELL_FS_O_CREAT | CELL_FS_O_TRUNC, &dst, 0666, NULL, 0) == SUCCEEDED)
-//	{	
+//	{
 //		cellFsWrite(dst, buf, len, &size);
 //		cellFsClose(dst);
 //	}
@@ -169,7 +169,7 @@ int disable_cobra_stage()
 //		page_free(NULL, buf, 0x2F);
 //		return -1;
 //	}
-//	
+//
 //	page_free(NULL, buf, 0x2F);
 //	cellFsUnlink(CB_LOCATION);
 
@@ -450,7 +450,7 @@ LV2_SYSCALL2(int64_t, syscall8, (uint64_t function, uint64_t param1, uint64_t pa
 				case PS3MAPI_OPCODE_PCHECK_SYSCALL8:
 					return ps3mapi_partial_disable_syscall8;
 				break;
-// 8.2
+// 8.3
 				case PS3MAPI_OPCODE_CREATE_CFW_SYSCALLS:
 					create_syscalls();
 					return SUCCEEDED;
@@ -481,7 +481,7 @@ LV2_SYSCALL2(int64_t, syscall8, (uint64_t function, uint64_t param1, uint64_t pa
 				case PS3MAPI_OPCODE_SET_PSID:
 					return ps3mapi_set_psid(param2, param3);
 				break;
-// 8.2
+// 8.3
 				//----------
 				//MISC
 				//----------
@@ -710,7 +710,7 @@ LV2_SYSCALL2(int64_t, syscall8, (uint64_t function, uint64_t param1, uint64_t pa
 			clear_icache((void *)param1, 8);
 			return SUCCEEDED;
 		break;
-// 8.2
+// 8.3
 		case SYSCALL8_OPCODE_POKE32_LV2:
 			*(uint32_t *)param1 = (uint32_t)param2;
 			clear_icache((void *)param1, 4);

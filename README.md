@@ -31,11 +31,19 @@ Version of mamba that includes ps3m_api_core by NzV and ps2, psp iso support by 
 	. On-the-fly reActPSN for activation of PSN content (rap files, edat, act.dat) by habib
 	. Load Kernel Plugins on startup or on demand (static & dynamic addresses) by habib
 	. Advanced QA Flag & Debug Settings Enabler by habib
+	. Custom Syscalls for set / get fan policy by habib
+	. LV2 module patches for download_plugin, autodownload_plugin, nas_plugin, psp remote play, etc. by Joonie/DeViL303
+	. Improvements to PS3MAPI by TheRouletteBoi
+		- Added a better set process memory by using the function used to actually write to process, this will allow user to write to memory where writing permissions are disabled.
+		- Added ps3mapi_process_page_allocate this function will allocate memory into the eboot process allowing your to write/read/execute code into start_address parameter
+		- Added ps3mapi_get_process_module_info which will get the name, module path, module segments, module start and module stop address all in one function
+		- Added ps3mapi_create_process_thread to create thread into the process, This is useful if you want to load a small function into the process without needed make and load a sprx module
+
+- New features in 8.3:
 	. Restore disabled CFW Syscalls without Reboot just entering to Settings > System Update on XMB by aldo
 	. Auto-enable dev_blind by aldo
 	. Integrated fan controller (to control fan when webMAN is unloaded) by aldo
 	. Support Photo GUI integration with webMAN MOD (mount games from Photo column) by aldo/DeViL303
-	. LV2 module patches for download_plugin, autodownload_plugin, nas_plugin, psp remote play, etc. by Joonie/DeViL303
 	. Extended API with additional opcodes for developers by aldo
 		. LV1 Pokes (8bit, 16bit, 32bit, 64bit)
 		. LV2 Pokes (8bit, 16bit, 32bit, 64bit)
@@ -46,7 +54,6 @@ Version of mamba that includes ps3m_api_core by NzV and ps2, psp iso support by 
 		. Create CFW Syscalls (6,7,8,9,10,11,15,389,409)
 		. Updated ps3mapi_load_process_modules to load custom modules and system modules (by haxxxen)
 		. Added ps3mapi_get_process_module_info
-	. Custom Syscalls for set / get fan policy by habib
 	. Increased from 24 to 32 the max number of map paths by aldo
 
 ----------------------------------------------------------------------

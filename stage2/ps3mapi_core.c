@@ -231,6 +231,11 @@ int ps3mapi_process_page_allocate(process_id_t pid, uint64_t size, uint64_t page
 		return ret;
 	}
 
+	if (kbuf)
+	{
+		page_free(process, kbuf, flags);
+	}
+
 	return SUCCEEDED;
 }
 #endif
@@ -348,21 +353,15 @@ int ps3mapi_get_process_module_segments(process_id_t pid, sys_prx_id_t prx_id, s
 	{
 		ret = copy_to_user(segments, (void *)(uintptr_t)modinfo.segments, modinfo.segments_num * sizeof(sys_prx_segment_info_t));
 
-		if (ret != SUCCEEDED)
+		if (ret == SUCCEEDED)
 		{
-			dealloc(segments, 0x35);
-			return ret;
+			ret = copy_to_user(filename, (void *)(uintptr_t)modinfo.filename, modinfo.filename_size);
+
+			if (ret == SUCCEEDED)
+			{
+				ret = copy_to_user(&modinfo, info, 0x48);
+			}
 		}
-
-		ret = copy_to_user(filename, (void *)(uintptr_t)modinfo.filename, modinfo.filename_size);
-
-		if (ret != SUCCEEDED)
-		{
-			dealloc(filename, 0x35);
-			return ret;
-		}
-
-		ret = copy_to_user(&modinfo, info, 0x48);
 	}
 
 	dealloc(filename, 0x35);

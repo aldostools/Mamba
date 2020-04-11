@@ -1731,7 +1731,7 @@ static INLINE ScsiTrackDescriptor *find_track_by_lba(uint32_t lba)
 	return NULL;
 }
 
-static uint16_t q_crc_lut[256] = 
+static uint16_t q_crc_lut[256] =
 {
 	0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50A5, 0x60C6, 0x70E7, 0x8108,
 	0x9129, 0xA14A, 0xB16B, 0xC18C, 0xD1AD, 0xE1CE, 0xF1EF, 0x1231, 0x0210,
@@ -2864,7 +2864,7 @@ LV2_HOOKED_FUNCTION(int, shutdown_copy_params_patched, (uint8_t *argp_user, uint
 					buf[0x706] = 't'; // 0x74;
 
 					int fd;
-	
+
 					if (cellFsOpen(PS2EMU_CONFIG_FILE, CELL_FS_O_WRONLY | CELL_FS_O_CREAT | CELL_FS_O_TRUNC, &fd, 0666, NULL, 0) == 0)
 					{
 						cellFsWrite(fd, buf, 0x1000, &nwritten);
@@ -3806,10 +3806,10 @@ void storage_ext_patches(void)
 #ifdef PS3M_API
 void unhook_all_storage_ext(void)
 {
-#if defined (FIRMWARE_482C) || defined (FIRMWARE_483C) || defined (FIRMWARE_484C) || defined (FIRMWARE_485C)
+#if defined (FIRMWARE_482C) || defined (FIRMWARE_483C) || defined (FIRMWARE_484C) || defined (FIRMWARE_485C) || defined (FIRMWARE_486C)
 	*(uint32_t *)MKA(device_event_port_send_call) = 0x4BD91004;
 	*(uint32_t *)MKA(shutdown_copy_params_call)   = 0x48004FBD;
-#elif defined (FIRMWARE_482D) || defined (FIRMWARE_483D) || defined (FIRMWARE_484D) || defined (FIRMWARE_485D)
+#elif defined (FIRMWARE_482D) || defined (FIRMWARE_483D) || defined (FIRMWARE_484D) || defined (FIRMWARE_485D) || defined (FIRMWARE_486D)
 	*(uint32_t *)MKA(device_event_port_send_call) = 0x4BD7CAC4;
 	*(uint32_t *)MKA(shutdown_copy_params_call)   = 0x48005585;
 #endif

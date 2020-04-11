@@ -39,9 +39,9 @@
 #include "symbols_480D.h"
 #include "symbols_481C.h"
 #include "symbols_481D.h"
-#include "symbols_482C-485C.h"
-#include "symbols_482D-485D.h"
-#include "symbols_475E-485E.h"
+#include "symbols_482C-486C.h"
+#include "symbols_482D-486D.h"
+#include "symbols_475E-486E.h"
 
 #ifdef SHA1_init_symbol
 #ifdef strrchr_symbol
