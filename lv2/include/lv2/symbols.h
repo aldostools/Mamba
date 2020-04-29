@@ -65,4 +65,11 @@
  #define APPLY_KERNEL_PATCHES
 #endif
 
+#ifdef ps2tonet_size_patch
+ #undef ps2tonet_patch
+#endif
+#ifndef VSH_HASH
+ #undef ps2tonet_patch
+#endif
+
 #endif /* __FIRMWARE_SYMBOLS_H_S__ */

@@ -16,18 +16,18 @@ static INLINE void get_rebug_vsh()
 	#endif
 }
 
-uint64_t vsh_offset = 0;
+uint64_t vsh_offset = vsh_pos_in_ram;
 
 static INLINE int get_vsh_offset()
 {
 	get_rebug_vsh();
 
-	//First try with static offset..
-	if( (lv1_peekd(vsh_pos_in_ram + 0x200) == 0xF821FF917C0802A6ULL) &&
-		(lv1_peekd(vsh_pos_in_ram + 0x208) == 0xF80100804800039DULL) &&
-		(lv1_peekd(vsh_pos_in_ram + 0x210) == 0x6000000048000405ULL) )
+	//First try with default static offset..
+	if( (lv1_peekd(vsh_offset + 0x200) == 0xF821FF917C0802A6ULL) &&
+		(lv1_peekd(vsh_offset + 0x208) == 0xF80100804800039DULL) &&
+		(lv1_peekd(vsh_offset + 0x210) == 0x6000000048000405ULL) )
 	{
-		vsh_offset = vsh_pos_in_ram;
+		//vsh_offset = vsh_pos_in_ram;
 		#ifdef DEBUG
 		DPRINTF("Vsh.self found with static offset at address 0x%lx\n", vsh_offset);
 		#endif
@@ -35,6 +35,7 @@ static INLINE int get_vsh_offset()
 	//..if that not work brute-force the address
 	else
 	{
+		vsh_offset = 0;
 		for(int i = 0x10000; i < 0x3000000; i += 0x10000)
 		{
 			if(lv1_peekd(i + 0x200) == 0xF821FF917C0802A6ULL)
@@ -52,14 +53,14 @@ static INLINE int get_vsh_offset()
 				}
 			}
 		}
-	}
-	//Vsh not found
-	if(vsh_offset == 0)
-	{
-		#ifdef DEBUG
-		DPRINTF("Vsh.self not found!!\n");
-		#endif
-		return -1;
+		//Vsh not found
+		if(vsh_offset == 0)
+		{
+			#ifdef DEBUG
+			DPRINTF("Vsh.self not found!!\n");
+			#endif
+			return -1;
+		}
 	}
 
 	return 0;
@@ -77,9 +78,11 @@ static INLINE int ps2_vsh_patches()
 	if(vsh_offset == 0)
 		return EINVAL;
 
-	uint64_t ps2tonet = ps2tonet_patch, ps2tonet_size = ps2tonet_size_patch;
-	uint64_t value = 0, addr = 0, addr2 = 0;
+	uint64_t addr = 0, addr2 = 0;
 	int i = 0, mv_offset = 0;
+
+	#ifdef ps2tonet_patch
+	uint64_t ps2tonet = ps2tonet_patch, ps2tonet_size = ps2tonet_size_patch;
 
 	if(vsh_type == 0xCE)
 	{
@@ -104,6 +107,7 @@ static INLINE int ps2_vsh_patches()
 
 	//Find ps2tonet_patch patches
 	//First try with static offset..
+	uint64_t value = 0;
 	addr = (vsh_offset + ps2tonet_size);
 	addr2 = (vsh_offset + ps2tonet);
 
@@ -143,6 +147,7 @@ static INLINE int ps2_vsh_patches()
 			}
 		}
 	}
+	#endif
 
 	//brute-force
 	mv_offset = (vsh_offset + 0x700);
@@ -175,12 +180,12 @@ static INLINE int ps2_vsh_patches()
 				#endif
 				return 0;
 			}
+			#ifdef DEBUG
 			else
 			{
-				#ifdef DEBUG
 				DPRINTF("WARNING: ps2tonet_size_patch not found!!\n");
-				#endif
 			}
+			#endif
 		}
 	}
 

@@ -307,14 +307,14 @@
 
 	//////////////////// modulespatch.h	//////////////////////
 
-	#define	VSH_HASH										0xb6b6d000002e0000
+	#define	VSH_HASH										0xb6b6d000002e6000
 	#define	BDP_DISC_CHECK_PLUGIN_HASH						0x9940000000003000
 	#define	EXPLORE_PLUGIN_HASH								0xc50d0000000e0000
-	#define	EXPLORE_CATEGORY_GAME_HASH						0xde52c00000050000
+	#define	EXPLORE_CATEGORY_GAME_HASH						0xde52d00000050000
 	#define	PS1_EMU_HASH									0xcc28400000090000
 	#define	PS1_NETEMU_HASH									0xcc284000000b0000
 	#define	GAME_EXT_PLUGIN_HASH							0xcc26800000010000
-#define	LIBFS_EXTERNAL_HASH									0x05fd000000006000
+	#define	LIBFS_EXTERNAL_HASH								0x05fd000000006000
 	#define	NAS_PLUGIN_HASH									0xc50d000000020000
 	#define	BDP_BDMV_HASH									0xcc28700000370000
 	#define	BDP_BDVD_HASH									0xcc28d00000430000

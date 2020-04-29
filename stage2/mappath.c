@@ -47,13 +47,19 @@ static uint8_t *path_entries = NULL;
 
 static void init_map_entry(uint8_t index)
 {
+	if( map_table[index].newpath
+		&& (map_table[index].newpath_len > 3)
+		&& (map_table[index].newpath[0] == '/')
+		&& (map_table[index].newpath[1] == '.')
+		&& (map_table[index].newpath[2] == '/') ) return; // protect from deletion existing newpath like "/./*"
+
 	map_table[index].oldpath = NULL;
 	map_table[index].newpath = NULL;
 	map_table[index].oldpath_len = 0;
 	map_table[index].newpath_len = 0;
 	map_table[index].flags = 0;
 }
-
+/*
 void map_first_slot(char *oldpath, char *newpath)
 {
 	first_slot = 0;
@@ -73,7 +79,7 @@ void map_first_slot(char *oldpath, char *newpath)
 
 	return;
 }
-
+*/
 int map_path(char *oldpath, char *newpath, uint32_t flags)
 {
 	int8_t i, firstfree = -1, is_dev_bdvd = 0;
@@ -286,6 +292,8 @@ int sys_map_paths(char *paths[], char *new_paths[], unsigned int num)
 }
 
 static uint8_t libft2d_access = 0;
+static uint8_t auto_earth = 0;
+static uint8_t earth_id = 0;
 
 #ifdef DO_REACTPSN
 #include "make_rif.h"
@@ -328,11 +336,13 @@ LV2_HOOKED_FUNCTION_POSTCALL_2(void, open_path_hook, (char *path0, int mode))
 		{
 			//DPRINTF("?: [%s]\n", path);
 
-			if(strncmp(path, "/dev_flash/vsh/resource/qgl/earth.qrc", 37) == 0)
+			////////////////////////////////////////////////////////////////////////////////////
+			// Auto change earth.qrc - DeViL303 & AV                                          //
+			////////////////////////////////////////////////////////////////////////////////////
+			if(auto_earth && (strncmp(path, "/dev_flash/vsh/resource/qgl/earth.qrc", 37) == 0))
 			{
 				char new_earth[30];
-				static uint8_t earth_id = 0;
-				sprintf(new_earth, "/dev_bdvd/tmp/earth/%i.qrc", ++earth_id);
+				sprintf(new_earth, "%s/%i.qrc", "/dev_hdd0/tmp/earth", ++earth_id);
 
 				CellFsStat stat;
 				if(cellFsStat(new_earth, &stat) == 0)
@@ -497,6 +507,9 @@ void map_path_patches(int syscall)
 	hook_function_with_postcall(open_path_symbol, open_path_hook, 2);
 
 	open_path_callback.addr = NULL;
+
+	CellFsStat stat;
+	auto_earth = (cellFsStat("/dev_hdd0/tmp/earth", &stat) == 0); // auto rotare 1.qrc to 255.qrc each time earth.qrc is accessed
 
 	if (syscall)
 		create_syscall2(SYS_MAP_PATH, sys_map_path);

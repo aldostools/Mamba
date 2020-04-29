@@ -5,7 +5,7 @@
 LV2_SYSCALL2(uint64_t, sys_cfw_lv1_peek, (uint64_t lv1_addr))
 {
 	#ifdef DEBUG
-	DPRINTF("LV1 peek %016lx\n", lv1_addr);
+	DPRINTF("lv1_peek %p\n", (void*)lv1_addr);
 	#endif
 
 	uint64_t ret;
@@ -17,7 +17,7 @@ LV2_SYSCALL2(uint64_t, sys_cfw_lv1_peek, (uint64_t lv1_addr))
 LV2_SYSCALL2(void, sys_cfw_lv1_poke, (uint64_t lv1_addr, uint64_t lv1_value))
 {
 	#ifdef DEBUG
-	DPRINTF("LV1 poke %016lx %016lx\n", lv1_addr, lv1_value);
+	DPRINTF("LV1 poke %p %016lx\n", (void*)lv1_addr, lv1_value);
 	#endif
 
 	lv1_poked(lv1_addr, lv1_value);
@@ -83,7 +83,7 @@ void _sys_cfw_poke(uint64_t *addr, uint64_t value);
 LV2_HOOKED_FUNCTION(void, sys_cfw_new_poke, (uint64_t *addr, uint64_t value))
 {
 	#ifdef DEBUG
-	DPRINTF("New poke called\n");
+	DPRINTF("New poke called %p %016lx\n", addr, value);
 	#endif
 
 	_sys_cfw_poke(addr, value);

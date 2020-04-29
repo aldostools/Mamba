@@ -43,6 +43,10 @@ int ps3mapi_unload_vsh_plugin(char* name);
 int ps3mapi_get_vsh_plugin_info(unsigned int slot, char *name, char *filename);
 #endif
 
+#ifdef ps2tonet_patch
+int bc_to_net(int param);
+#endif
+
 // post_lv1_call_99_wrapper
 int um_if_get_token(uint8_t *token,uint32_t token_size,uint8_t *seed,uint32_t seed_size);
 int read_eeprom_by_offset(uint32_t offset, uint8_t *value, uint64_t auth_id);

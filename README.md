@@ -47,8 +47,11 @@ Version of mamba that includes ps3m_api_core by NzV and ps2, psp iso support by 
 	. Extended API with additional opcodes for developers by aldo
 		. LV1 Pokes (8bit, 16bit, 32bit, 64bit)
 		. LV2 Pokes (8bit, 16bit, 32bit, 64bit)
-		. Map Path Callback (experimental)
-		. Get Map Path info
+		. Extended Map Path features:
+			. Support for non deletable map path entries (allow updates) /./path/etc
+			. Support for partial map paths (search non existing files in original path) //path/etc
+			. Map Path Callback (experimental)
+			. Get Map Path info
 		. Get / Set fan speed
 		. Enable/disable features: Photo GUI, Auto mount dev_blind, Restore Syscalls
 		. Create CFW Syscalls (6,7,8,9,10,11,15,389,409)

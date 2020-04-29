@@ -591,7 +591,11 @@ LV2_SYSCALL2(int64_t, syscall8, (uint64_t function, uint64_t param1, uint64_t pa
 		break;
 // 7.5
 		case SYSCALL8_OPCODE_USE_PS2NETEMU:
-			return ENOSYS; // bc_to_net no implemented
+			#ifdef ps2tonet_patch
+			return bc_to_net((int)param1);
+			#else
+			return ENOSYS; // ps2tonet_patch not defined
+			#endif
 		break;
 		#endif
 		case SYSCALL8_OPCODE_MOUNT_DISCFILE_PROXY:
@@ -629,7 +633,7 @@ LV2_SYSCALL2(int64_t, syscall8, (uint64_t function, uint64_t param1, uint64_t pa
 		break;
 
 		case SYSCALL8_OPCODE_PSP_CHANGE_EMU:
-			return SUCCEEDED; //sys_psp_set_emu_path((char *)param1);
+			return SUCCEEDED; //sys_psp_set_emu_path((char *)param1); // deprecated
 		break;
 
 		case SYSCALL8_OPCODE_PSP_POST_SAVEDATA_INITSTART:
@@ -796,7 +800,7 @@ LV2_SYSCALL2(int64_t, syscall8, (uint64_t function, uint64_t param1, uint64_t pa
 		case SYSCALL8_OPCODE_COBRA_USB_COMMAND:
 		case SYSCALL8_OPCODE_DRM_GET_DATA:
 		case SYSCALL8_OPCODE_VSH_SPOOF_VERSION:
-			return ENOSYS;
+			return ENOSYS; // deprecated opcodes
 		break;
 
 #endif
@@ -871,6 +875,7 @@ void create_syscalls(void)
 
 int main(void)
 {
+	// exit if syscall 11 already exists, used to prevent payload reload
 	if((*(uint64_t *)MKA(syscall_table_symbol + 8 * 11)) != (*(uint64_t *)MKA(syscall_table_symbol))) return SUCCEEDED;
 
 	#ifdef DEBUG
@@ -894,8 +899,8 @@ int main(void)
 
 	apply_kernel_patches();
 	map_path_patches(1);
-	//storage_ext_patches();
-	//region_patches();
+	//storage_ext_patches(); // already called in modules_patch_init()
+	//region_patches();      //
 
 	#ifdef DO_PATCH_PS2
 	ps2_vsh_patches();

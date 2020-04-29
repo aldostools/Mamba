@@ -393,8 +393,10 @@ static uint8_t condition_true = 1;
 uint8_t condition_ps2softemu = 0;
 
 ///////////////////
-/*
+#ifdef ps2tonet_patch
 static uint8_t condition_false = 0;
+static uint64_t vsh_check = 0;
+static int bc_to_net_status = 0;
 
 static SprxPatch main_vsh_patches[] =
 {
@@ -405,7 +407,8 @@ static SprxPatch main_vsh_patches[] =
 	//{ game_update_offset, LI(R3, -1), &condition_disable_gameupdate }, [DISABLED by DEFAULT since 4.46]
 	//{ psp_newdrm_patch, LI(R3, 0), &condition_true }, // Fixes the issue (80029537) with PSP Pkg games
 	{ 0 }
-};*/
+};
+#endif
 
 static SprxPatch game_ext_plugin_patches[] =
 {
@@ -748,6 +751,9 @@ static PatchTableEntry patch_table[] =
 	{ LIBSYSUTIL_SAVEDATA_PSP_HASH, libsysutil_savedata_psp_patches },
 #endif
 #ifdef DO_PATCH_PS2
+#ifdef ps2tonet_patch
+	{ VSH_HASH, main_vsh_patches },
+#endif
 	{ EXPLORE_PLUGIN_HASH, explore_plugin_patches },
 	{ EXPLORE_CATEGORY_GAME_HASH, explore_category_game_patches },
 	{ GAME_EXT_PLUGIN_HASH, game_ext_plugin_patches },
@@ -985,6 +991,13 @@ LV2_PATCHED_FUNCTION(int, modules_patching, (uint64_t *arg1, uint32_t *arg2))
 		#ifdef DO_PATCH_PSP
 		//uint64_t pspemu_off = pspemu_path_offset, psptrans_off = psptrans_path_offset;
 
+		#ifdef ps2tonet_patch
+		if(trunc_hash == (VSH_HASH >> 16))
+		{
+			vsh_check = VSH_HASH;
+		}
+		else
+		#endif
 		if(trunc_hash == (EMULATOR_DRM_HASH >> 16))
 		{
 			if (condition_psp_keys)
@@ -1139,6 +1152,55 @@ LV2_HOOKED_FUNCTION_PRECALL_SUCCESS_8(int, load_process_hooked, (process_t proce
 	return 0;
 }
 
+#ifdef ps2tonet_patch
+int bc_to_net(int param)
+{
+	//returns:
+	//0=disabled
+	//1=enabled
+	//-1=its not a bc/semi-bc console
+
+	if(condition_ps2softemu)
+		return -1;
+
+	if (!vsh_process) {vsh_process = get_vsh_process(); //NzV
+	if (!vsh_process) return ESRCH;}
+
+	if(param == 1) //enable netemu
+	{
+		switch(vsh_check)
+		{
+			case VSH_HASH:
+			copy_to_process(vsh_process, &main_vsh_patches[0].data, (void *)(uint64_t)(0x10000 + main_vsh_patches[0].offset), 4);
+			copy_to_process(vsh_process, &main_vsh_patches[1].data, (void *)(uint64_t)(0x10000 + main_vsh_patches[1].offset), 4);
+			break;
+		}
+
+		bc_to_net_status = 1;
+		return 1;
+	}
+
+	if(param == 0) //restore
+	{
+		switch(vsh_check)
+		{
+			case VSH_HASH:
+			copy_to_process(vsh_process, &main_vsh_patches[2].data, (void *)(uint64_t)(0x10000 + main_vsh_patches[2].offset), 4);
+			copy_to_process(vsh_process, &main_vsh_patches[3].data, (void *)(uint64_t)(0x10000 + main_vsh_patches[3].offset), 4);
+			break;
+		}
+
+		bc_to_net_status = 0;
+		return 0;
+	}
+
+	if(param == 2)
+		return bc_to_net_status;
+
+	return -2;
+}
+#endif
+
 #ifdef PS3M_API
 void pre_map_process_memory(void *object, uint64_t process_addr, uint64_t size, uint64_t flags, void *unk, void *elf, uint64_t *out);
 
@@ -1209,7 +1271,7 @@ int prx_load_vsh_plugin(unsigned int slot, char *path, void *arg, uint32_t arg_s
 	sys_prx_id_t prx;
 	int ret;
 	if (!vsh_process) {vsh_process = get_vsh_process(); //NzV
-	if(!vsh_process) return ESRCH;}
+	if (!vsh_process) return ESRCH;}
 
 	if (slot >= MAX_VSH_PLUGINS || (arg != NULL && arg_size > KB(64)))
 		return EINVAL;
@@ -1334,7 +1396,7 @@ int prx_unload_vsh_plugin(unsigned int slot)
 		return ENOENT;
 
 	if (!vsh_process) {vsh_process = get_vsh_process(); //NzV
-	if(!vsh_process) return ESRCH;}
+	if (!vsh_process) return ESRCH;}
 	ret = prx_stop_module_with_thread(prx, vsh_process, 0, 0);
 	if (ret == SUCCEEDED)
 		ret = prx_unload_module(prx, vsh_process);
