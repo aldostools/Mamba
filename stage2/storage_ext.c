@@ -1187,6 +1187,16 @@ static int is_psx(int check_ps2)
 				{
 					result = read_real_disc_sector(buf, 0x01, 1, 3);
 					ret = (memcmp(buf, "PlayStation3", 12) == SUCCEEDED);
+					if(!ret)
+					{
+						// check for PS3_GAME folder if disc was burned with a generic tool
+						result = read_real_disc_sector(buf, 0x14, 1, 3); // 0xA000
+						for(uint8_t i = 0x12; i < 0x40; i++)
+						{
+							ret = (memcmp(buf + i, "PS3_GAME", 8) == SUCCEEDED);
+							if(ret) break;
+						}
+					}
 				}
 				page_free(NULL, buf, 0x2F);
 				return ret;
