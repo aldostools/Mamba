@@ -766,17 +766,17 @@ int sys_psp_set_emu_path(char *path)
 		return 0;
 	}
 
-	//#ifdef DEBUG
-	//DPRINTF("sys_psp_set_emu_path has been deleted\n");
-	//#endif
+	#ifdef DEBUG
+	DPRINTF("sys_psp_set_emu_path has been deleted\n");
+	#endif
 
-	//DPRINTF("pspemu path set to %s\n", path);
+	DPRINTF("pspemu path set to %s\n", path);
 
-	//path = get_secure_user_ptr(path);
-	//condition_psp_change_emu = 1;
+	path = get_secure_user_ptr(path);
+	condition_psp_change_emu = 1;
 
-	//snprintf(pspemu_path, sizeof(pspemu_path), "%s/psp_emulator.self", path);
-	//snprintf(psptrans_path, sizeof(psptrans_path), "%s/psp_translator.self", path);
+	snprintf(pspemu_path, sizeof(pspemu_path), "%s/psp_emulator.self", path);
+	snprintf(psptrans_path, sizeof(psptrans_path), "%s/psp_translator.self", path);
 
 	return 0;
 }

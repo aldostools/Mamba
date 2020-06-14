@@ -424,7 +424,7 @@ static SprxPatch game_ext_plugin_patches[] =
 };
 
 /*
-SprxPatch basic_plugins_patches[] =
+static SprxPatch basic_plugins_patches[] =
 {
 	//{ ps1emu_type_check_offset, NOP, &condition_true }, // Loads ps1_netemu.self
 	//{ ps1emu_type_check_offset, 0x409E000C, &condition_true }, // Loads original ps1_emu.self
@@ -990,7 +990,6 @@ LV2_PATCHED_FUNCTION(int, modules_patching, (uint64_t *arg1, uint32_t *arg2))
 
 		#ifdef DO_PATCH
 		uint64_t trunc_hash = (hash >> 16), plugin_trunc_hash = 0;
-		#ifdef DO_PATCH_PSP
 		//uint64_t pspemu_off = pspemu_path_offset, psptrans_off = psptrans_path_offset;
 
 		#ifdef ps2tonet_patch
@@ -998,8 +997,8 @@ LV2_PATCHED_FUNCTION(int, modules_patching, (uint64_t *arg1, uint32_t *arg2))
 		{
 			vsh_check = VSH_HASH;
 		}
-		else
 		#endif
+		#ifdef DO_PATCH_PSP
 		if(trunc_hash == (EMULATOR_DRM_HASH >> 16))
 		{
 			if (condition_psp_keys)
@@ -1010,7 +1009,7 @@ LV2_PATCHED_FUNCTION(int, modules_patching, (uint64_t *arg1, uint32_t *arg2))
 			if (condition_psp_keys)
 			{
 				buf[psp_drm_key_overwrite/4] = psp_tag;
-				memcpy(buf+((psp_drm_key_overwrite+8)/4), psp_keys, 16);
+				memcpy(buf + ((psp_drm_key_overwrite + 8)/4), psp_keys, 16);
 			}
 		}
 /*
@@ -1035,35 +1034,36 @@ LV2_PATCHED_FUNCTION(int, modules_patching, (uint64_t *arg1, uint32_t *arg2))
 			}
 		}
 */
-//		else if(trunc_hash == (BASIC_PLUGINS_HASH >> 16)
-//		#ifdef BASIC_PLUGINS_REBUG_HASH
-//		|| trunc_hash == (BASIC_PLUGINS_REBUG_HASH >> 16)
-//		#endif
-//		)
-//		{
-//			if(condition_psp_change_emu)
-//			{
-//				//rebug rex
-//				if(vsh_type != 0x666)
-//				{
-//					#ifdef dex_pspemu_path_offset
-//					pspemu_off = dex_pspemu_path_offset;
-//					psptrans_off = dex_psptrans_path_offset;
-//					//weird rebug 4.30 drex with basic_plugins CEX
-//					#elif cex_pspemu_path_offset
-//					pspemu_off = cex_pspemu_path_offset;
-//					psptrans_off = cex_psptrans_path_offset;
-//					#endif
-//				}
-//				#ifdef DEBUG
-//				DPRINTF("pspemu_path_offset: 0x%lx\npsptrans_path_offset: 0x%lx\n", pspemu_off, psptrans_off);
-//				#endif
-//
-//				memcpy(((char *)buf)+pspemu_off, pspemu_path, sizeof(pspemu_path));
-//				memcpy(((char *)buf)+psptrans_off, psptrans_path, sizeof(psptrans_path));
-//			}
-//		}
+/*
+		else if(trunc_hash == (BASIC_PLUGINS_HASH >> 16)
+		#ifdef BASIC_PLUGINS_REBUG_HASH
+		|| trunc_hash == (BASIC_PLUGINS_REBUG_HASH >> 16)
+		#endif
+		)
+		{
+			if(condition_psp_change_emu)
+			{
+				//rebug rex
+				if(vsh_type != 0x666)
+				{
+					#ifdef dex_pspemu_path_offset
+					pspemu_off = dex_pspemu_path_offset;
+					psptrans_off = dex_psptrans_path_offset;
+					//weird rebug 4.30 drex with basic_plugins CEX
+					#elif cex_pspemu_path_offset
+					pspemu_off = cex_pspemu_path_offset;
+					psptrans_off = cex_psptrans_path_offset;
+					#endif
+				}
+				#ifdef DEBUG
+				DPRINTF("pspemu_path_offset: 0x%lx\npsptrans_path_offset: 0x%lx\n", pspemu_off, psptrans_off);
+				#endif
 
+				memcpy(((char *)buf)+pspemu_off, pspemu_path, sizeof(pspemu_path));
+				memcpy(((char *)buf)+psptrans_off, psptrans_path, sizeof(psptrans_path));
+			}
+		}
+*/
 		#endif
 
 		if(vsh_type != 0x666)

@@ -124,6 +124,10 @@ static const uint8_t encrypted_image_keys[16] =
 	0x11, 0x0C, 0xE4, 0x15, 0xDD, 0x39, 0x76, 0x8C,
 	0x90, 0xB6, 0x40, 0xF5, 0xCB, 0x33, 0xC6, 0xB6
 };
+
+static char *encrypted_image;
+static int encrypted_image_fd = -1;
+static uint64_t encrypted_image_nonce;
 */
 static mutex_t mutex;
 static event_port_t command_port, result_port;
@@ -165,16 +169,22 @@ int emu_storage_read(device_handle_t device_handle, uint64_t unk, uint64_t start
 
 //////////////////// READ & SAVE FILE /////////////////////
 
-size_t read_file(const char *path, void *buf, size_t size)
+size_t read_file_at_offset(const char *path, void *buf, size_t size, uint64_t offset)
 {
 	int fd;
 	if (cellFsOpen(path, CELL_FS_O_RDONLY, &fd, 0, NULL, 0) == SUCCEEDED)
 	{
+		cellFsLseek(fd, offset, SEEK_SET, &offset);
 		cellFsRead(fd, buf, size, &size);
 		cellFsClose(fd);
 		return size;
 	}
 	return 0;
+}
+
+size_t read_file(const char *path, void *buf, size_t size)
+{
+	return read_file_at_offset(path, buf, size, 0);
 }
 
 int save_file(const char *path, void *buf, size_t size)
@@ -3194,24 +3204,8 @@ static int mount_ps2_discfile(unsigned int filescount, char *files[], unsigned i
 	}
 	else
 	{
-		int fd;
-
-		ret = cellFsOpen(files[0], CELL_FS_O_RDONLY, &fd, 0, NULL, 0);
-		if (ret != SUCCEEDED)
-			return ret;
-
-		uint64_t pos, nread;
 		uint8_t buf[0xB0];
-
-		cellFsLseek(fd, 0x8000, SEEK_SET, &pos);
-		ret = cellFsRead(fd, buf, sizeof(buf), &nread);
-		cellFsClose(fd);
-
-		if (ret != SUCCEEDED)
-		{
-			return ret;
-		}
-		else if (nread != sizeof(buf))
+		if (read_file_at_offset(files[0], buf, 0xB0, 0x8000) != 0xB0)
 		{
 			return EINVAL;
 		}
@@ -3249,11 +3243,11 @@ static int mount_ps2_discfile(unsigned int filescount, char *files[], unsigned i
 	return ret;
 }
 #endif
-
+/*
 LV2_PATCHED_FUNCTION(int, fsloop_open, (const char *path, int flags, int *fd, int mode, void *arg, uint64_t size))
 {
 	int ret = cellFsOpen(path, flags, fd, mode, arg, size);
-/*
+
 	if (ret == SUCCEEDED)
 	{
 		if (encrypted_image && strcmp(encrypted_image, path) == 0)
@@ -3264,14 +3258,14 @@ LV2_PATCHED_FUNCTION(int, fsloop_open, (const char *path, int flags, int *fd, in
 			encrypted_image_fd = *fd;
 		}
 	}
-*/
+
 	return ret;
 }
 
 LV2_PATCHED_FUNCTION(int, fsloop_close, (int fd))
 {
 	int ret = cellFsClose(fd);
-/*
+
 	if (ret == SUCCEEDED && encrypted_image_fd == fd)
 	{
 		#ifdef DEBUG
@@ -3279,7 +3273,7 @@ LV2_PATCHED_FUNCTION(int, fsloop_close, (int fd))
 		#endif
 		encrypted_image_fd = -1;
 	}
-*/
+
 	return ret;
 }
 
@@ -3290,7 +3284,7 @@ LV2_PATCHED_FUNCTION(int, fsloop_read, (int fd, void *buf, uint64_t nbytes, uint
 	cellFsLseek(fd, 0, SEEK_CUR, &pos);
 
 	int ret = cellFsRead(fd, buf, nbytes, nread);
-/*
+
 	if (ret == SUCCEEDED && fd == encrypted_image_fd)
 	{
 		if (pos&7 || nbytes&7)
@@ -3301,12 +3295,12 @@ LV2_PATCHED_FUNCTION(int, fsloop_read, (int fd, void *buf, uint64_t nbytes, uint
 			while (1);
 		}
 
-		xtea_ctr(encrypted_image_keys, encrypted_image_nonce+(pos/8), buf, nbytes);
+		xtea_ctr(encrypted_image_keys, encrypted_image_nonce + (pos/8), buf, nbytes);
 	}
-*/
+
 	return ret;
 }
-
+*/
 /////////////////// SYSCALL MOUNT COMMANDS ////////////////////////
 
 int sys_storage_ext_get_disc_type(unsigned int *rdt, unsigned int *edt, unsigned int *fdt)
@@ -3797,10 +3791,15 @@ void storage_ext_patches(void)
 			init_mount_hdd0();
 		}
 	}
+/*
 	// For encrypted fsloop images
+	// AV: deprectated. The encrypted image was used by the official PSP Launcher to mount "lambda.db"
+	// "lambda.db" is an encrypted ISO containing the PSP emulator of FW 4.0 to be used on 3.55
+	// The path of the selected emulator used the opcode SYSCALL8_OPCODE_PSP_CHANGE_EMU (also deprecated)
 	patch_call(fsloop_open_call, fsloop_open);
 	patch_call(fsloop_close_call, fsloop_close);
 	patch_call(fsloop_read_call, fsloop_read);
+*/
 }
 
 #ifdef PS3M_API

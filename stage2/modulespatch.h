@@ -8,7 +8,7 @@ extern uint8_t condition_ps2softemu;
 extern uint8_t condition_psp_iso;
 extern uint8_t condition_psp_dec;
 extern uint8_t condition_psp_keys;
-extern uint8_t condition_psp_change_emu;
+//extern uint8_t condition_psp_change_emu;
 extern uint8_t condition_psp_prometheus;
 extern uint8_t condition_apphome; //needed libfs patch (JB FORMAT GAME)
 
