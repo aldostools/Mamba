@@ -35,7 +35,7 @@ static uint8_t init_list(char *list, const char *path)
 {
 	int f;
 
-	if (cellFsOpen(path, CELL_FS_O_RDONLY, &f, 0666, NULL, 0) != 0) return 0; // failed to open
+	if (cellFsOpen(path, CELL_FS_O_RDONLY, &f, 0666, NULL, 0) != CELL_OK) return 0; // failed to open
 
 	if(!list) list = alloc(9 * MAX_LIST_ENTRIES, 0x2F);
 

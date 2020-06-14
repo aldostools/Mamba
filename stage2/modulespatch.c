@@ -15,12 +15,12 @@
 #include <lv2/syscall.h>
 #include <lv1/patch.h>
 #include "common.h"
+#include "storage_ext.h"
 #include "modulespatch.h"
 #include "ps3mapi_core.h"
 #include "crypto.h"
 #include "config.h"
 #include "self.h"
-#include "storage_ext.h"
 #include "syscall8.h"
 #include "mappath.h"
 #include "region.h"
@@ -76,7 +76,7 @@ typedef struct
 
 #define N_SPRX_KEYS_1 (sizeof(sprx_keys_set1)/sizeof(KeySet))
 
-KeySet sprx_keys_set1[] =
+static KeySet sprx_keys_set1[] =
 {
 	{
 		{
@@ -373,7 +373,7 @@ static char *hash_to_name(uint64_t trunc_hash, uint64_t hash2)
 		case PREMO_GAME_PLUGIN_HASH:
 			return "premo_game_plugin.sprx";
 		break;
-#endif
+#endif // #ifdef DO_PATCH_COBRA810
 		default:
 			return "UNKNOWN";
 		break;
@@ -381,7 +381,7 @@ static char *hash_to_name(uint64_t trunc_hash, uint64_t hash2)
 
 	return "UNKNOWN";
 }
-#endif
+#endif //#ifdef DEBUG
 
 #ifdef DO_PATCH
 
@@ -614,36 +614,36 @@ static SprxPatch emulator_api_patches[] =
 {
 	// Read umd patches
 	{ psp_read,      STDU(SP, 0xFF90, SP), &condition_psp_iso },
-	{ psp_read+0x04, MFLR(R0), &condition_psp_iso },
-	{ psp_read+0x08, STD(R0, 0x80, SP), &condition_psp_iso },
-	{ psp_read+0x0C, MR(R8, R7), &condition_psp_iso },
-	{ psp_read+0x10, MR(R7, R6), &condition_psp_iso },
-	{ psp_read+0x14, MR(R6, R5), &condition_psp_iso },
-	{ psp_read+0x18, MR(R5, R4), &condition_psp_iso },
-	{ psp_read+0x1C, MR(R4, R3), &condition_psp_iso },
-	{ psp_read+0x20, LI(R3, SYSCALL8_OPCODE_READ_PSP_UMD), &condition_psp_iso },
-	{ psp_read+0x24, LI(R11, 8), &condition_psp_iso },
-	{ psp_read+0x28, SC, &condition_psp_iso },
-	{ psp_read+0x2C, LD(R0, 0x80, SP), &condition_psp_iso },
-	{ psp_read+0x30, MTLR(R0), &condition_psp_iso },
-	{ psp_read+0x34, ADDI(SP, SP, 0x70), &condition_psp_iso },
-	{ psp_read+0x38, BLR, &condition_psp_iso },
+	{ psp_read + 0x04, MFLR(R0), &condition_psp_iso },
+	{ psp_read + 0x08, STD(R0, 0x80, SP), &condition_psp_iso },
+	{ psp_read + 0x0C, MR(R8, R7), &condition_psp_iso },
+	{ psp_read + 0x10, MR(R7, R6), &condition_psp_iso },
+	{ psp_read + 0x14, MR(R6, R5), &condition_psp_iso },
+	{ psp_read + 0x18, MR(R5, R4), &condition_psp_iso },
+	{ psp_read + 0x1C, MR(R4, R3), &condition_psp_iso },
+	{ psp_read + 0x20, LI(R3, SYSCALL8_OPCODE_READ_PSP_UMD), &condition_psp_iso },
+	{ psp_read + 0x24, LI(R11, 8), &condition_psp_iso },
+	{ psp_read + 0x28, SC, &condition_psp_iso },
+	{ psp_read + 0x2C, LD(R0, 0x80, SP), &condition_psp_iso },
+	{ psp_read + 0x30, MTLR(R0), &condition_psp_iso },
+	{ psp_read + 0x34, ADDI(SP, SP, 0x70), &condition_psp_iso },
+	{ psp_read + 0x38, BLR, &condition_psp_iso },
 	// Read header patches
-	{ psp_read+0x3C, STDU(SP, 0xFF90, SP), &condition_psp_iso },
-	{ psp_read+0x40, MFLR(R0), &condition_psp_iso },
-	{ psp_read+0x44, STD(R0, 0x80, SP), &condition_psp_iso },
-	{ psp_read+0x48, MR(R7, R6), &condition_psp_iso },
-	{ psp_read+0x4C, MR(R6, R5), &condition_psp_iso },
-	{ psp_read+0x50, MR(R5, R4), &condition_psp_iso },
-	{ psp_read+0x54, MR(R4, R3), &condition_psp_iso },
-	{ psp_read+0x58, LI(R3, SYSCALL8_OPCODE_READ_PSP_HEADER), &condition_psp_iso },
-	{ psp_read+0x5C, LI(R11, 8), &condition_psp_iso },
-	{ psp_read+0x60, SC, &condition_psp_iso },
-	{ psp_read+0x64, LD(R0, 0x80, SP), &condition_psp_iso },
-	{ psp_read+0x68, MTLR(R0), &condition_psp_iso },
-	{ psp_read+0x6C, ADDI(SP, SP, 0x70), &condition_psp_iso },
-	{ psp_read+0x70, BLR, &condition_psp_iso },
-	{ psp_read_header, MAKE_CALL_VALUE(psp_read_header, psp_read+0x3C), &condition_psp_iso },
+	{ psp_read + 0x3C, STDU(SP, 0xFF90, SP), &condition_psp_iso },
+	{ psp_read + 0x40, MFLR(R0), &condition_psp_iso },
+	{ psp_read + 0x44, STD(R0, 0x80, SP), &condition_psp_iso },
+	{ psp_read + 0x48, MR(R7, R6), &condition_psp_iso },
+	{ psp_read + 0x4C, MR(R6, R5), &condition_psp_iso },
+	{ psp_read + 0x50, MR(R5, R4), &condition_psp_iso },
+	{ psp_read + 0x54, MR(R4, R3), &condition_psp_iso },
+	{ psp_read + 0x58, LI(R3, SYSCALL8_OPCODE_READ_PSP_HEADER), &condition_psp_iso },
+	{ psp_read + 0x5C, LI(R11, 8), &condition_psp_iso },
+	{ psp_read + 0x60, SC, &condition_psp_iso },
+	{ psp_read + 0x64, LD(R0, 0x80, SP), &condition_psp_iso },
+	{ psp_read + 0x68, MTLR(R0), &condition_psp_iso },
+	{ psp_read + 0x6C, ADDI(SP, SP, 0x70), &condition_psp_iso },
+	{ psp_read + 0x70, BLR, &condition_psp_iso },
+	{ psp_read_header, MAKE_CALL_VALUE(psp_read_header, psp_read + 0x3C), &condition_psp_iso },
 	// Drm patches
 	{ psp_drm_patch5,  MAKE_JUMP_VALUE(psp_drm_patch5, psp_drm_patch6), &condition_psp_iso },
 	{ psp_drm_patch7,  LI(R6, 0), &condition_psp_iso },
@@ -663,41 +663,41 @@ static SprxPatch pemucorelib_patches[] =
 	{ psp_prx_patch, STDU(SP, 0xFF90, SP), &condition_psp_iso },
 	{ psp_prx_patch+4, MFLR(R6), &condition_psp_iso },
 	{ psp_prx_patch+8, STD(R6, 0x80, SP), &condition_psp_iso },
-	{ psp_prx_patch+0x0C, LI(R11, 8), &condition_psp_iso },
-	{ psp_prx_patch+0x10, MR(R5, R4), &condition_psp_iso },
-	{ psp_prx_patch+0x14, MR(R4, R3), &condition_psp_iso },
-	{ psp_prx_patch+0x18, LI(R3, SYSCALL8_OPCODE_PSP_PRX_PATCH), &condition_psp_iso },
-	{ psp_prx_patch+0x1C, SC, &condition_psp_iso },
-	{ psp_prx_patch+0x20, LD(R0, 0x80, SP), &condition_psp_iso },
-	{ psp_prx_patch+0x24, MTLR(R0), &condition_psp_iso },
-	{ psp_prx_patch+0x28, ADDI(SP, SP, 0x70), &condition_psp_iso },
-	{ psp_prx_patch+0x2C, BLR, &condition_psp_iso },
+	{ psp_prx_patch + 0x0C, LI(R11, 8), &condition_psp_iso },
+	{ psp_prx_patch + 0x10, MR(R5, R4), &condition_psp_iso },
+	{ psp_prx_patch + 0x14, MR(R4, R3), &condition_psp_iso },
+	{ psp_prx_patch + 0x18, LI(R3, SYSCALL8_OPCODE_PSP_PRX_PATCH), &condition_psp_iso },
+	{ psp_prx_patch + 0x1C, SC, &condition_psp_iso },
+	{ psp_prx_patch + 0x20, LD(R0, 0x80, SP), &condition_psp_iso },
+	{ psp_prx_patch + 0x24, MTLR(R0), &condition_psp_iso },
+	{ psp_prx_patch + 0x28, ADDI(SP, SP, 0x70), &condition_psp_iso },
+	{ psp_prx_patch + 0x2C, BLR, &condition_psp_iso },
 	// Patch for savedata binding
 	{ psp_savedata_bind_patch1, MR(R5, R19), &condition_psp_iso },
-	{ psp_savedata_bind_patch2, MAKE_JUMP_VALUE(psp_savedata_bind_patch2, psp_prx_patch+0x30), &condition_psp_iso },
-	{ psp_prx_patch+0x30, LD(R19, 0xFF98, SP), &condition_psp_iso },
-	{ psp_prx_patch+0x34, STDU(SP, 0xFF90, SP), &condition_psp_iso },
-	{ psp_prx_patch+0x38, MFLR(R0), &condition_psp_iso },
-	{ psp_prx_patch+0x3C, STD(R0, 0x80, SP), &condition_psp_iso },
-	{ psp_prx_patch+0x40, LI(R11, 8), &condition_psp_iso },
-	{ psp_prx_patch+0x44, MR(R4, R3), &condition_psp_iso },
-	{ psp_prx_patch+0x48, LI(R3, SYSCALL8_OPCODE_PSP_POST_SAVEDATA_INITSTART), &condition_psp_iso },
-	{ psp_prx_patch+0x4C, SC, &condition_psp_iso },
-	{ psp_prx_patch+0x50, LD(R0, 0x80, SP), &condition_psp_iso },
-	{ psp_prx_patch+0x54, MTLR(R0), &condition_psp_iso },
-	{ psp_prx_patch+0x58, ADDI(SP, SP, 0x70), &condition_psp_iso },
-	{ psp_prx_patch+0x5C, BLR, &condition_psp_iso },
-	{ psp_savedata_bind_patch3, MAKE_JUMP_VALUE(psp_savedata_bind_patch3, psp_prx_patch+0x60), &condition_psp_iso },
-	{ psp_prx_patch+0x60, STDU(SP, 0xFF90, SP), &condition_psp_iso },
-	{ psp_prx_patch+0x64, MFLR(R0), &condition_psp_iso },
-	{ psp_prx_patch+0x68, STD(R0, 0x80, SP), &condition_psp_iso },
-	{ psp_prx_patch+0x6C, LI(R11, 8), &condition_psp_iso },
-	{ psp_prx_patch+0x70, LI(R3, SYSCALL8_OPCODE_PSP_POST_SAVEDATA_SHUTDOWNSTART), &condition_psp_iso },
-	{ psp_prx_patch+0x74, SC, &condition_psp_iso },
-	{ psp_prx_patch+0x78, LD(R0, 0x80, SP), &condition_psp_iso },
-	{ psp_prx_patch+0x7C, MTLR(R0), &condition_psp_iso },
-	{ psp_prx_patch+0x80, ADDI(SP, SP, 0x70), &condition_psp_iso },
-	{ psp_prx_patch+0x84, BLR, &condition_psp_iso },
+	{ psp_savedata_bind_patch2, MAKE_JUMP_VALUE(psp_savedata_bind_patch2, psp_prx_patch + 0x30), &condition_psp_iso },
+	{ psp_prx_patch + 0x30, LD(R19, 0xFF98, SP), &condition_psp_iso },
+	{ psp_prx_patch + 0x34, STDU(SP, 0xFF90, SP), &condition_psp_iso },
+	{ psp_prx_patch + 0x38, MFLR(R0), &condition_psp_iso },
+	{ psp_prx_patch + 0x3C, STD(R0, 0x80, SP), &condition_psp_iso },
+	{ psp_prx_patch + 0x40, LI(R11, 8), &condition_psp_iso },
+	{ psp_prx_patch + 0x44, MR(R4, R3), &condition_psp_iso },
+	{ psp_prx_patch + 0x48, LI(R3, SYSCALL8_OPCODE_PSP_POST_SAVEDATA_INITSTART), &condition_psp_iso },
+	{ psp_prx_patch + 0x4C, SC, &condition_psp_iso },
+	{ psp_prx_patch + 0x50, LD(R0, 0x80, SP), &condition_psp_iso },
+	{ psp_prx_patch + 0x54, MTLR(R0), &condition_psp_iso },
+	{ psp_prx_patch + 0x58, ADDI(SP, SP, 0x70), &condition_psp_iso },
+	{ psp_prx_patch + 0x5C, BLR, &condition_psp_iso },
+	{ psp_savedata_bind_patch3, MAKE_JUMP_VALUE(psp_savedata_bind_patch3, psp_prx_patch + 0x60), &condition_psp_iso },
+	{ psp_prx_patch + 0x60, STDU(SP, 0xFF90, SP), &condition_psp_iso },
+	{ psp_prx_patch + 0x64, MFLR(R0), &condition_psp_iso },
+	{ psp_prx_patch + 0x68, STD(R0, 0x80, SP), &condition_psp_iso },
+	{ psp_prx_patch + 0x6C, LI(R11, 8), &condition_psp_iso },
+	{ psp_prx_patch + 0x70, LI(R3, SYSCALL8_OPCODE_PSP_POST_SAVEDATA_SHUTDOWNSTART), &condition_psp_iso },
+	{ psp_prx_patch + 0x74, SC, &condition_psp_iso },
+	{ psp_prx_patch + 0x78, LD(R0, 0x80, SP), &condition_psp_iso },
+	{ psp_prx_patch + 0x7C, MTLR(R0), &condition_psp_iso },
+	{ psp_prx_patch + 0x80, ADDI(SP, SP, 0x70), &condition_psp_iso },
+	{ psp_prx_patch + 0x84, BLR, &condition_psp_iso },
 	// Prometheus
 	{ psp_prometheus_patch, '.OLD', &condition_psp_prometheus },
 
@@ -818,6 +818,8 @@ static PatchTableEntry patch_table_rebug[] =
 
 #endif //#ifdef DO_PATCH
 
+void clear_key(void *key);
+
 LV2_PATCHED_FUNCTION(int, modules_patching, (uint64_t *arg1, uint32_t *arg2))
 {
 	static unsigned int total = 0;
@@ -908,11 +910,11 @@ LV2_PATCHED_FUNCTION(int, modules_patching, (uint64_t *arg1, uint32_t *arg2))
 		{
 			if (total == 0)
 			{
-				uint8_t dif_keys[16];
+				uint8_t dif_keys[0x10];
 
-				memset(dif_keys, 0, 16);
+				clear_key(dif_keys);
 
-				memcpy(keys, extHdr->keys_mod, 16);
+				memcpy(keys, extHdr->keys_mod, 0x10);
 
 				for (int i = 0; i < 16; i++)
 				{
@@ -924,7 +926,7 @@ LV2_PATCHED_FUNCTION(int, modules_patching, (uint64_t *arg1, uint32_t *arg2))
 
 			uint32_t num_blocks = chunk_size / 8;
 
-			xtea_ctr(keys, nonce, enc_buf, num_blocks*8);
+			xtea_ctr(keys, nonce, enc_buf, num_blocks * 8);
 			nonce += num_blocks;
 
 			if (last_chunk)
@@ -1263,7 +1265,6 @@ LV2_HOOKED_FUNCTION_POSTCALL_8(void, create_process_common_hooked_pre, (process_
 static sys_prx_id_t vsh_plugins[MAX_VSH_PLUGINS];
 static int loading_vsh_plugin = 0;
 
-
 // Kernel version of prx_load_vsh_plugin
 int prx_load_vsh_plugin(unsigned int slot, char *path, void *arg, uint32_t arg_size)
 {
@@ -1280,16 +1281,11 @@ int prx_load_vsh_plugin(unsigned int slot, char *path, void *arg, uint32_t arg_s
 		return EKRESOURCE;
 
 	CellFsStat stat;
-	if (cellFsStat(path, &stat) != 0 || stat.st_size < 0x230) return EINVAL; // prevent a semi-brick (black screen on start up) if the sprx is 0 bytes (due a bad ftp transfer).
+	if ((cellFsStat(path, &stat) != CELL_OK) || (stat.st_size < 0x230)) return EINVAL; // prevent a semi-brick (black screen on start up) if the sprx is 0 bytes (due a bad ftp transfer).
 
-	int file;
-	if (cellFsOpen(path, CELL_FS_O_RDONLY, &file, 0, NULL, 0) == SUCCEEDED)
+	uint8_t sprx_check[0x20];
+	if(read_file(path, sprx_check, 0x20))
 	{
-		uint64_t nread;
-		uint8_t sprx_check[0x20];
-		cellFsRead(file, sprx_check, 0x20, &nread);
-		cellFsClose(file);
-
 		uint64_t header_len = *(uint64_t *)(sprx_check + 0x10);
 		uint64_t data_len   = *(uint64_t *)(sprx_check + 0x18);
 
@@ -1312,7 +1308,7 @@ int prx_load_vsh_plugin(unsigned int slot, char *path, void *arg, uint32_t arg_s
 
 	if (arg && arg_size > 0)
 	{
-		page_allocate_auto(vsh_process, KB(64), 0x2F, &kbuf);
+		page_allocate_auto(vsh_process, KB(64), &kbuf);
 		page_export_to_proc(vsh_process, kbuf, 0x40000, &vbuf);
 		memcpy(kbuf, arg, arg_size);
 	}
@@ -1324,7 +1320,7 @@ int prx_load_vsh_plugin(unsigned int slot, char *path, void *arg, uint32_t arg_s
 	if (vbuf)
 	{
 		page_unexport_from_proc(vsh_process, vbuf);
-		page_free(vsh_process, kbuf, 0x2F);
+		free_page(vsh_process, kbuf);
 	}
 
 	if (ret == SUCCEEDED)
@@ -1426,20 +1422,21 @@ int sys_prx_unload_vsh_plugin(unsigned int slot)
 // static int was removed to support cfg implementation for homebrew blocker by KW & AV
 int read_text_line(int fd, char *line, unsigned int size, int *eof)
 {
-	int i = 0;
-	int line_started = 0;
-
 	if (size == 0)
 		return FAILED;
+	size--;
 
 	*eof = 0;
 
-	while (i < (size-1))
+	int i = 0;
+	int line_started = 0;
+
+	while (i < size)
 	{
 		uint8_t ch;
 		uint64_t r;
 
-		if (cellFsRead(fd, &ch, 1, &r) != 0 || r != 1)
+		if ((cellFsRead(fd, &ch, 1, &r) != SUCCEEDED) || (r != 1))
 		{
 			*eof = 1;
 			break;
@@ -1465,7 +1462,7 @@ int read_text_line(int fd, char *line, unsigned int size, int *eof)
 	line[i] = 0;
 
 	// Remove space chars at end
-	for (int j = i-1; j >= 0; j--)
+	for (int j = i - 1; j >= 0; j--)
 	{
 		if (line[j] <= ' ')
 		{
@@ -1491,30 +1488,25 @@ static int load_plugin_kernel(char *path)
 
 		if(stat.st_size > 0x230)
 		{
-			int fd;
-			if(cellFsOpen(path, CELL_FS_O_RDONLY, &fd, 0, NULL, 0) == SUCCEEDED)
+			void *skprx = malloc(stat.st_size);
+
+			if(skprx)
 			{
-				void *skprx = alloc(stat.st_size, 0x27);
-
-				if(skprx)
+				if(read_file(path, skprx, stat.st_size))
 				{
-					uint64_t read;
-					if(cellFsRead(fd, skprx, stat.st_size, &read) == SUCCEEDED)
-					{
-						f_desc_t f;
-						f.addr = skprx;
-						f.toc = (void *)MKA(TOC);
+					f_desc_t f;
+					f.addr = skprx;
+					f.toc = (void *)MKA(TOC);
 
-						int (* func)(void);
-						func = (void *)&f;
-						func();
+					int (* func)(void);
+					func = (void *)&f;
+					func();
 
-						return 1;
-					}
-					else
-					{
-						dealloc(skprx, 0x27);
-					}
+					return 1;
+				}
+				else
+				{
+					free(skprx);
 				}
 			}
 		}
@@ -1522,22 +1514,32 @@ static int load_plugin_kernel(char *path)
 	return 0;
 }
 
+static void locate_file(char *path, const char *file)
+{
+	CellFsStat stat;
+	sprintf(path, "/dev_usb000/%s", file);
+	if (cellFsStat(path, &stat) == CELL_OK) return;
+	path[10] = '1';
+	if (cellFsStat(path, &stat) == CELL_OK) return;
+	sprintf(path, "/dev_hdd0/%s", file);
+}
+
 void load_boot_plugins_kernel(void)
 {
 	if (!vsh_process) {vsh_process = get_vsh_process(); //NzV
 	if (vsh_process <= 0) return;} // lets wait till vsh so we dont brick the console perma!
 
-	int fd;
-	int num_loaded_kernel = 0;
+	char *path = kalloc(MAX_FILE_LEN);
 
-	if (cellFsOpen(BOOT_PLUGINS_KERNEL_FILE1, CELL_FS_O_RDONLY, &fd, 0, NULL, 0) != SUCCEEDED)
-	if (cellFsOpen(BOOT_PLUGINS_KERNEL_FILE2, CELL_FS_O_RDONLY, &fd, 0, NULL, 0) != SUCCEEDED)
-	if (cellFsOpen(BOOT_PLUGINS_KERNEL_FILE3, CELL_FS_O_RDONLY, &fd, 0, NULL, 0) != SUCCEEDED) return;
+	if(path)
 	{
-		char *path = alloc(MAX_FILE_LEN, 0x35);
+		locate_file(path, "mamba_plugins_kernel.txt");
 
-		if(path)
+		int fd;
+		if (cellFsOpen(path, CELL_FS_O_RDONLY, &fd, 0, NULL, 0) == SUCCEEDED)
 		{
+			int num_loaded_kernel = 0;
+
 			while (num_loaded_kernel < MAX_BOOT_PLUGINS_KERNEL)
 			{
 				int eof;
@@ -1546,7 +1548,7 @@ void load_boot_plugins_kernel(void)
 				{
 					int ret = load_plugin_kernel(path);
 
-					if (ret > 0)
+					if (ret)
 					{
 						DPRINTF("Load boot plugin %s -> %x\n", path, num_loaded_kernel);
 						num_loaded_kernel++;
@@ -1555,34 +1557,32 @@ void load_boot_plugins_kernel(void)
 
 				if (eof) break;
 			}
-
-			dealloc(path, 0x35);
+			cellFsClose(fd);
 		}
 
-		cellFsClose(fd);
+		kfree(path);
 	}
 }
 
 void load_boot_plugins(void)
 {
-	int fd;
-	int current_slot = BOOT_PLUGINS_FIRST_SLOT;
-	int num_loaded = 0;
-
 	for(unsigned int n = 0; n < MAX_VSH_PLUGINS; n++) vsh_plugins[n] = 0;
 
-	// EVILNAT START
-	// KW / Special thanks to KW for providing an awesome source
+	// KW / Special thanks to KW/EVILNAT for providing an awesome source
 	// Improving initial KW's code
 	// If it does not exist in '/dev_usb000' or '/dev_usb001' will load it from '/dev_hdd0'
-	if (cellFsOpen(BOOT_PLUGINS_FILE1, CELL_FS_O_RDONLY, &fd, 0, NULL, 0) != SUCCEEDED)
-	if (cellFsOpen(BOOT_PLUGINS_FILE2, CELL_FS_O_RDONLY, &fd, 0, NULL, 0) != SUCCEEDED)
-	if (cellFsOpen(BOOT_PLUGINS_FILE3, CELL_FS_O_RDONLY, &fd, 0, NULL, 0) != SUCCEEDED) return;
-	{
-		char *path = alloc(MAX_FILE_LEN, 0x35);
+	char *path = kalloc(MAX_FILE_LEN);
 
-		if(path)
+	if(path)
+	{
+		locate_file(path, "mamba_plugins.txt");
+
+		int fd;
+		if (cellFsOpen(path, CELL_FS_O_RDONLY, &fd, 0, NULL, 0) == SUCCEEDED)
 		{
+			int current_slot = BOOT_PLUGINS_FIRST_SLOT;
+			int num_loaded = 0;
+
 			while (num_loaded < MAX_BOOT_PLUGINS)
 			{
 				int eof;
@@ -1601,14 +1601,10 @@ void load_boot_plugins(void)
 
 				if (eof) break;
 			}
-
-			dealloc(path, 0x35);
+			cellFsClose(fd);
 		}
-
-		cellFsClose(fd);
+		kfree(path);
 	}
-
-	// EVILNAT END
 }
 
 //----------------------------------------
@@ -1723,7 +1719,7 @@ int ps3mapi_unload_vsh_plugin(char *name)
 	if (!vsh_process) {vsh_process = get_vsh_process(); //NzV
 	if (vsh_process <= 0) return ESRCH;}
 
-	char *filename = alloc(MAX_FILE_LEN, 0x35);
+	char *filename = kalloc(MAX_FILE_LEN);
 	if (!filename)
 		return ENOMEM;
 
@@ -1737,13 +1733,13 @@ int ps3mapi_unload_vsh_plugin(char *name)
 		{
 			if (strcmp(filename, get_secure_user_ptr(name)) == SUCCEEDED)
 			{
-				dealloc(filename, 0x35);
+				kfree(filename);
 				return prx_unload_vsh_plugin(slot);
 			}
 		}
 	}
 
-	dealloc(filename, 0x35);
+	kfree(filename);
 	return ESRCH;
 }
 #endif

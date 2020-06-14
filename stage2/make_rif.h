@@ -14,24 +14,17 @@ static unsigned char RAP_PBOX[] = {0x0C, 0x03, 0x06, 0x04, 0x01, 0x0B, 0x0F, 0x0
 static unsigned char RAP_E1[]   = {0xA9, 0x3E, 0x1F, 0xD6, 0x7C, 0x55, 0xA3, 0x29, 0xB7, 0x5F, 0xDD, 0xA6, 0x2A, 0x95, 0xC7, 0xA5};
 static unsigned char RAP_E2[]   = {0x67, 0xD4, 0x5D, 0xA3, 0x29, 0x6D, 0x00, 0x6A, 0x4E, 0x7C, 0x53, 0x7B, 0xF5, 0x53, 0x8C, 0x74};
 
-static void aescbc128_decrypt(unsigned char *key, unsigned char *iv, unsigned char *in, unsigned char *out, int len)
-{
-	aescbccfb_dec(out, in, len, key, RAP_KEYBITS, iv);
-
-	// Reset the IV.
-	memset(iv, 0, 0x10);
-}
-
 static void get_rif_key(unsigned char *rap, unsigned char *key)
 {
 	int i;
+
 	unsigned char iv[0x10];
 
-	memset(key, 0, 0x10);
-	memset(iv,  0, 0x10);
+	clear_key(key);
+	clear_key(iv);
 
 	// Initial decrypt.
-	aescbc128_decrypt(RAP_KEY, iv, rap, key, 0x10);
+	aescbccfb_dec(key, rap, 0x10, RAP_KEY, RAP_KEYBITS, iv);
 
 	// rap2rifkey round.
 	for (int round = 0; round < 5; ++round)
@@ -101,13 +94,13 @@ static void read_act_dat_and_make_rif(uint8_t *rap, uint8_t *act_dat, const char
 		uint8_t *act_dat_key = rap;
 		memcpy(act_dat_key, act_dat + 0x10, 0x10);
 
-		memset(iv, 0, 0x10);
+		clear_key(iv);
 		aescbccfb_dec(act_dat_key, act_dat_key, 0x10, idps_const, IDPS_KEYBITS, iv);
 
-		memset(iv, 0, 0x10);
+		clear_key(iv);
 		aescbccfb_enc(rif_key, rif_key, 0x10, act_dat_key, ACT_DAT_KEYBITS, iv);
 
-		memset(iv, 0, 0x10);
+		clear_key(iv);
 		aescbccfb_enc(key_index, key_index, 0x10, rif_key_const, RIF_KEYBITS, iv);
 
 		const uint32_t version_number = 1;
@@ -151,7 +144,7 @@ static void read_act_dat_and_make_rif(uint8_t *rap, uint8_t *act_dat, const char
 			uint64_t nread;
 
 			f_desc_t f;
-			f.addr = (void*)MKA(KPLUGIN_ADDRESS); //alloc(payload_size, 0x27);
+			f.addr = (void*)MKA(KPLUGIN_ADDRESS); //malloc(payload_size);
 			f.toc = (void*)MKA(TOC);
 			int(*reactpsn_plugin)(uint8_t *idps,uint8_t *rap, uint8_t *act_dat, const char *content_id, const char *out) = (void *)&f;
 
@@ -172,6 +165,7 @@ static void read_act_dat_and_make_rif(uint8_t *rap, uint8_t *act_dat, const char
 }
 #endif
 
+
 static void make_rif(const char *path)
 {
 	//if(!is_hdd0) return; // checked in homebrew_blocker.h
@@ -188,58 +182,43 @@ static void make_rif(const char *path)
 		#endif
 
 		char *content_id = ALLOC_CONTENT_ID;
-		memset(content_id, 0, 0x25);
-		strncpy(content_id, strrchr(path, '/') + 1, 0x24);
+		strncpy(content_id, path + 31, 0x24); content_id[0x24] = 0;
 
 		char *rap_path = ALLOC_PATH_BUFFER;
 
-		uint8_t is_ps2_classic = !strncmp(content_id, "2P0001-PS2U10000_00-0000111122223333", 0x24);
+		uint8_t is_ps2_classic = !strcmp(content_id, "2P0001-PS2U10000_00-0000111122223333");
 
 		if(!is_ps2_classic)
 		{
 			CellFsStat stat;
-			sprintf(rap_path, "/dev_hdd0/exdata/%.36s.rap", content_id);
+			sprintf(rap_path, "/dev_usb000/exdata/%.36s.rap", content_id);
 			if(cellFsStat(rap_path, &stat) != SUCCEEDED) rap_path[10] = '1'; //usb001
 			if(cellFsStat(rap_path, &stat) != SUCCEEDED) sprintf(rap_path, "/dev_hdd0/exdata/%.36s.rap", content_id);
 		}
 
-		int fd;
-		if(is_ps2_classic || cellFsOpen(rap_path, CELL_FS_O_RDONLY, &fd, 0666, NULL, 0) == SUCCEEDED)
+		// default: ps2classic rap
+		uint8_t rap[0x10] = {0xF5, 0xDE, 0xCA, 0xBB, 0x09, 0x88, 0x4F, 0xF4, 0x02, 0xD4, 0x12, 0x3C, 0x25, 0x01, 0x71, 0xD9};
+
+		if(is_ps2_classic || (read_file(rap_path, rap, 0x10) == 0x10))
 		{
-			uint64_t nread = 0;
-			uint8_t rap[0x10] = {0xF5, 0xDE, 0xCA, 0xBB, 0x09, 0x88, 0x4F, 0xF4, 0x02, 0xD4, 0x12, 0x3C, 0x25, 0x01, 0x71, 0xD9};
-
-			if(!is_ps2_classic)
-			{
-				cellFsRead(fd, rap, 0x10, &nread);
-				cellFsClose(fd);
-			}
-
 			#ifdef DEBUG
 			DPRINTF("rap_path:%s output:%s\n", rap_path, path);
 			#endif
 
 			char *act_path = ALLOC_PATH_BUFFER;
-			memset(act_path, 0, 0x50);
-			strncpy(act_path, path, strrchr(path, '/') - path);
-			strcpy(act_path + strlen(act_path), "/act.dat\0");
+			strncpy(act_path, path, 31);
+			strcpy(act_path + 31, "act.dat\0");
 
 			#ifdef DEBUG
 			DPRINTF("act_path:%s content_id:%s\n", act_path, content_id);
 			#endif
 
-			if(cellFsOpen(act_path, CELL_FS_O_RDONLY, &fd, 0666, NULL, 0) == SUCCEEDED)
+			uint8_t *act_dat = ALLOC_ACT_DAT;
+			if(read_file(act_path, act_dat, 0x20) == 0x20)
 			{
-				uint8_t *act_dat = ALLOC_ACT_DAT;
-				cellFsRead(fd, act_dat, 0x20, &nread); // size: 0x1038 but only first 0x20 are used to make rif
-				cellFsClose(fd);
-
-				if(nread == 0x20)
-				{
-					char *rif_path = ALLOC_PATH_BUFFER;
-					sprintf(rif_path, "/%s", path);
-					read_act_dat_and_make_rif(rap, act_dat, content_id, rif_path);
-				}
+				char *rif_path = ALLOC_PATH_BUFFER;
+				sprintf(rif_path, "/%s", path);
+				read_act_dat_and_make_rif(rap, act_dat, content_id, rif_path);
 			}
 		}
 	}

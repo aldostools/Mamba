@@ -8,10 +8,7 @@ LV2_SYSCALL2(uint64_t, sys_cfw_lv1_peek, (uint64_t lv1_addr))
 	DPRINTF("lv1_peek %p\n", (void*)lv1_addr);
 	#endif
 
-	uint64_t ret;
-	ret = lv1_peekd(lv1_addr);
-	return ret;
-
+	return lv1_peekd(lv1_addr);
 }
 
 LV2_SYSCALL2(void, sys_cfw_lv1_poke, (uint64_t lv1_addr, uint64_t lv1_value))
@@ -198,8 +195,6 @@ LV2_SYSCALL2(void, sys_cfw_poke, (uint64_t *ptr, uint64_t value))
 			if (value == 0xF88300007C001FACULL)
 			{
 				// Assume app is trying to write the so called "new poke"
-				f_desc_t f;
-
 				#ifdef DEBUG
 				DPRINTF("Making sys_cfw_new_poke\n");
 				#endif
@@ -209,6 +204,7 @@ LV2_SYSCALL2(void, sys_cfw_poke, (uint64_t *ptr, uint64_t value))
 					unhook_function(sc813, current_813);
 				}
 
+				f_desc_t f;
 				hook_function(sc813, sys_cfw_new_poke, &f);
 				current_813 = sys_cfw_new_poke;
 				return;
@@ -216,16 +212,16 @@ LV2_SYSCALL2(void, sys_cfw_poke, (uint64_t *ptr, uint64_t value))
 			else if (value == 0x4800000428250000ULL)
 			{
 				// Assume app is trying to write a memcpy
-				f_desc_t f;
-
 				#ifdef DEBUG
 				DPRINTF("Making sys_cfw_memcpy\n");
 				#endif
+
 				if (current_813)
 				{
 					unhook_function(sc813, current_813);
 				}
 
+				f_desc_t f;
 				hook_function(sc813, sys_cfw_memcpy, &f);
 				current_813 = sys_cfw_memcpy;
 				return;

@@ -123,7 +123,7 @@ static void dump_process(process_t process)
 	DPRINTF("Dumping process %s\n", get_process_name(process));
 	sprintf(path, "/dev_usb000/%s.main_segment", get_process_name(process));
 
-	buf = alloc(KB(64), 0x27);
+	buf = malloc(KB(64));
 	if (!buf)
 	{
 		DPRINTF("Not enough memory.\n");
@@ -177,7 +177,7 @@ static void dump_process(process_t process)
 	}
 
 	cellFsClose(fd);
-	dealloc(buf, 0x27);
+	free(buf);
 }
 
 static void dump_processes(void)
@@ -262,18 +262,9 @@ void do_hook_mutex_create(void)
 
 static void read_and_clear_ps2netemu_log(void)
 {
-	int fd;
-	uint64_t dummy;
-
-	if (cellFsOpen("/dev_hdd0/log_file.bin", CELL_FS_O_RDONLY, &fd, 0, NULL, 0) != 0)
-	{
-		DPRINTF("Open log file failed\n");
-		return;
-	}
-
 	uint8_t *buf;
 
-	if (page_allocate_auto(NULL, 0x10000, 0x2F, (void **)&buf) != 0)
+	if (page_allocate_auto(NULL, 0x10000, (void **)&buf) != 0)
 	{
 		DPRINTF("page_allocate failed\n");
 		return;
@@ -281,22 +272,20 @@ static void read_and_clear_ps2netemu_log(void)
 
 	memset(buf, 0, 0x10000);
 
-	cellFsRead(fd, buf, 0x10000, &dummy);
-	cellFsClose(fd);
-
-	DPRINTF("%s\n", buf);
-
-	if (cellFsOpen("/dev_hdd0/log_file.bin", CELL_FS_O_WRONLY|CELL_FS_O_CREAT|CELL_FS_O_TRUNC, &fd, 0666, NULL, 0) != 0)
+	if (read_file("/dev_hdd0/log_file.bin", buf, 0x10000))
 	{
-		DPRINTF("open log write failed\n");
-		return;
+		DPRINTF("%s\n", buf);
+
+		memset(buf, 0, 0x10000);
+		save_file("/dev_hdd0/log_file.bin", buf, 0x10000);
+	}
+	else
+	{
+		DPRINTF("Open log file failed\n");
 	}
 
-	memset(buf, 0, 0x10000);
-	cellFsWrite(fd, buf, 0x10000, &dummy);
-	cellFsClose(fd);
 
-	page_free(NULL, buf, 0x2F);
+	free_page(NULL, buf);
 }
 
 static void ps2net_copy_test(uint64_t arg0)
@@ -330,7 +319,7 @@ static void ps2net_copy_test(uint64_t arg0)
 
 	uint8_t *buf;
 
-	if (page_allocate_auto(NULL, 0x10000, 0x2F, (void **)&buf) != 0)
+	if (page_allocate_auto(NULL, 0x10000, (void **)&buf) != 0)
 	{
 		DPRINTF("page_allocate failed\n");
 		cellFsClose(src);
@@ -350,7 +339,7 @@ static void ps2net_copy_test(uint64_t arg0)
 			DPRINTF("cellFsRead failed\n");
 			cellFsClose(src);
 			cellFsClose(dst);
-			page_free(NULL, buf, 0x2F);
+			free_page(NULL, buf);
 			goto umount_exit;
 		}
 
@@ -359,7 +348,7 @@ static void ps2net_copy_test(uint64_t arg0)
 			DPRINTF("cellFsWrite failed\n");
 			cellFsClose(src);
 			cellFsClose(dst);
-			page_free(NULL, buf, 0x2F);
+			free_page(NULL, buf);
 			goto umount_exit;
 		}
 
@@ -371,7 +360,7 @@ static void ps2net_copy_test(uint64_t arg0)
 
 	cellFsClose(src);
 	cellFsClose(dst);
-	page_free(NULL, buf, 0x2F);
+	free_page(NULL, buf);
 
 	DPRINTF("++++ copy finished (%ld) (%ld KB)\n", total, total / 1024);
 
@@ -399,13 +388,13 @@ static void dump_process_modules_info(process_t process)
 
 	DPRINTF("******** %s ********\n", get_process_name(process));
 
-	list = alloc(SPRX_NUM*sizeof(sys_prx_module_info_t), 0x35);
-	unk = alloc(SPRX_NUM*sizeof(uint32_t), 0x35);
+	list = kalloc(SPRX_NUM*sizeof(sys_prx_module_info_t));
+	unk  = kalloc(SPRX_NUM*sizeof(uint32_t));
 
 	if (prx_get_module_list(process, list, unk, SPRX_NUM, &n, &unk2) == 0)
 	{
-		char *filename = alloc(256, 0x35);
-		sys_prx_segment_info_t *segments = alloc(sizeof(sys_prx_segment_info_t), 0x35);
+		char *filename = kalloc(256);
+		sys_prx_segment_info_t *segments = kalloc(sizeof(sys_prx_segment_info_t));
 
 		for (int i = 0; i < n; i++)
 		{
@@ -419,14 +408,14 @@ static void dump_process_modules_info(process_t process)
 				DPRINTF("Module %s\nText_addr:%08lX\n", filename, segments[0].base);
 		}
 
-		dealloc(filename, 0x35);
-		dealloc(segments, 0x35);
+		kfree(filename);
+		kfree(segments);
 	}
 
 	DPRINTF("****************\n");
 
-	dealloc(list, 0x35);
-	dealloc(unk, 0x35);
+	kfree(list);
+	kfree(unk);
 }
 
 static void dump_processes_modules_info(void)

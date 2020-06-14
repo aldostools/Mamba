@@ -17,27 +17,27 @@
 * @param t   Size of digest output
 */
 
-static void hmac_sha1(const uint8_t *k,	/* secret key */
-					  uint8_t lk,		/* length of the key in bytes */
-					  const uint8_t *d,	/* data */
+static void hmac_sha1(const u8 *k,	/* secret key */
+					  u8 lk,		/* length of the key in bytes */
+					  const u8 *d,	/* data */
 					  size_t ld,		/* length of data in bytes */
-					  uint8_t *out)		/* output buffer */
+					  u8 *out)		/* output buffer */
 {
-	SHACtx *ictx = alloc(0x100,0x27); if(!ictx) return;
-	SHACtx *octx = alloc(0x100,0x27); if(!octx) {dealloc(ictx, 0x27); return;}
+	SHACtx *ictx = malloc(0x100); if(!ictx) return;
+	SHACtx *octx = malloc(0x100); if(!octx) {free(ictx); return;}
 
-	uint8_t isha[SHA_DIGEST_LENGTH];
-	uint8_t key[SHA_DIGEST_LENGTH];
-	uint8_t buf[SHA_BLOCKSIZE];
-	uint8_t i;
+	u8 isha[SHA_DIGEST_LENGTH];
+	u8 key[SHA_DIGEST_LENGTH];
+	u8 buf[SHA_BLOCKSIZE];
+	u8 i;
 
 	if (lk > SHA_BLOCKSIZE)
 	{
-		SHACtx *tctx = alloc(0x100,0x27);
+		SHACtx *tctx = malloc(0x100);
 		sha1_init(tctx);
 		sha1_update(tctx, k, lk);
 		sha1_final(key, tctx);
-		dealloc(tctx,0x27);
+		free(tctx);
 
 		k = key;
 		lk = SHA_DIGEST_LENGTH;
@@ -82,18 +82,18 @@ static void hmac_sha1(const uint8_t *k,	/* secret key */
 
 	sha1_final(out, octx);
 
-	dealloc(ictx, 0x27);
-	dealloc(octx, 0x27);
+	free(ictx);
+	free(octx);
 }
 
-static uint8_t erk[0x20] = {
+static u8 erk[0x20] = {
 	0x34, 0x18, 0x12, 0x37, 0x62, 0x91, 0x37, 0x1c,
 	0x8b, 0xc7, 0x56, 0xff, 0xfc, 0x61, 0x15, 0x25,
 	0x40, 0x3f, 0x95, 0xa8, 0xef, 0x9d, 0x0c, 0x99,
 	0x64, 0x82, 0xee, 0xc2, 0x16, 0xb5, 0x62, 0xed
 };
 
-static uint8_t hmac[0x40] = {
+static u8 hmac[0x40] = {
 	0xcc, 0x30, 0xc4, 0x22, 0x91, 0x13, 0xdb, 0x25,
 	0x73, 0x35, 0x53, 0xaf, 0xd0, 0x6e, 0x87, 0x62,
 	0xb3, 0x72, 0x9d, 0x9e, 0xfa, 0xa6, 0xd5, 0xf3,
@@ -104,13 +104,13 @@ static uint8_t hmac[0x40] = {
 	0x75, 0x06, 0xa6, 0xb5, 0xe0, 0xf9, 0xd9, 0x7a
 };
 
-static uint8_t iv_qa[0x10] = {
+static u8 iv_qa[0x10] = {
 	0xe8, 0x66, 0x3a, 0x69, 0xcd, 0x1a, 0x5c, 0x45,
 	0x4a, 0x76, 0x1e, 0x72, 0x8c, 0x7c, 0x25, 0x4e
 };
 /////// 2.1.2 Encryption fix & hmac hash validation ///// END
 
-LV2_HOOKED_FUNCTION_COND_POSTCALL_5(int,um_if_get_token,(uint8_t *token,uint32_t token_size,uint8_t *seed,uint32_t seed_size))
+LV2_HOOKED_FUNCTION_COND_POSTCALL_5(int,um_if_get_token,(u8 *token,uint32_t token_size,u8 *seed,uint32_t seed_size))
 {
 	if(seed != 0 && token != 0 && token_size == 0x50 && seed_size == 0x50)
 	{
@@ -134,8 +134,8 @@ LV2_HOOKED_FUNCTION_COND_POSTCALL_5(int,um_if_get_token,(uint8_t *token,uint32_t
 
 	return DO_POSTCALL;
 }
-	
-LV2_HOOKED_FUNCTION_COND_POSTCALL_3(int,read_eeprom_by_offset,(uint32_t offset, uint8_t *value, uint64_t auth_id))
+
+LV2_HOOKED_FUNCTION_COND_POSTCALL_3(int,read_eeprom_by_offset,(uint32_t offset, u8 *value, uint64_t auth_id))
 {
 	if(offset == qa_eeprom_offset)
 	{

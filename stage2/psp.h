@@ -31,15 +31,16 @@ typedef struct {
 /*
  * Section header.
  */
-typedef struct {
-	Elf32_Word	sh_name;	// Section name (index into the	section header string table). // 0
-	Elf32_Word	sh_type;	/* Section type. */
-	Elf32_Word	sh_flags;	/* Section flags. */
-	Elf32_Addr	sh_addr;	/* Address in memory image. */
-	Elf32_Off	sh_offset;	/* Offset in file. */
-	Elf32_Size	sh_size;	/* Size in bytes. */
-	Elf32_Word	sh_link;	/* Index of a related section. */
-	Elf32_Word	sh_info;	/* Depends on section type. */
+typedef struct 
+{
+	Elf32_Word	sh_name;		// Section name (index into the	section header string table). // 0
+	Elf32_Word	sh_type;		/* Section type. */
+	Elf32_Word	sh_flags;		/* Section flags. */
+	Elf32_Addr	sh_addr;		/* Address in memory image. */
+	Elf32_Off	sh_offset;		/* Offset in file. */
+	Elf32_Size	sh_size;		/* Size in bytes. */
+	Elf32_Word	sh_link;		/* Index of a related section. */
+	Elf32_Word	sh_info;		/* Depends on section type. */
 	Elf32_Size	sh_addralign;	/* Alignment in bytes. */
 	Elf32_Size	sh_entsize;	/* Size of each entry in section. */
 } __attribute__((packed))Elf32_Shdr;
@@ -48,21 +49,22 @@ typedef struct {
  * Program header.
  */
 
-typedef struct {
-	Elf32_Word	p_type;		/* Entry type. */
-	Elf32_Off	p_offset;	/* File offset of contents. */
-	Elf32_Addr	p_vaddr;	/* Virtual address in memory image. */
-	Elf32_Addr	p_paddr;	/* Physical address (not used). */
-	Elf32_Size	p_filesz;	/* Size of contents in file. */
-	Elf32_Size	p_memsz;	/* Size of contents in memory. */
-	Elf32_Word	p_flags;	/* Access permission flags. */
-	Elf32_Size	p_align;	/* Alignment in memory and file. */
-} __attribute__((packed)) Elf32_Phdr;
-
 typedef struct 
 {
+	Elf32_Word	p_type;			/* Entry type. */
+	Elf32_Off	p_offset;		/* File offset of contents. */
+	Elf32_Addr	p_vaddr;		/* Virtual address in memory image. */
+	Elf32_Addr	p_paddr;		/* Physical address (not used). */
+	Elf32_Size	p_filesz;		/* Size of contents in file. */
+	Elf32_Size	p_memsz;		/* Size of contents in memory. */
+	Elf32_Word	p_flags;		/* Access permission flags. */
+	Elf32_Size	p_align;		/* Alignment in memory and file. */
+} __attribute__((packed)) Elf32_Phdr;
+
+typedef struct
+{
 	uint16_t attribute;
-	uint8_t module_ver_lo;	
+	uint8_t module_ver_lo;
 	uint8_t module_ver_hi;
 	char	modname[28];
 } __attribute__((packed)) PspModuleInfo;
@@ -70,8 +72,8 @@ typedef struct
 extern uint32_t psp_tag;
 extern uint8_t psp_keys[16];
 extern uint8_t psp_code;
-extern char pspemu_path[36];
-extern char psptrans_path[37];
+//extern char pspemu_path[36];
+//extern char psptrans_path[37];
 extern int vsh_type;
 extern uint64_t vsh_offset;
 

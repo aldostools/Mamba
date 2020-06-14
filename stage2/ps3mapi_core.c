@@ -49,7 +49,7 @@ int ps3mapi_get_all_processes_pid(process_id_t *pid_list)
 
 		if ((((uint64_t)process) & 0xFFFFFFFF00000000ULL) != MKA(0))
 		{
-			tmp_pid_list[i] = 0; 
+			tmp_pid_list[i] = 0;
 			continue;
 		}
 
@@ -162,7 +162,7 @@ int ps3mapi_get_process_mem(process_id_t pid, uint64_t addr, char *buf, int size
 	if (process <= 0)
 		return ESRCH;
 
-	void *buff = alloc(size, 0x27);
+	void *buff = malloc(size);
 
 	if (!buff)
 		return ENOMEM;
@@ -173,7 +173,7 @@ int ps3mapi_get_process_mem(process_id_t pid, uint64_t addr, char *buf, int size
 		ret = copy_to_user(buff, (void *)get_secure_user_ptr(buf), size);
 	}
 
-	dealloc(buff, 0x27);
+	free(buff);
 	return ret;
 }
 
@@ -257,7 +257,7 @@ int ps3mapi_get_all_process_modules_prx_id(process_id_t pid, sys_prx_id_t *prx_i
 	uint32_t *unk;
 	uint32_t n, unk2;
 
-	unk = alloc(MAX_MODULES*sizeof(uint32_t), 0x35);
+	unk = kalloc(MAX_MODULES*sizeof(uint32_t));
 	if (!unk) return ENOMEM;
 
 	sys_prx_id_t list[MAX_MODULES];
@@ -273,7 +273,7 @@ int ps3mapi_get_all_process_modules_prx_id(process_id_t pid, sys_prx_id_t *prx_i
 		ret = copy_to_user(&list, get_secure_user_ptr(prx_id_list), sizeof(list));
 	}
 
-	dealloc(unk, 0x35);
+	kfree(unk);
 	return ret;
 }
 
@@ -282,7 +282,7 @@ int ps3mapi_get_process_module_info(process_t process, sys_prx_id_t prx_id, char
 	if (process <= 0)
 		return ESRCH;
 
-	sys_prx_segment_info_t *segments = alloc(sizeof(sys_prx_segment_info_t), 0x35);
+	sys_prx_segment_info_t *segments = kalloc(sizeof(sys_prx_segment_info_t));
 	if (!segments)
 		return ENOMEM;
 
@@ -309,7 +309,7 @@ int ps3mapi_get_process_module_info(process_t process, sys_prx_id_t prx_id, char
 		}
 	}
 
-	dealloc(segments, 0x35);
+	kfree(segments);
 	return ret;
 }
 
@@ -334,16 +334,16 @@ int ps3mapi_get_process_module_segments(process_id_t pid, sys_prx_id_t prx_id, s
 		return EFAULT;
 	}
 
-	char *filename = alloc(modinfo.filename_size, 0x35);
+	char *filename = kalloc(modinfo.filename_size);
 
 	if (!filename)
 		return ENOMEM;
 
-	sys_prx_segment_info_t *segments = alloc(modinfo.segments_num * sizeof(sys_prx_segment_info_t), 0x35);
+	sys_prx_segment_info_t *segments = kalloc(modinfo.segments_num * sizeof(sys_prx_segment_info_t));
 
 	if (!segments)
 	{
-		dealloc(filename, 0x35);
+		kfree(filename);
 		return ENOMEM;
 	}
 
@@ -364,8 +364,8 @@ int ps3mapi_get_process_module_segments(process_id_t pid, sys_prx_id_t prx_id, s
 		}
 	}
 
-	dealloc(filename, 0x35);
-	dealloc(segments, 0x35);
+	kfree(filename);
+	kfree(segments);
 	return ret;
 }
 
@@ -388,13 +388,13 @@ int ps3mapi_get_process_module_filename_by_prx_id(process_id_t pid, sys_prx_id_t
 
 int ps3mapi_get_vsh_plugin_slot_by_name(const char *name, uint8_t unload)
 {
-	char *tmp_name = alloc(30, 0x35);
+	char *tmp_name = kalloc(30);
 	if (!tmp_name)
 		return ENOMEM;
 
-	char *tmp_filename = alloc(MAX_FILE_LEN, 0x35);
+	char *tmp_filename = kalloc(MAX_FILE_LEN);
 	if (!tmp_filename)
-		{dealloc(tmp_name, 0x35); return ENOMEM;}
+		{kfree(tmp_name); return ENOMEM;}
 
 	uint8_t find_free_slot = (!name || (*name == PS3MAPI_FIND_FREE_SLOT));
 
@@ -418,8 +418,8 @@ int ps3mapi_get_vsh_plugin_slot_by_name(const char *name, uint8_t unload)
 		}
 	}
 
-	dealloc(tmp_name, 0x35);
-	dealloc(tmp_filename, 0x35);
+	kfree(tmp_name);
+	kfree(tmp_filename);
 
 	return slot;
 }
@@ -447,7 +447,7 @@ int ps3mapi_load_process_modules(process_id_t pid, char *path, void *arg, uint32
 
 	if (arg && arg_size > 0)
 	{
-		page_allocate_auto(process, KB(64), 0x2F, &kbuf);
+		page_allocate_auto(process, KB(64), &kbuf);
 		page_export_to_proc(process, kbuf, 0x40000, &vbuf);
 		memcpy(kbuf, arg, arg_size);
 	}
@@ -462,7 +462,7 @@ int ps3mapi_load_process_modules(process_id_t pid, char *path, void *arg, uint32
 	if (vbuf)
 	{
 		page_unexport_from_proc(process, vbuf);
-		page_free(process, kbuf, 0x2F);
+		free_page(process, kbuf);
 	}
 
 	if (ret != SUCCEEDED)
@@ -490,7 +490,7 @@ int ps3mapi_unload_process_modules(process_id_t pid, sys_prx_id_t prx_id)
 }
 
 //-----------------------------------------------
-//THREAD 
+//THREAD
 //-----------------------------------------------
 
 int ps3mapi_create_process_thread(process_id_t pid, thread_t *thread, void *entry, uint64_t arg, int prio, size_t stacksize, char *threadname) // TheRouletteBoi

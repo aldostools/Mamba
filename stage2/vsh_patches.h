@@ -5,9 +5,9 @@ static INLINE void get_rebug_vsh()
 {
 	CellFsStat stat;
 
-	if(cellFsStat("/dev_flash/vsh/module/vsh.self.cexsp", &stat) == 0)
+	if(cellFsStat("/dev_flash/vsh/module/vsh.self.cexsp", &stat) == SUCCEEDED)
 		vsh_type = 0xDE;
-	else if(cellFsStat("/dev_flash/vsh/module/vsh.self.dexsp", &stat) == 0)
+	else if(cellFsStat("/dev_flash/vsh/module/vsh.self.dexsp", &stat) == SUCCEEDED)
 		vsh_type = 0xCE;
 
 	#ifdef DEBUG
@@ -36,15 +36,15 @@ static INLINE int get_vsh_offset()
 	else
 	{
 		vsh_offset = 0;
-		for(int i = 0x10000; i < 0x3000000; i += 0x10000)
+		for(int addr = 0x10000; addr < 0x3000000; addr += 0x10000)
 		{
-			if(lv1_peekd(i + 0x200) == 0xF821FF917C0802A6ULL)
+			if(lv1_peekd(addr + 0x200) == 0xF821FF917C0802A6ULL)
 			{
-				if(lv1_peekd(i + 0x208) == 0xF80100804800039DULL)
+				if(lv1_peekd(addr + 0x208) == 0xF80100804800039DULL)
 				{
-					if(lv1_peekd(i + 0x210) == 0x6000000048000405ULL)
+					if(lv1_peekd(addr + 0x210) == 0x6000000048000405ULL)
 					{
-						vsh_offset = i;
+						vsh_offset = addr;
 						#ifdef DEBUG
 						DPRINTF("Vsh.self found with brute-force at address 0x%lx\n", vsh_offset);
 						#endif
@@ -59,11 +59,11 @@ static INLINE int get_vsh_offset()
 			#ifdef DEBUG
 			DPRINTF("Vsh.self not found!!\n");
 			#endif
-			return -1;
+			return FAILED;
 		}
 	}
 
-	return 0;
+	return SUCCEEDED;
 }
 
 

@@ -28,9 +28,9 @@
 #include <lv1/patch.h>
 #include "common.h"
 #include "syscall8.h"
+#include "storage_ext.h"
 #include "modulespatch.h"
 #include "mappath.h"
-#include "storage_ext.h"
 #include "region.h"
 #include "config.h"
 #include "sm_ext.h"
@@ -108,20 +108,21 @@ static INLINE int sys_get_version2(uint16_t *version)
 //----------------------------------------
 // HABIB FUNCTIONS FROM COBRA 8.x
 //----------------------------------------
-#define CB_LOCATION "/dev_blind/rebug/cobra/stage2.cex"
+#define CB_LOCATION		"/dev_blind/rebug/cobra/stage2.cex"
+#define CB_LOCATION_DEX	"/dev_blind/rebug/cobra/stage2.dex"
 
-#ifdef cellFsRename_internal
+#ifdef cellFsRename_internal_symbol
 int disable_cobra_stage()
 {
 	cellFsUtilMount_h("CELL_FS_IOS:BUILTIN_FLSH1", "CELL_FS_FAT", "/dev_blind", 0, 0, 0, 0, 0);
-	cellFsRename(CB_LOCATION, CB_LOCATION".bak");
-	cellFsRename(CB_LOCATION_DEX, CB_LOCATION_DEX".bak");
-	uint64_t size = 0x5343450000000000;
-	int dst;
-	cellFsOpen("/dev_hdd0/tmp/loadoptical", CELL_FS_O_WRONLY | CELL_FS_O_CREAT | CELL_FS_O_TRUNC, &dst, 0666, NULL, 0);
-	cellFsWrite(dst, &size, 4, &size);
-	cellFsClose(dst);
-	return 0;
+
+	cellFsRename(CB_LOCATION,     CB_LOCATION     ".bak");
+	cellFsRename(CB_LOCATION_DEX, CB_LOCATION_DEX ".bak");
+
+	uint64_t sce = 0x534345000000000; // SCE
+	save_file("/dev_hdd0/tmp/loadoptical", (void*)sce, 4);
+
+	return SUCCEEDED;
 }
 #else
 int disable_cobra_stage()
@@ -143,42 +144,19 @@ int disable_cobra_stage()
 //	cellFsStat(CB_LOCATION, &stat);
 //	uint64_t len = stat.st_size;
 //	uint8_t *buf;
-//	uint64_t size;
-//	int src;
-//	int dst;
 //
-//	page_allocate_auto(NULL, 0x40000, 0x2F, (void **)&buf);
-//	if(cellFsOpen(CB_LOCATION, CELL_FS_O_RDONLY, &src, 0, NULL, 0) == SUCCEEDED)
+//	page_allocate_auto(NULL, 0x40000, (void **)&buf);
+//	if(read_file(CB_LOCATION, buf, len) == len)
 //	{
-//		cellFsRead(src, buf, len, &size);
-//		cellFsClose(src);
-//	}
-//	else
-//	{
-//		page_free(NULL, buf, 0x2F);
-//		return -1;
+//		save_file(CB_LOCATION ".bak", buf, len);
+//		cellFsUnlink(CB_LOCATION);
 //	}
 //
-//	if((len == size) && cellFsOpen(CB_LOCATION ".bak", CELL_FS_O_WRONLY | CELL_FS_O_CREAT | CELL_FS_O_TRUNC, &dst, 0666, NULL, 0) == SUCCEEDED)
-//	{
-//		cellFsWrite(dst, buf, len, &size);
-//		cellFsClose(dst);
-//	}
-//	else
-//	{
-//		page_free(NULL, buf, 0x2F);
-//		return -1;
-//	}
-//
-//	page_free(NULL, buf, 0x2F);
-//	cellFsUnlink(CB_LOCATION);
+//	free_page(NULL, buf);
 
 	// force load optical ps2 disk
-	uint64_t size = 0x534345000000000;
-	int dst;
-	cellFsOpen("/dev_hdd0/tmp/loadoptical", CELL_FS_O_WRONLY | CELL_FS_O_CREAT | CELL_FS_O_TRUNC, &dst, 0666, NULL, 0);
-	cellFsWrite(dst, &size, 4, &size);
-	cellFsClose(dst);
+	uint64_t sce = 0x534345000000000; // SCE
+	save_file("/dev_hdd0/tmp/loadoptical", (void*)sce, 4);
 
 	return SUCCEEDED;
 }
@@ -219,14 +197,28 @@ LV2_SYSCALL2(int64_t, syscall8, (uint64_t function, uint64_t param1, uint64_t pa
 	// -- AV: temporary disable cobra syscall (allow dumpers peek 0x1000 to 0x9800)
 	static uint8_t tmp_lv1peek = 0;
 
-	if(ps3mapi_partial_disable_syscall8 == 0 && extended_syscall8.addr == 0 && ps3mapi_access_granted)
+	if((ps3mapi_partial_disable_syscall8 == 0) && (extended_syscall8.addr == 0) && ps3mapi_access_granted)
 	{
-		if((function >= 0x9800) || (function & 3)) tmp_lv1peek=0; else
-		if(function <= 0x1000) {tmp_lv1peek=1; if(function <= SYSCALL8_OPCODE_ENABLE_COBRA) {if(param1>=SYSCALL8_DISABLE_COBRA_CAPABILITY) return (param1==SYSCALL8_DISABLE_COBRA_CAPABILITY) ? SYSCALL8_DISABLE_COBRA_OK : disable_cobra; else disable_cobra = (function==SYSCALL8_OPCODE_DISABLE_COBRA && param1==1);}}
+		if((function >= 0x9800) || (function & 3)) tmp_lv1peek = 0; else // normal syscall 8
+		if( function <= 0x1000)
+		{
+			tmp_lv1peek = 1; // enable lv1 peek if lv1peek address <= 0x1000 (e.g. lv1 dump)
+			if(function <= SYSCALL8_OPCODE_ENABLE_COBRA)
+			{
+				if(param1 >= SYSCALL8_DISABLE_COBRA_CAPABILITY)
+					return (param1 == SYSCALL8_DISABLE_COBRA_CAPABILITY) ?
+								SYSCALL8_DISABLE_COBRA_OK :  // <- syscall3(sycall8, 0, 2) can disable: returns 0x5555;
+								disable_cobra;               // <- syscall3(sycall8, 0, 3) is disabled? returns 0/1
+				else
+					disable_cobra = ((function == SYSCALL8_OPCODE_DISABLE_COBRA) && (param1 == 1)); // <- syscall3(sycall8, 0, 1) = disable cobra (enable lv1peek)
+																									// <- syscall3(sycall8, 1, 0) = enable cobra (disable lv1peek)
+			}
+		}
 
-		if(tmp_lv1peek) {return lv1_peekd(function);}
+		if(tmp_lv1peek) return lv1_peekd(function); // return lv1peek(address)
 	}
-	else tmp_lv1peek=0;
+	else
+		tmp_lv1peek = 0; // normal syscall 8
 	// --
 
 	// Some processsing to avoid crashes with lv1 dumpers
@@ -282,7 +274,7 @@ LV2_SYSCALL2(int64_t, syscall8, (uint64_t function, uint64_t param1, uint64_t pa
 	#ifdef PS3M_API
 	if (3 <= ps3mapi_partial_disable_syscall8)
 	{
-		if (function == SYSCALL8_OPCODE_PS3MAPI)
+		if (function == SYSCALL8_OPCODE_PS3MAPI && ps3mapi_access_granted)
 		{
 			if ((int)param1 == PS3MAPI_OPCODE_PDISABLE_SYSCALL8)
 			{
@@ -310,7 +302,8 @@ LV2_SYSCALL2(int64_t, syscall8, (uint64_t function, uint64_t param1, uint64_t pa
 	#endif
 
 	// -- AV: disable cobra without reboot (use lv1 peek)
-	if(disable_cobra) return lv1_peekd(function);
+	if(disable_cobra)
+		return lv1_peekd(function);
 
 	switch (function)
 	{
@@ -536,15 +529,15 @@ LV2_SYSCALL2(int64_t, syscall8, (uint64_t function, uint64_t param1, uint64_t pa
 				#else
 				*(uint64_t *)MKA(syscall_table_symbol + 8 * 8) = syscall_not_impl;
 				#endif
-				*(uint64_t *)MKA(syscall_table_symbol + 8 * 9) = syscall_not_impl;
+				*(uint64_t *)MKA(syscall_table_symbol + 8 * 9)  = syscall_not_impl;
 				*(uint64_t *)MKA(syscall_table_symbol + 8 * 10) = syscall_not_impl;
 				*(uint64_t *)MKA(syscall_table_symbol + 8 * 11) = syscall_not_impl;
 				*(uint64_t *)MKA(syscall_table_symbol + 8 * 15) = syscall_not_impl;
 				*(uint64_t *)MKA(syscall_table_symbol + 8 * 35) = syscall_not_impl;
 				*(uint64_t *)MKA(syscall_table_symbol + 8 * 36) = syscall_not_impl;
 				*(uint64_t *)MKA(syscall_table_symbol + 8 * 38) = syscall_not_impl;
-				*(uint64_t *)MKA(syscall_table_symbol + 8 * 6) = syscall_not_impl;
-				*(uint64_t *)MKA(syscall_table_symbol + 8 * 7) = syscall_not_impl;
+				*(uint64_t *)MKA(syscall_table_symbol + 8 * 6)  = syscall_not_impl;
+				*(uint64_t *)MKA(syscall_table_symbol + 8 * 7)  = syscall_not_impl;
 			return SYSCALL8_STEALTH_OK;
 		}
 		break;
@@ -875,7 +868,7 @@ void create_syscalls(void)
 
 int main(void)
 {
-	// exit if syscall 11 already exists, used to prevent payload reload
+	// exit if CFW syscall 11 already exists, used to prevent payload reload
 	if((*(uint64_t *)MKA(syscall_table_symbol + 8 * 11)) != (*(uint64_t *)MKA(syscall_table_symbol))) return SUCCEEDED;
 
 	#ifdef DEBUG

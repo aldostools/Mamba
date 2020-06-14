@@ -53,7 +53,7 @@ typedef int CellFsMode;
 #endif
 
 
-typedef struct 
+typedef struct
 {
 	CellFsMode st_mode;
 	int st_uid;
@@ -66,7 +66,7 @@ typedef struct
 	uint64_t dummy[1];
 } __attribute__((__packed__)) CellFsStat;
 
-typedef struct 
+typedef struct
 {
 	time_t actime;
 	time_t modtime;
@@ -93,7 +93,7 @@ LV2_EXPORT int cellFsUtime(const char *path, CellFsUtimbuf *timep);
 
 #ifdef io_sub_rtoc_entry_1
 
-#ifdef cellFsRename_internal
+#ifdef cellFsRename_internal_symbol
 LV2_EXPORT int cellFsRename_internal(void *structure, const char *from, const char *to, uint64_t unk);
 static INLINE int cellFsRename(const char *from, const char *to)
 {
@@ -109,7 +109,6 @@ static INLINE int cellFsUnlink(const char *path)
 	structure = (uint64_t *)structure[io_sub_rtoc_entry_1];
 	return cellFsUnlink_internal(structure, path, 0);
 }
-
 #endif
 
 LV2_EXPORT int cellFsUtilMount(const char *block_dev, const char *filesystem, const char *mount_point, int unk, int read_only, int unk2, char *argv[], int argc);

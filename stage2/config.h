@@ -8,8 +8,8 @@ typedef struct
 	uint8_t bd_video_region; // One of BDRegion, or 0 for default
 	uint8_t dvd_video_region; // One of DVDRegion or 0 for default
 	uint8_t ps2softemu; // Non-zero to show ps2 discs in non bc consoles
-	uint32_t spoof_version; // version in BCD, eg. 0x0484, Max value: 0x0999 // feature is unavailable (use SEN Enabler for version spoofer)
-	uint32_t spoof_revision; // revision number (decimal), MAx value: 99999 // feature is unavailable (use SEN Enabler for version spoofer)
+	uint32_t spoof_version;  // deprecated (use SEN Enabler for version spoofer) // version in BCD, eg. 0x0484, Max value: 0x0999
+	uint32_t spoof_revision; // deprecated (use SEN Enabler for version spoofer) // revision number (decimal), MAx value: 99999
 	uint8_t fan_speed; // 0 = SYSCON, 1 = Dynamic Fan Controller, 0x33 to 0xFF = Set manual fan speed
 } __attribute__((packed)) MambaConfig;
 

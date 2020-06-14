@@ -8,6 +8,7 @@
 #include <lv2/error.h>
 #include "common.h"
 #include "mappath.h"
+#include "storage_ext.h"
 #include "modulespatch.h"
 #include "syscall8.h"
 #include "ps3mapi_core.h"
@@ -80,9 +81,9 @@ void map_first_slot(char *oldpath, char *newpath)
 	return;
 }
 */
-int map_path(char *oldpath, char *newpath, uint32_t flags)
+static int map_path(char *oldpath, char *newpath, uint32_t flags)
 {
-	int8_t i, firstfree = -1, is_dev_bdvd = 0;
+	int8_t i, firstfree = UNDEFINED, is_dev_bdvd = 0;
 
 	if (!oldpath || *oldpath == 0)
 		return FAILED;
@@ -94,10 +95,14 @@ int map_path(char *oldpath, char *newpath, uint32_t flags)
 	// init array
 	if(!path_entries)
 	{
-		for(int8_t i = first_slot; i < MAX_TABLE_ENTRIES; i++) init_map_entry(i);
+		for(int8_t i = first_slot; i < MAX_TABLE_ENTRIES; i++)
+			init_map_entry(i);
 
-		if(!path_entries) page_allocate_auto(NULL, (MAX_TABLE_ENTRIES * (MAX_PATH_OLD + MAX_PATH_NEW)), 0x2F, (void **)&path_entries);
-		if(!path_entries) return EKRESOURCE;
+		if(!path_entries)
+			page_allocate_auto(NULL, (MAX_TABLE_ENTRIES * (MAX_PATH_OLD + MAX_PATH_NEW)), (void **)&path_entries);
+
+		if(!path_entries)
+			return EKRESOURCE;
 	}
 
 	// unmap if both paths are the same
@@ -135,19 +140,23 @@ int map_path(char *oldpath, char *newpath, uint32_t flags)
 					init_map_entry(i);
 
 					// find last entry
-					for(int8_t n = max_table_entries - 1; n >= first_slot; n--) {if(map_table[n].oldpath) break; else if(max_table_entries > 0) max_table_entries--;}
+					for(int8_t n = max_table_entries - 1; n >= first_slot; n--)
+					{
+						if(map_table[n].oldpath) break;
+						if(max_table_entries > 0) max_table_entries--;
+					}
 				}
 
 				return SUCCEEDED;
 			}
 		}
-		else if (firstfree < 0)
+		else if (firstfree <= UNDEFINED)
 		{
 			firstfree = i;
 		}
 	}
 
-	if (firstfree < 0) firstfree = max_table_entries;
+	if (firstfree <= UNDEFINED) firstfree = max_table_entries;
 
 	// add new mapping
 	if (firstfree < MAX_TABLE_ENTRIES)
@@ -200,7 +209,7 @@ int map_path_user(char *oldpath, char *newpath, uint32_t flags)
 		return FAILED;
 
 	int ret = pathdup_from_user(get_secure_user_ptr(oldpath), &oldp);
-	if (ret != 0)
+	if (ret != SUCCEEDED)
 		return ret;
 
 	if (newpath == 0)
@@ -210,18 +219,18 @@ int map_path_user(char *oldpath, char *newpath, uint32_t flags)
 	else
 	{
 		ret = pathdup_from_user(get_secure_user_ptr(newpath), &newp);
-		if (ret != 0)
+		if (ret != SUCCEEDED)
 		{
-			dealloc(oldp, 0x27);
+			free(oldp);
 			return ret;
 		}
 	}
 
 	ret = map_path(oldp, newp, flags | FLAG_COPY);
 
-	dealloc(oldp, 0x27);
+	free(oldp);
 	if (newp)
-		dealloc(newp, 0x27);
+		free(newp);
 
 	return ret;
 }
@@ -234,15 +243,23 @@ LV2_SYSCALL2(int, sys_map_path, (char *oldpath, char *newpath))
 
 int get_map_path(unsigned int num, char *path, char *new_path)
 {
-	if(num == 0xFFFF) return MAX_TABLE_ENTRIES; // return max remaps
+	if(num >= 0xFFFF)
+		return MAX_TABLE_ENTRIES; // return max remaps
 
-	if(num >= max_table_entries) return max_table_entries; // return last index (e.g. num = 0xFFF)
+	if(num >= max_table_entries)
+		return max_table_entries; // return last index (e.g. num = 0xFFF)
 
-	if(map_table[num].oldpath_len == 0 || map_table[num].newpath_len == 0 || !map_table[num].newpath || !map_table[num].oldpath || !path) return FAILED;
+	if( map_table[num].oldpath_len == 0 ||
+		map_table[num].newpath_len == 0 ||
+		!map_table[num].newpath ||
+		!map_table[num].oldpath || !path)
+		return FAILED;
 
 	copy_to_user(&path, get_secure_user_ptr(map_table[num].oldpath), map_table[num].oldpath_len);
 
-	if(!new_path) return SUCCEEDED;
+	if(!new_path)
+		return SUCCEEDED;
+
 	copy_to_user(&new_path, get_secure_user_ptr(map_table[num].newpath), map_table[num].newpath_len);
 
 	return SUCCEEDED;
@@ -270,7 +287,7 @@ int sys_map_paths(char *paths[], char *new_paths[], unsigned int num)
 		for (unsigned int i = 0; i < num; i++)
 		{
 			ret = map_path_user((char *)(uint64_t)u_paths[i], (char *)(uint64_t)u_new_paths[i], FLAG_TABLE);
-			if (ret != 0)
+			if (ret != SUCCEEDED)
 			{
 				unmap = 1;
 				break;
@@ -294,6 +311,11 @@ int sys_map_paths(char *paths[], char *new_paths[], unsigned int num)
 static uint8_t libft2d_access = 0;
 static uint8_t auto_earth = 0;
 static uint8_t earth_id = 0;
+
+void clear_key(void *key)
+{
+	memset(key, 0, 0x10);
+}
 
 #ifdef DO_REACTPSN
 #include "make_rif.h"
@@ -339,13 +361,13 @@ LV2_HOOKED_FUNCTION_POSTCALL_2(void, open_path_hook, (char *path0, int mode))
 			////////////////////////////////////////////////////////////////////////////////////
 			// Auto change earth.qrc - DeViL303 & AV                                          //
 			////////////////////////////////////////////////////////////////////////////////////
-			if(auto_earth && (strncmp(path, "/dev_flash/vsh/resource/qgl/earth.qrc", 37) == 0))
+			if(auto_earth && (strncmp(path, "/dev_flash/vsh/resource/qgl/earth.qrc", 37) == SUCCEEDED))
 			{
 				char new_earth[30];
 				sprintf(new_earth, "%s/%i.qrc", "/dev_hdd0/tmp/earth", ++earth_id);
 
 				CellFsStat stat;
-				if(cellFsStat(new_earth, &stat) == 0)
+				if(cellFsStat(new_earth, &stat) == SUCCEEDED)
 					set_patched_func_param(1, (uint64_t)new_earth);
 				else
 					earth_id = 0;
@@ -365,18 +387,16 @@ LV2_HOOKED_FUNCTION_POSTCALL_2(void, open_path_hook, (char *path0, int mode))
 
 				if(!strncmp(path, "/dev_hdd0/photo/", 16))
 				{
-					char *photo = path + 16; size_t len = strlen(photo);
-					if (len < 8) ;
-					else if(!strcmp(photo + len -4, ".PNG") || !strcmp(photo + len -4, ".JPG") || !strcmp(photo + len -8, "_COV.JPG") || !strncasecmp(photo + len -8, ".iso.jpg", 8) || !strncasecmp(photo + len -8, ".iso.png", 8))
+					char *photo = path + 16; int len = strlen(photo);
+					if (len >= 8)
 					{
-						#ifdef DEBUG
-						DPRINTF("CREATING /dev_hdd0/tmp/wm_request\n");
-						#endif
-						int fd;
-						if(cellFsOpen("/dev_hdd0/tmp/wm_request", CELL_FS_O_CREAT | CELL_FS_O_WRONLY | CELL_FS_O_TRUNC, &fd, 0666, NULL, 0) == 0)
+						photo += len -4;
+						if(!strcmp(photo, ".PNG") || !strcmp(photo, ".JPG") || !strcmp(photo -4, "_COV.JPG") || !strncasecmp(photo -4, ".iso.jpg", 8) || !strncasecmp(photo -4, ".iso.png", 8))
 						{
-							cellFsWrite(fd, path, (len + 16), NULL);
-							cellFsClose(fd);
+							#ifdef DEBUG
+							DPRINTF("CREATING /dev_hdd0/tmp/wm_request\n");
+							#endif
+							save_file("/dev_hdd0/tmp/wm_request", path, (len + 16));
 						}
 					}
 				}
@@ -397,7 +417,7 @@ LV2_HOOKED_FUNCTION_POSTCALL_2(void, open_path_hook, (char *path0, int mode))
 						if(map_table[i].newpath[1] == '/')
 						{
 							CellFsStat stat;
-							if( (cellFsStat(map_table[i].newpath, &stat) != 0) && (cellFsStat(path0, &stat) == 0) )
+							if( (cellFsStat(map_table[i].newpath, &stat) != SUCCEEDED) && (cellFsStat(path0, &stat) == SUCCEEDED) )
 							{
 								#ifdef DEBUG
 								DPRINTF("open_path %s\n", path0);
@@ -509,7 +529,7 @@ void map_path_patches(int syscall)
 	open_path_callback.addr = NULL;
 
 	CellFsStat stat;
-	auto_earth = (cellFsStat("/dev_hdd0/tmp/earth", &stat) == 0); // auto rotare 1.qrc to 255.qrc each time earth.qrc is accessed
+	auto_earth = (cellFsStat("/dev_hdd0/tmp/earth", &stat) == SUCCEEDED); // auto rotare 1.qrc to 255.qrc each time earth.qrc is accessed
 
 	if (syscall)
 		create_syscall2(SYS_MAP_PATH, sys_map_path);

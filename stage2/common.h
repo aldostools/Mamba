@@ -13,7 +13,7 @@
 #define DPRINTF			_debug_printf
 #define DPRINT_HEX		debug_print_hex
 #define DPRINT_HEX_C	debug_print_hex_c
-
+/*
 static INLINE void dump_stack_trace(unsigned int n)
 {
 	if (n == 0)
@@ -31,7 +31,7 @@ static INLINE void dump_stack_trace(unsigned int n)
 
 	DPRINTF("---------------------------\n");
 }
-
+*/
 static INLINE void dump_stack_trace2(unsigned int n)
 {
 	if (n == 0)
@@ -42,11 +42,9 @@ static INLINE void dump_stack_trace2(unsigned int n)
 	void *p = get_patched_func_call_address();
 	DPRINTF("%p\n", p);
 
-	int i = 1;
-
-	while (p && i < n)
+	for (int i = 0; p && (i < n); i++)
 	{
-		p = get_call_address(i++);
+		p = get_call_address(i);
 		DPRINTF("%p\n", p);
 	}
 
@@ -88,7 +86,7 @@ static INLINE void dump_stack_trace3(uint64_t *stack, unsigned int n)
 
 	DPRINTF("---------------------------\n");
 }
-
+/*
 static INLINE void dump_stack_trace4(uint64_t *stack, unsigned int n)
 {
 	if (n == 0)
@@ -96,7 +94,7 @@ static INLINE void dump_stack_trace4(uint64_t *stack, unsigned int n)
 
 	DPRINTF("--------STACK TRACE--------\n");
 
-	DPRINTF("%p\n", (void *)(stack[2]-4));
+	DPRINTF("%p\n", (void *)(stack[2] - 4));
 	n--;
 
 	for (int i = 0; i < n; i++)
@@ -109,7 +107,7 @@ static INLINE void dump_stack_trace4(uint64_t *stack, unsigned int n)
 
 	DPRINTF("---------------------------\n");
 }
-
+*/
 #else
 
 #define fatal(s) { while(1); }

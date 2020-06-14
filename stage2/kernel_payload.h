@@ -28,7 +28,7 @@ int inst_and_run_kernel_dynamic(uint8_t *payload, int size, uint64_t *residence)
 	if(!payload)
 		return ESRCH;
 
-	void *skprx = alloc(size, 0x27);
+	void *skprx = malloc(size);
 
 	if(skprx)
 	{
@@ -53,7 +53,7 @@ int inst_and_run_kernel_dynamic(uint8_t *payload, int size, uint64_t *residence)
 int unload_plugin_kernel(uint64_t residence)
 {
 	if(residence)
-		dealloc((uint64_t *)residence, 0x27);
+		free((uint64_t *)residence);
 
 	return SUCCEEDED;
 }

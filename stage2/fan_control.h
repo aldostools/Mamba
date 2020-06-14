@@ -82,7 +82,7 @@ static void get_temperature(uint32_t id, uint32_t *temp)
 static void fan_control(uint64_t arg0)
 {
 	DPRINTF("FAN CONTROL: started.\n");
-	
+
 	uint32_t t_cpu, t_rsx, prev = 0; fan_control_running = 1;
 
 	while(fan_control_running)
@@ -102,9 +102,9 @@ static void fan_control(uint64_t arg0)
 		if(t_cpu > 78)
 			sm_set_fan_policy(0, 2, 0xF8); // 98%
 		else if(t_cpu >= 70)
-			sm_set_fan_policy(0, 2, 0x80 + 0xD*(t_cpu - 70)); // 50% + 5% per degree
+			sm_set_fan_policy(0, 2, 0x80 + 0xD*(t_cpu - 70)); // 50% + 5% per degree °C
 		else if(t_cpu >= 60)
-			sm_set_fan_policy(0, 2, 0x50 + 0x5*(t_cpu - 60)); // 30% + 2% per degree
+			sm_set_fan_policy(0, 2, 0x50 + 0x5*(t_cpu - 60)); // 30% + 2% per degree °C
 		else
 			sm_set_fan_policy(0, 1, 0); // SYSCON < 60°C
 

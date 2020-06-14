@@ -29,5 +29,6 @@ make release --no-print-directory
 rem make debug   --no-print-directory
 
 rd mamba\lz>nul
+rd mamba\debug>nul
 
 pause

@@ -34,39 +34,30 @@ int sys_load_mamba(char *mamba_file)
 	mamba_file = get_secure_user_ptr(mamba_file);
 	CellFsStat stat;
 	int ret = cellFsStat(mamba_file, &stat);
-	if (ret == 0)
+	if (ret == SUCCEEDED)
 	{
-		int fd;
-		ret = cellFsOpen(mamba_file, CELL_FS_O_RDONLY, &fd, 0, NULL, 0);
-		if (ret == 0)
+		uint32_t psize = stat.st_size;
+		void *mamba = malloc(psize);
+		if (mamba)
 		{
-			uint32_t psize = stat.st_size;
-			void *mamba = alloc(psize, 0x27);
-			if (mamba)
+			if (!read_file(mamba_file, mamba, psize))
 			{
-				uint64_t rs;
-				ret = cellFsRead(fd, mamba, psize, &rs);
-				cellFsClose(fd);
-
-				if (ret != 0)
-				{
-					dealloc(mamba, 0x27);
-					mamba = NULL;
-					return ret;
-				}
-
-				mamba_loaded = 1;
-				f_desc_t f;
-				f.toc = (void *)MKA(TOC);
-				f.addr = mamba;
-
-				int (* func)(void);
-				func = (void *)&f;
-				func();
-				return 0;
+				free(mamba);
+				mamba = NULL;
+				return ret;
 			}
-			return ENOMEM;
+
+			mamba_loaded = 1;
+			f_desc_t f;
+			f.toc = (void *)MKA(TOC);
+			f.addr = mamba;
+
+			int (* func)(void);
+			func = (void *)&f;
+			func();
+			return SUCCEEDED;
 		}
+		return ENOMEM;
 	}
 	return ret;
 }
@@ -123,7 +114,7 @@ int sys_prx_load_vsh_plugin(unsigned int slot, char *path, void *arg, uint32_t a
 	if (prx < 0) return prx;
 	if (arg && arg_size > 0)
 	{
-		page_allocate_auto(vsh_process, KB(64), 0x2F, &kbuf);
+		page_allocate_auto(vsh_process, KB(64), &kbuf);
 		page_export_to_proc(vsh_process, kbuf, 0x40000, &vbuf);
 		copy_from_user(arg, kbuf, arg_size);
 	}
@@ -132,7 +123,7 @@ int sys_prx_load_vsh_plugin(unsigned int slot, char *path, void *arg, uint32_t a
 	if (vbuf)
 	{
 		page_unexport_from_proc(vsh_process, vbuf);
-		page_free(vsh_process, kbuf, 0x2F);
+		free_page(vsh_process, kbuf);
 	}
 	if (ret == 0) vsh_plugins[slot] = prx;
 	else
