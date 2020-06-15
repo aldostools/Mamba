@@ -125,9 +125,9 @@ LV2_SYSCALL2(int, ttyWrite, (int channel, const char* message, int length, int* 
 	f.addr = (void*)ttywrite_sc;
 	f.toc = (void*)MKA(TOC);
 	int (*func)(int, const char *, int, int *) = (void *)&f;
-    return func(channel, message, length, written);
+	return func(channel, message, length, written);
 	#endif
-	
+
 	return 0;
 }
 
@@ -173,7 +173,7 @@ int64_t debug_init(void)
 	uint64_t **table = (uint64_t **)MKA(syscall_table_symbol);
 	f_desc_t *f = (f_desc_t *)table[SYS_TTY_WRITE];
 	ttywrite_sc = (uint64_t *)f->addr;
-	
+
 	s64 result;
 	u64 v2;
 

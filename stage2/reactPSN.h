@@ -517,9 +517,9 @@ static int check_ecdsa(struct point *Q, u8 *R, u8 *S, u8 *hash)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-static int rif_fd;  // *.rif
-static int act_fd;  // act.dat
-static int edat_fd; // *.edat or CONFIG
+static int rif_fd = 0;  // *.rif
+static int act_fd = 0;  // act.dat
+static int edat_fd = 0; // *.edat or CONFIG
 
 static int sha1(u8 *buf, uint64_t size, u8 *out)
 {
@@ -540,6 +540,7 @@ static void ecdsa_sign(u8 *hash, u8 *R, u8 *S)
 
 LV2_HOOKED_FUNCTION_PRECALL_SUCCESS_6(int,sys_fs_open,(const char *path, int flags, int *fd, uint64_t mode, const void *arg, uint64_t size))
 {
+/*
 	process_t process = get_current_process_critical();
 	if(!is_vsh_process(process))
 	{
@@ -548,12 +549,10 @@ LV2_HOOKED_FUNCTION_PRECALL_SUCCESS_6(int,sys_fs_open,(const char *path, int fla
 		edat_fd = 0;
 		return SUCCEEDED;
 	}
-
+*/
 	if(path[5] != 'h') return SUCCEEDED; // not /dev_hdd0
 
-	int path_len = strlen(path); if(path_len < 29) return SUCCEEDED;
-
-	if(path[10] != 'h') return SUCCEEDED; // not /dev_hdd0/home
+	int path_len = strlen(path); if(path_len < 23) return SUCCEEDED;
 
 	if(!strcmp(path + path_len - 4, ".rif"))
 	{
@@ -569,7 +568,8 @@ LV2_HOOKED_FUNCTION_PRECALL_SUCCESS_6(int,sys_fs_open,(const char *path, int fla
 		#endif
 		act_fd = *fd;
 	}
-	else if((!strcmp(path + path_len - 5, ".edat")) || (!strcmp(path + path_len - 5, ".EDAT")) || (!strcmp(path + path_len - 11, "ISO.BIN.ENC")) || (!strcmp(path + path_len - 6, "CONFIG")))
+	else if((!strcmp(path + path_len - 5, ".edat")) || (!strcmp(path + path_len - 5, ".EDAT")) ||
+			(!strcmp(path + path_len - 11, "ISO.BIN.ENC")) || (!strcmp(path + path_len - 6, "CONFIG")))
 	{
 		#ifdef DEBUG
 		DPRINTF("edat fd open called:%s %x %x %x %x %x \n", path, (unsigned int)flags, *fd, (unsigned int)mode, (unsigned int)(uint64_t)arg, (unsigned int)size);
@@ -635,6 +635,23 @@ LV2_HOOKED_FUNCTION_PRECALL_SUCCESS_4(int,sys_fs_read,(int fd, void *buf, uint64
 		elt_copy(buffer + bsize,      R+1);
 		elt_copy(buffer + bsize + 20, S+1);
 //		DPRINTF("R:%015x\nS:%015x\n",R,S);
+	}
+	return SUCCEEDED;
+}
+
+LV2_HOOKED_FUNCTION_PRECALL_SUCCESS_1(int,sys_fs_close,(int fd))
+{
+	if(rif_fd == fd)
+	{
+		rif_fd = 0;
+	}
+	else if(act_fd == fd)
+	{
+		act_fd = 0;
+	}
+	else if(edat_fd == fd)
+	{
+		edat_fd = 0;
 	}
 	return SUCCEEDED;
 }

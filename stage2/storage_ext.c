@@ -2281,10 +2281,10 @@ static INLINE void do_video_mode_patch(void)
 
 	if(vm_patch_off == 0) return;
 
-	process_t p = get_current_process_critical();
-
 	if(!vsh_process) vsh_process = get_vsh_process(); //NzV
 	if(!vsh_process) return;
+
+	process_t p = get_current_process_critical();
 
 	if (p == vsh_process)
 	{
@@ -2840,7 +2840,6 @@ LV2_HOOKED_FUNCTION(int, shutdown_copy_params_patched, (uint8_t *argp_user, uint
 			cellFsUnlink(PS2EMU_CONFIG_FILE);
 			if (disc_emulation == EMU_PS2_CD || disc_emulation == EMU_PS2_DVD)
 			{
-
 				prepare_ps2emu = 1;
 			}
 			#ifdef DEBUG
@@ -3454,7 +3453,6 @@ int sys_storage_ext_mount_dvd_discfile(unsigned int filescount, char *files[])
 
 int sys_storage_ext_mount_bd_discfile(unsigned int filescount, char *files[])
 {
-
 	char **array = copy_user_pointer_array(files, filescount);
 	if (!array)
 		return EINVAL;
@@ -3754,28 +3752,35 @@ void storage_ext_patches(void)
 {
 	if(storage_ext_patches_done == 1) return;
 		storage_ext_patches_done = 1;
+
 #ifdef DO_PATCH_PS2
 	patch_ps2emu_entry(ps2emu_type);
 #endif
 	patch_jump(device_event_port_send_call, device_event);
 	hook_function_on_precall_success(storage_get_device_info_symbol, post_storage_get_device_info, 2);
+
 	// read_bdvd0 is the base function called by read_bdvd1 and read_bdvd2.
 	// Hooking it would be enough for the other two to work, but anyways for reading efficiency let's hook those as well.
 	hook_function_with_cond_postcall(read_bdvd0_symbol, emu_read_bdvd0, 8);
 	hook_function_with_cond_postcall(read_bdvd1_symbol, emu_read_bdvd1, 4); // iso9660 driver func
 	hook_function_with_cond_postcall(read_bdvd2_symbol, emu_read_bdvd2, 3);	 // udf driver func
+
 	// High level functions
 	hook_function_with_cond_postcall(storage_read_symbol, emu_storage_read, 7);
 	hook_function_with_cond_postcall(get_syscall_address(SYS_STORAGE_ASYNC_READ), emu_sys_storage_async_read, 7);
+
 	// Command functions
 	hook_function_with_cond_postcall(storage_send_device_command_symbol, emu_storage_send_device_command, 7);
 	hook_function_with_cond_postcall(get_syscall_address(SYS_STORAGE_ASYNC_SEND_DEVICE_COMMAND), emu_sys_storage_async_send_device_command, 7);
+
 	// SS function
 	hook_function_with_cond_postcall(get_syscall_address(864), emu_disc_auth, 2);
+
 #ifdef DO_PATCH_PS2
 	// For PS2
 	patch_call(shutdown_copy_params_call, shutdown_copy_params_patched);
 #endif
+
 	// Initial setup
 	uint64_t syscall_not_impl = *(uint64_t *)MKA(syscall_table_symbol);
 	uint64_t cobra_sc7 = *(uint64_t *)MKA(syscall_table_symbol + (8 * 7));
@@ -3805,6 +3810,8 @@ void storage_ext_patches(void)
 #ifdef PS3M_API
 void unhook_all_storage_ext(void)
 {
+	suspend_intr();
+
 #if defined (FIRMWARE_482C) || defined (FIRMWARE_483C) || defined (FIRMWARE_484C) || defined (FIRMWARE_485C) || defined (FIRMWARE_486C)
 	*(uint32_t *)MKA(device_event_port_send_call) = 0x4BD91004;
 	*(uint32_t *)MKA(shutdown_copy_params_call)   = 0x48004FBD;
@@ -3813,24 +3820,30 @@ void unhook_all_storage_ext(void)
 	*(uint32_t *)MKA(shutdown_copy_params_call)   = 0x48005585;
 #endif
 	unhook_function_on_precall_success(storage_get_device_info_symbol, post_storage_get_device_info, 2);
+
 	// Unhook read bdvd
 	unhook_function_with_cond_postcall(read_bdvd0_symbol, emu_read_bdvd0, 8);
 	unhook_function_with_cond_postcall(read_bdvd1_symbol, emu_read_bdvd1, 4);
 	unhook_function_with_cond_postcall(read_bdvd2_symbol, emu_read_bdvd2, 3);
+
 	// High level functions
 	unhook_function_with_cond_postcall(storage_read_symbol, emu_storage_read, 7);
 	unhook_function_with_cond_postcall(get_syscall_address(SYS_STORAGE_ASYNC_READ), emu_sys_storage_async_read, 7);
+
 	// Command functions
 	unhook_function_with_cond_postcall(storage_send_device_command_symbol, emu_storage_send_device_command, 7);
 	unhook_function_with_cond_postcall(get_syscall_address(SYS_STORAGE_ASYNC_SEND_DEVICE_COMMAND), emu_sys_storage_async_send_device_command, 7);
+
 	// SS function
 	unhook_function_with_cond_postcall(get_syscall_address(864), emu_disc_auth, 2);
+
 	#ifdef DEBUG
 	unhook_function_on_precall_success(cellFsUtilMount_symbol, post_cellFsUtilMount, 8);
 	#else
 	if (!hdd0_mounted)
 		unhook_function_on_precall_success(cellFsUtilMount_symbol, post_cellFsUtilMount, 8);
 	#endif
+
 	resume_intr();
 }
 #endif

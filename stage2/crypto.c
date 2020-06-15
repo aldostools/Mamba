@@ -39,10 +39,9 @@ void xtea_ctr(uint8_t *key, uint64_t nounce, uint8_t *buf, int size)
 {
 	uint8_t ct[8];
 
-	for (int i = 0; i < size; i += 8)
+	for (int i = 0; i < size; i += 8, ++nounce)
 	{
 		xtea_encrypt_block((uint32_t *)key, (uint32_t *)&nounce, (uint32_t *)ct);
 		xor64(ct, buf + i);
-		++nounce;
 	}
 }

@@ -43,6 +43,10 @@
 #include "symbols_482D-486D.h"
 #include "symbols_475E-486E.h"
 
+#define DO_PHOTO_GUI
+#define DO_AUTO_EARTH
+#define DO_AUTO_DEV_BLIND
+
 #ifdef SHA1_init_symbol
 #ifdef strrchr_symbol
  #define DO_REACTPSN

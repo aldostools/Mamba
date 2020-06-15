@@ -133,8 +133,8 @@ int ps3mapi_disable_syscall(int num);
 //SECURITY
 //-----------------------------------------------
 
-#define PS3MAPI_OPCODE_SET_ACCESS_KEY			0x2000
-#define PS3MAPI_OPCODE_REQUEST_ACCESS			0x2001
+#define PS3MAPI_OPCODE_SET_ACCESS_KEY		0x2000
+#define PS3MAPI_OPCODE_REQUEST_ACCESS		0x2001
 
 //-----------------------------------------------
 //REMOVE COBRA/MAMBA HOOK
@@ -146,18 +146,22 @@ int ps3mapi_disable_syscall(int num);
 //PSID/IDPS
 //-----------------------------------------------
 
-#define PS3MAPI_OPCODE_GET_IDPS 		0x0081
-#define PS3MAPI_OPCODE_SET_IDPS 		0x0082
-#define PS3MAPI_OPCODE_GET_PSID 		0x0083
-#define PS3MAPI_OPCODE_SET_PSID			0x0084
+#define PS3MAPI_OPCODE_GET_IDPS				0x0081
+#define PS3MAPI_OPCODE_SET_IDPS				0x0082
+#define PS3MAPI_OPCODE_GET_PSID				0x0083
+#define PS3MAPI_OPCODE_SET_PSID				0x0084
 
 //-----------------------------------------------
 //MISC
 //-----------------------------------------------
-#define PS3MAPI_OPCODE_AUTO_DEV_BLIND	0x2221
-#define PS3MAPI_OPCODE_PHOTO_GUI		0x2222
-#define PS3MAPI_OPCODE_GET_FAN_SPEED	0x2233
-#define PS3MAPI_OPCODE_SET_FAN_SPEED	0x2235
+#define PS3MAPI_OPCODE_AUTO_DEV_BLIND		0x2221
+#define PS3MAPI_OPCODE_PHOTO_GUI			0x2222
+#define PS3MAPI_OPCODE_AUTO_EARTH			0x2223
+
+#define PS3MAPI_OPCODE_GET_FAN_SPEED		0x2233
+#define PS3MAPI_OPCODE_SET_FAN_SPEED		0x2235
+
+#define PS3MAPI_OPCODE_SKIP_EXISTING_RIF	0x2241
 
 int ps3mapi_get_idps(uint64_t *idps);
 int ps3mapi_set_idps(uint64_t part1, uint64_t part2);

@@ -25,7 +25,7 @@ typedef struct _process_t
 	void *mem_object; 					// 0x30
 	UnkProcessStruct *unk_38; 			// 0x38
 	uint64_t unk_40; 					// 0x40
-	void *first_thread; 				// 0x48 
+	void *first_thread; 				// 0x48
 	uint64_t unk_50; 					// 0x50
 	uint64_t unk_58; 					// 0x58
 	void *unk_60; 						// 0x60
@@ -36,7 +36,7 @@ typedef struct _process_t
 	uint64_t unk_88[4]; 				// 0x88
 	uint64_t unk_A8; 					// 0xA8  user address?
 	struct _process_t *parent;  		// 0xB0
-	struct _process_t *first_child;  	// 0xB8  
+	struct _process_t *first_child;  	// 0xB8
 	struct _process_t *next_sibling; 	// 0xC0
 	uint64_t num_children; 				// 0xC8
 	void *unk_D0; 	 					// 0xD0
@@ -89,7 +89,7 @@ static INLINE void *get_current_process_object_table(void)
 {
 	suspend_intr();
 	void *t = get_current_process()->object_table;
-	resume_intr();	
+	resume_intr();
 	return t;
 }
 
@@ -100,7 +100,7 @@ static INLINE char *get_process_name(process_t process)
 
 static INLINE int is_vsh_process(process_t process)
 {
-	return (process && strcmp(get_process_name(process)+8, VSH_PROCESS_NAME) == 0);
+	return (process && strcmp(get_process_name(process) + 8, VSH_PROCESS_NAME) == 0);
 }
 
 #endif /* __LV2_PROCESS_H__ */

@@ -33,8 +33,6 @@ MapEntry map_table[MAX_TABLE_ENTRIES];
 
 f_desc_t open_path_callback;
 
-uint8_t photo_gui = 1;
-
 static int8_t avoid_recursive_calls = 0;
 static int8_t max_table_entries = 0;
 static int8_t first_slot = 0;
@@ -308,9 +306,15 @@ int sys_map_paths(char *paths[], char *new_paths[], unsigned int num)
 	return ret;
 }
 
+#ifdef DO_PHOTO_GUI
+uint8_t photo_gui = 1;
 static uint8_t libft2d_access = 0;
-static uint8_t auto_earth = 0;
-static uint8_t earth_id = 0;
+#endif
+
+#ifdef DO_AUTO_EARTH
+uint8_t auto_earth = 0;
+uint8_t earth_id = 0;
+#endif
 
 void clear_key(void *key)
 {
@@ -361,6 +365,7 @@ LV2_HOOKED_FUNCTION_POSTCALL_2(void, open_path_hook, (char *path0, int mode))
 			////////////////////////////////////////////////////////////////////////////////////
 			// Auto change earth.qrc - DeViL303 & AV                                          //
 			////////////////////////////////////////////////////////////////////////////////////
+			#ifdef DO_AUTO_EARTH
 			if(auto_earth && (strncmp(path, "/dev_flash/vsh/resource/qgl/earth.qrc", 37) == SUCCEEDED))
 			{
 				char new_earth[30];
@@ -373,10 +378,12 @@ LV2_HOOKED_FUNCTION_POSTCALL_2(void, open_path_hook, (char *path0, int mode))
 					earth_id = 0;
 				return;
 			}
+			#endif
 
 			////////////////////////////////////////////////////////////////////////////////////
 			// Photo_GUI integration with webMAN MOD - DeViL303 & AV                          //
 			////////////////////////////////////////////////////////////////////////////////////
+			#ifdef DO_PHOTO_GUI
 			if(!libft2d_access)
 			{
 				libft2d_access = photo_gui && !strcmp(path, "/dev_flash/sys/internal/libft2d.sprx");
@@ -401,6 +408,7 @@ LV2_HOOKED_FUNCTION_POSTCALL_2(void, open_path_hook, (char *path0, int mode))
 					}
 				}
 			}
+			#endif
 			////////////////////////////////////////////////////////////////////////////////////
 
 			for (int8_t i = max_table_entries - 1; i >= 0; i--)
@@ -528,8 +536,10 @@ void map_path_patches(int syscall)
 
 	open_path_callback.addr = NULL;
 
+	#ifdef DO_AUTO_EARTH
 	CellFsStat stat;
 	auto_earth = (cellFsStat("/dev_hdd0/tmp/earth", &stat) == SUCCEEDED); // auto rotare 1.qrc to 255.qrc each time earth.qrc is accessed
+	#endif
 
 	if (syscall)
 		create_syscall2(SYS_MAP_PATH, sys_map_path);

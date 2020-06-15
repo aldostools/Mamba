@@ -53,6 +53,7 @@ int read_eeprom_by_offset(uint32_t offset, uint8_t *value, uint64_t auth_id);
 
 int sys_fs_open(const char *path, int flags, int *fd, uint64_t mode, const void *arg, uint64_t size);
 int sys_fs_read(int fd, void *buf, uint64_t nbytes, uint64_t *nread);
+int sys_fs_close(int fd);
 
 void debug_install(void);
 void debug_uninstall(void);

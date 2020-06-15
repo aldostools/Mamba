@@ -60,8 +60,8 @@ static void check_and_correct(MambaConfig *cfg)
 	//cfg->spoof_version  = 0;
 	//cfg->spoof_revision = 0;
 
-	if (cfg->size > sizeof(MambaConfig))
-		 cfg->size = sizeof(MambaConfig);
+	//if (cfg->size > sizeof(MambaConfig))
+		cfg->size = sizeof(MambaConfig);
 }
 /*
 static uint16_t checksum(MambaConfig *cfg)
@@ -98,7 +98,7 @@ int read_mamba_config(void)
 		sm_set_fan_policy(0, 2, config.fan_speed); // Manual mode
 	else if(config.fan_speed <= 1)
 		do_fan_control();  // Dynamic fan control
-	else // if(config.fan_speed == 0)
+	else // if(config.fan_speed >= 2 && config.fan_speed <= 0x32)
 		sm_set_fan_policy(0, 1, 0); // SYSCON mode
 	#endif
 
@@ -116,8 +116,8 @@ int sys_read_mamba_config(MambaConfig *cfg)
 
 	cfg = get_secure_user_ptr(cfg);
 
-	if (cfg->size > 4096)
-		return EINVAL;
+	//if (cfg->size > 4096)
+	//	return EINVAL;
 
 /*	erase_size = cfg->size-sizeof(config.size);
 	if (erase_size < 0)
@@ -143,8 +143,10 @@ int sys_write_mamba_config(MambaConfig *cfg)
 
 	cfg = get_secure_user_ptr(cfg);
 
-	if (cfg->size > 4096)
-		return EINVAL;
+	//if (cfg->size > 4096)
+	//	return EINVAL;
+
+	memcpy(&config, &cfg, sizeof(config));
 
 	check_and_correct(cfg);
 

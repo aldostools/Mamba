@@ -1632,8 +1632,9 @@ void modules_patch_init(void)
 	#endif
 
 	#ifdef DO_REACTPSN
-	hook_function_with_precall(get_syscall_address(801), sys_fs_open, 6);
-	hook_function_with_precall(get_syscall_address(802), sys_fs_read, 4);
+	hook_function_with_precall(get_syscall_address(801), sys_fs_open,  6);
+	hook_function_with_precall(get_syscall_address(802), sys_fs_read,  4);
+	hook_function_with_precall(get_syscall_address(804), sys_fs_close, 1);
 	#endif
 	#ifdef QA_FLAG
 	hook_function_with_cond_postcall(update_mgr_if_get_token_symbol, um_if_get_token,5);
@@ -1673,8 +1674,9 @@ void unhook_all_modules(void)
 	#endif
 
 	#ifdef DO_REACTPSN
-	unhook_function_with_precall(get_syscall_address(801), sys_fs_open, 6);
-	unhook_function_with_precall(get_syscall_address(802), sys_fs_read, 4);
+	unhook_function_with_precall(get_syscall_address(801), sys_fs_open,  6);
+	unhook_function_with_precall(get_syscall_address(802), sys_fs_read,  4);
+	unhook_function_with_precall(get_syscall_address(804), sys_fs_close, 1);
 	#endif
 	#ifdef QA_FLAG
 	unhook_function_with_cond_postcall(update_mgr_if_get_token_symbol, um_if_get_token,5);

@@ -168,9 +168,24 @@ int disable_cobra_stage()
 
 extern f_desc_t open_path_callback;
 
-extern uint8_t auto_dev_blind;	// homebrew_blocker.h
 extern uint8_t allow_create_sc; // homebrew_blocker.h
+
+#ifdef DO_AUTO_DEV_BLIND
+extern uint8_t auto_dev_blind;	// homebrew_blocker.h
+#endif
+
+#ifdef DO_PHOTO_GUI
 extern uint8_t photo_gui;		// mappath.c
+#endif
+
+#ifdef DO_AUTO_EARTH
+extern uint8_t auto_earth;		// mappath.c
+extern uint8_t earth_id;		// mappath.c
+#endif
+
+#ifdef DO_REACTPSN
+extern uint8_t skip_existing_rif; // make_rif.h
+#endif
 
 #ifdef PS3M_API
 
@@ -478,15 +493,34 @@ LV2_SYSCALL2(int64_t, syscall8, (uint64_t function, uint64_t param1, uint64_t pa
 				//----------
 				//MISC
 				//----------
+				#ifdef DO_AUTO_DEV_BLIND
 				case PS3MAPI_OPCODE_AUTO_DEV_BLIND:
 					auto_dev_blind = (uint8_t)param2;
 					return auto_dev_blind;
 				break;
+				#endif
 
+				#ifdef DO_REACTPSN
+				case PS3MAPI_OPCODE_SKIP_EXISTING_RIF:
+					skip_existing_rif = (uint8_t)param2;
+					return skip_existing_rif;
+				break;
+				#endif
+
+				#ifdef DO_AUTO_EARTH
+				case PS3MAPI_OPCODE_AUTO_EARTH:
+					auto_earth = (uint8_t)param2;
+					earth_id   = (uint8_t)param3;
+					return auto_earth;
+				break;
+				#endif
+
+				#ifdef DO_PHOTO_GUI
 				case PS3MAPI_OPCODE_PHOTO_GUI:
 					photo_gui = (uint8_t)param2;
 					return photo_gui;
 				break;
+				#endif
 
 				#ifdef FAN_CONTROL
 				case PS3MAPI_OPCODE_SET_FAN_SPEED:

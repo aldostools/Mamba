@@ -18,7 +18,6 @@ int 	sys_map_path(char *oldpath, char *newpath);
 int 	sys_map_paths(char *paths[], char *new_paths[], unsigned int num);
 /*int	sys_map_game(char *path);
 int	sys_hermes_pathtable(uint64_t pathtable);*/
-
 int 	sys_aio_copy_root(char *src, char *dst);
 
 void unhook_all_map_path(void);
