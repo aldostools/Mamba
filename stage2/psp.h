@@ -11,27 +11,28 @@ typedef uint32_t Elf32_Size;
 /*
  * ELF header.
  */
-typedef struct {
-	unsigned char	e_ident[16];	// File identification.  		// 0
-	Elf32_Half	e_type;		// File type. */          		// 0x10
-	Elf32_Half	e_machine;	// Machine architecture. 		// 0x12
-	Elf32_Word	e_version;	// ELF format version. 			// 0x14
-	Elf32_Addr	e_entry;	// Entry point. 			// 0x18
-	Elf32_Off	e_phoff;	// Program header file offset. 		// 0x1C
-	Elf32_Off	e_shoff;	// Section header file offset. 		// 0x20
-	Elf32_Word	e_flags;	// Architecture-specific flags. 	// 0x24
-	Elf32_Half	e_ehsize;	// Size of ELF header in bytes. 	// 0x28
-	Elf32_Half	e_phentsize;	// Size of program header entry.	// 0x2A
-	Elf32_Half	e_phnum;	// Number of program header entries. 	// 0x2C
-	Elf32_Half	e_shentsize;	// Size of section header entry. 	// 0x2E
-	Elf32_Half	e_shnum;	// Number of section header entries. 	// 0x30
-	Elf32_Half	e_shstrndx;	// Section name strings section. 	// 0x32
+typedef struct
+{
+	unsigned char	e_ident[16];	// File identification.  				// 0
+	Elf32_Half	e_type;				// File type. */          				// 0x10
+	Elf32_Half	e_machine;			// Machine architecture. 				// 0x12
+	Elf32_Word	e_version;			// ELF format version. 					// 0x14
+	Elf32_Addr	e_entry;			// Entry point. 						// 0x18
+	Elf32_Off	e_phoff;			// Program header file offset. 			// 0x1C
+	Elf32_Off	e_shoff;			// Section header file offset. 			// 0x20
+	Elf32_Word	e_flags;			// Architecture-specific flags. 		// 0x24
+	Elf32_Half	e_ehsize;			// Size of ELF header in bytes. 		// 0x28
+	Elf32_Half	e_phentsize;		// Size of program header entry.		// 0x2A
+	Elf32_Half	e_phnum;			// Number of program header entries. 	// 0x2C
+	Elf32_Half	e_shentsize;		// Size of section header entry. 		// 0x2E
+	Elf32_Half	e_shnum;			// Number of section header entries. 	// 0x30
+	Elf32_Half	e_shstrndx;			// Section name strings section. 		// 0x32
 } __attribute__((packed)) Elf32_Ehdr;
 
 /*
  * Section header.
  */
-typedef struct 
+typedef struct
 {
 	Elf32_Word	sh_name;		// Section name (index into the	section header string table). // 0
 	Elf32_Word	sh_type;		/* Section type. */

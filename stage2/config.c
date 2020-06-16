@@ -94,12 +94,12 @@ int read_mamba_config(void)
 	#endif
 
 	#ifdef FAN_CONTROL
-	if(config.fan_speed >= 0x33)
+	if(config.fan_speed >= 0x33 && config.fan_speed <= 0x80)
 		sm_set_fan_policy(0, 2, config.fan_speed); // Manual mode
 	else if(config.fan_speed <= 1)
-		do_fan_control();  // Dynamic fan control
-	else // if(config.fan_speed >= 2 && config.fan_speed <= 0x32)
 		sm_set_fan_policy(0, 1, 0); // SYSCON mode
+	else // if(config.fan_speed >= 2 && config.fan_speed <= 0x32)
+		do_fan_control();  // Dynamic fan control
 	#endif
 
 	return SUCCEEDED;

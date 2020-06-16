@@ -911,7 +911,14 @@ static void get_cd_sector_size(unsigned int trackscount)
 	// -- AV: cd sector size
 	cd_sector_size = (trackscount & 0xffff00)>>4; // <- Use: trackscount = num_of_tracks | (cd_sector_size<<4);
 	if(cd_sector_size > 2448) cd_sector_size = (trackscount & 0xffff00)>>8;
-	if(cd_sector_size != 2352 && cd_sector_size != 2048 && cd_sector_size != 2328 && cd_sector_size != 2336 && cd_sector_size != 2340 && cd_sector_size != 2368 && cd_sector_size != 2448) cd_sector_size = 2352;
+	if( (cd_sector_size != 2352) && // raw
+		(cd_sector_size != 2048) && // cooked (data)
+		(cd_sector_size != 2328) &&
+		(cd_sector_size != 2336) &&
+		(cd_sector_size != 2340) &&
+		(cd_sector_size != 2368) &&
+		(cd_sector_size != 2448) )
+			cd_sector_size = 2352;
 }
 
 static int read_psx_sector(void *dma, void *buf, uint64_t sector)
