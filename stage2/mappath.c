@@ -321,7 +321,7 @@ void clear_key(void *key)
 	memset(key, 0, 0x10);
 }
 
-#ifdef DO_REACTPSN
+#ifdef MAKE_RIF
 #include "make_rif.h"
 #endif
 #include "homebrew_blocker.h"

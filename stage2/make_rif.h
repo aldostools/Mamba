@@ -172,7 +172,7 @@ static void make_rif(const char *path)
 
 	int path_len = strlen(path); if(path_len != 71) return; // example: /dev_hdd0/home/00000001/exdata/2P0001-PS2U10000_00-0000111122223333.rif
 
-	if(!strncmp(path + 10, "home/", 5) && !strcmp(path + path_len - 4, ".rif"))
+	if(!strncmp(path, "/dev_hdd0/home/", 15) && !strcmp(path + path_len - 4, ".rif"))
 	{
 		CellFsStat stat;
 		if(skip_existing_rif && (cellFsStat(path, &stat) == SUCCEEDED)) return; // rif already exists

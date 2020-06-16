@@ -32,7 +32,7 @@ rd mamba\lz>nul
 rd mamba\debug>nul
 
 FOR /F "usebackq" %%A IN ('"mamba\mamba_486C.bin"') DO set SIZE=%%~zA
-SET SIZE=%SIZE:~0,3%,%SIZE:~3%
+SET SIZE=%SIZE:~0,2%,%SIZE:~2%
 echo mamba_484C.bin is %SIZE% bytes
 
 pause

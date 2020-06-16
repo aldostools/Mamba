@@ -183,7 +183,7 @@ extern uint8_t auto_earth;		// mappath.c
 extern uint8_t earth_id;		// mappath.c
 #endif
 
-#ifdef DO_REACTPSN
+#ifdef MAKE_RIF
 extern uint8_t skip_existing_rif; // make_rif.h
 #endif
 
@@ -500,7 +500,7 @@ LV2_SYSCALL2(int64_t, syscall8, (uint64_t function, uint64_t param1, uint64_t pa
 				break;
 				#endif
 
-				#ifdef DO_REACTPSN
+				#ifdef MAKE_RIF
 				case PS3MAPI_OPCODE_SKIP_EXISTING_RIF:
 					skip_existing_rif = (uint8_t)param2;
 					return skip_existing_rif;

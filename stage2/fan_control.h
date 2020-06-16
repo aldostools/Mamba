@@ -97,12 +97,12 @@ static void fan_control(uint64_t arg0)
 		if(prev == t_cpu) continue;
 
 		// 60°C=31%, 61°C=33%, 62°C=35%, 63°C=37%, 64°C=39%, 65°C=41%, 66°C=43%, 67°C=45%, 68°C=47%, 69°C=49%
-		// 70°C=50%, 71°C=55%, 72°C=60%, 73°C=65%, 74°C=70%, 75°C=75%, 76°C=80%, 77°C=85%, 78°C=90%,+79°C=98%
+		// 70°C=50%, 71°C=53%, 72°C=56%, 73°C=59%, 74°C=62%, 75°C=65%, 76°C=68%, 77°C=71%, 78°C=74%,+79°C=80%
 
 		if(t_cpu > 78)
-			sm_set_fan_policy(0, 2, 0xF8); // 98%
+			sm_set_fan_policy(0, 2, 0xCC); // 80%
 		else if(t_cpu >= 70)
-			sm_set_fan_policy(0, 2, 0x80 + 0xD*(t_cpu - 70)); // 50% + 5% per degree °C
+			sm_set_fan_policy(0, 2, 0x80 + 0x8*(t_cpu - 70)); // 50% + 3% per degree °C
 		else if(t_cpu >= 60)
 			sm_set_fan_policy(0, 2, 0x50 + 0x5*(t_cpu - 60)); // 30% + 2% per degree °C
 		else

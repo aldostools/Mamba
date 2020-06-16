@@ -47,9 +47,17 @@
 #define DO_AUTO_EARTH
 #define DO_AUTO_DEV_BLIND
 
+#ifdef aescbccfb_enc_symbol
+#ifdef aescbccfb_dec_symbol
+#define MAKE_RIF
+#endif
+#endif
+
 #ifdef SHA1_init_symbol
-#ifdef strrchr_symbol
- #define DO_REACTPSN
+#ifdef SHA1_update_symbol
+#ifdef SHA1_final_symbol
+// #define DO_REACTPSN
+#endif
 #endif
 #endif
 

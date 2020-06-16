@@ -114,7 +114,7 @@ void debug_uninstall(void)
 
 #elif defined(LV2)
 
-LV2_SYSCALL2(int, ttyWrite, (int channel, const char* message, int length, int* written))
+LV2_SYSCALL(int, ttyWrite, (int channel, const char* message, int length, int* written))
 {
 	debug_print(message, length);
 	if (written)
