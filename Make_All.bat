@@ -24,15 +24,15 @@ if not exist mamba\debug mkdir mamba\debug
 
 make clean --no-print-directory
 
-rem make all --no-print-directory
-make release --no-print-directory
+make all --no-print-directory
+rem make release --no-print-directory
 rem make debug   --no-print-directory
 
-rd mamba\lz>nul
-rd mamba\debug>nul
+if not exist mamba\debug\mamba_486C.lz.bin rd mamba\lz>nul
+if not exist mamba\debug\mamba_486C.bin rd mamba\debug>nul
 
 FOR /F "usebackq" %%A IN ('"mamba\mamba_486C.bin"') DO set SIZE=%%~zA
 SET SIZE=%SIZE:~0,2%,%SIZE:~2%
-echo mamba_484C.bin is %SIZE% bytes
+echo mamba_486C.bin is %SIZE% bytes
 
 pause

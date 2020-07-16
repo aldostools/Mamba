@@ -15,7 +15,7 @@ PAYLOADS = 421C 421D 430C 430D 431C 440C 441C 441D \
 #		   475E 476E 478E 480E 481E 482E 483E 484E 485E 486E
 
 #PAYLOADS = 484C 484D 484E 485C 485D 485E 486C 486D 486E
-
+PAYLOADS = 484C 484D 485C 486C
 
 export MAMBA_VER
 
@@ -29,6 +29,7 @@ $(PAYLOADS):
 	@echo building mamba_$(MAMBA_VER).bin
 	@make -f Makefile_release clean --no-print-directory
 	@make -f Makefile_release all --no-print-directory
+	@echo building debug/mamba_$(MAMBA_VER).bin
 	@make -f Makefile_debug clean --no-print-directory
 	@make -f Makefile_debug all --no-print-directory
 

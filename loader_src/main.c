@@ -26,6 +26,23 @@
 
 #define SYSCALL1022_OPCODE_LOAD_MAMBA				0x7755
 
+void *malloc(size_t size);
+void free(void *ptr);
+
+static size_t read_file(const char *path, void *buf, size_t size)
+{
+	int fd;
+	if (cellFsOpen(path, CELL_FS_O_RDONLY, &fd, 0, NULL, 0) == SUCCEEDED)
+	{
+		uint64_t offset;
+		cellFsLseek(fd, 0, SEEK_SET, &offset);
+		cellFsRead(fd, buf, size, &size);
+		cellFsClose(fd);
+		return size;
+	}
+	return 0;
+}
+
 int mamba_loaded = 0;
 
 int sys_load_mamba(char *mamba_file)

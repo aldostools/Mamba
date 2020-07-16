@@ -47,30 +47,24 @@
 #define DO_AUTO_EARTH
 #define DO_AUTO_DEV_BLIND
 
-#ifdef aescbccfb_enc_symbol
-#ifdef aescbccfb_dec_symbol
-#define MAKE_RIF
-#endif
+#if defined(aescbccfb_enc_symbol) && defined(aescbccfb_dec_symbol)
+  #define MAKE_RIF
 #endif
 
-#ifdef SHA1_init_symbol
-#ifdef SHA1_update_symbol
-#ifdef SHA1_final_symbol
-// #define DO_REACTPSN
-#endif
-#endif
+#ifdef FIRMWARE_DEX
+ #if defined(SHA1_init_symbol) && defined(SHA1_update_symbol) && defined(SHA1_final_symbol)
+    #define DO_REACTPSN
+ #endif
 #endif
 
-#ifdef update_mgr_read_eeprom_symbol
- #ifdef FIRMWARE_CEX
+#ifdef FIRMWARE_CEX
+ #ifdef update_mgr_read_eeprom_symbol
   #define QA_FLAG
  #endif
 #endif
 
-#ifdef sysmem_obj
-#ifdef sm_set_fan_policy_symbol
+#if defined(sysmem_obj) && defined(sm_set_fan_policy_symbol)
  #define FAN_CONTROL
-#endif
 #endif
 
 #ifdef ECDSA_FLAG

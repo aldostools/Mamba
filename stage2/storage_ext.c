@@ -1178,7 +1178,7 @@ static int read_real_disc_sector (void *buf, uint64_t lba, uint32_t size, int re
 	DPRINTF("Read sector %lx\n", lba);
 	#endif
 
-	for (int i = 0; i < retries && ret != SUCCEEDED; i++)
+	for (int i = 0; i < retries && (ret != SUCCEEDED); i++)
 	{
 		if (0) //!loop
 		{
@@ -2331,7 +2331,11 @@ static INLINE void do_video_mode_patch(void)
 			#ifdef DEBUG
 			DPRINTF("Patching Video mode in VSH..\n");
 			#endif
+			#if defined (FIRMWARE_484C) ||  defined (FIRMWARE_485C) || defined(FIRMWARE_486C)
+			process_write_memory(vsh_process, (void *)0x4531DC, &patch, 4, 1);
+			#else
 			if(vmode_patch_offset) copy_to_user(&patch, (void *)(vmode_patch_offset + _64KB_), 4);
+			#endif
 			#ifdef DEBUG
 			DPRINTF("Offset: 0x%08X | Data: 0x%08X\n", (uint32_t)vmode_patch_offset, (uint32_t)patch);
 			#endif
@@ -2687,7 +2691,7 @@ LV2_HOOKED_FUNCTION_PRECALL_SUCCESS_8(int, post_cellFsUtilMount, (const char *bl
 			unhook_function_on_precall_success(cellFsUtilMount_symbol, post_cellFsUtilMount, 8);
 		#endif
 	}
-	return 0;
+	return SUCCEEDED;
 }
 
 #ifdef DO_PATCH_PS2
@@ -3660,7 +3664,7 @@ int sys_storage_ext_mount_encrypted_image(char *image, char *mount_point, char *
 			encrypted_image_nonce = 0;
 		}
 
-		return 0;
+		return SUCCEEDED;
 	}
 
 	if (encrypted_image)
