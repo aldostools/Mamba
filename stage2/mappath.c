@@ -337,13 +337,13 @@ LV2_HOOKED_FUNCTION_POSTCALL_2(void, open_path_hook, (char *path0, int mode))
 		{
 			int (*callback)(char *);
 			callback = (void *)&open_path_callback;
-			if(callback(path0)) return;
+			if(callback(path0)) {avoid_recursive_calls = 0; return;}
 		}
 
 		if(block_homebrew(path0)) {avoid_recursive_calls = 0; return;}
 
 		char *path = path0;
-		if(path[1] == '/') path++; if(!path) {avoid_recursive_calls = 0; return;}
+		if(path[1] == '/') path++; //if(!path) {avoid_recursive_calls = 0; return;}
 
 		// Disabled due to the issue with multiMAN can't copy update files from discs.
 		/*if (path && ((strcmp(path, "/dev_bdvd/PS3_UPDATE/PS3UPDAT.PUP") == 0)))  // Blocks FW update from Game discs!

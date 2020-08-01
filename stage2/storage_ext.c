@@ -42,8 +42,6 @@
 #define PS2EMU_STAGE2_FILE	"/dev_hdd0/vm/pm0"
 #define PS2EMU_CONFIG_FILE	"/dev_hdd0/tmp/cfg.bin"
 
-#define MIN(a, b)	((a) <= (b) ? (a) : (b))
-#define ABS(a)		(((a) < 0) ? -(a) : (a))
 enum
 {
 	PS2EMU_HW,
@@ -136,9 +134,10 @@ static event_queue_t command_queue, result_queue;
 static event_port_t proxy_command_port;
 static event_queue_t proxy_result_queue;
 
+int disc_emulation = EMU_OFF;
+
 static int discfd = UNDEFINED;
-static int disc_emulation;
-static int total_emulation;
+static int total_emulation = 0;
 static int skip_emu_check = 0;
 static volatile int loop = 0;
 static DiscFile *discfile;
@@ -2329,7 +2328,7 @@ static INLINE void do_video_mode_patch(void)
 		if (patch) //&& !condition_game_ext_psx
 		{
 			#ifdef DEBUG
-			DPRINTF("Patching Video mode in VSH..\n");
+			DPRINTF("Patching Video mode in VSH: %08X\n", patch);
 			#endif
 			#if defined (FIRMWARE_484C) ||  defined (FIRMWARE_485C) || defined(FIRMWARE_486C)
 			process_write_memory(vsh_process, (void *)0x4531DC, &patch, 4, 1);
@@ -2661,8 +2660,8 @@ void init_mount_hdd0(void)
 	copy_ps2emu_stage2(ps2emu_type);
 	cellFsUnlink("/dev_hdd0/tmp/loadoptical");
 	#endif
-	mutex_lock(mutex, 0);
 
+	mutex_lock(mutex, 0);
 	//if (real_disctype == 0)
 	{
 		unsigned int disctype = get_disc_type();
@@ -2699,6 +2698,7 @@ static int get_ps2emu_type(void)
 {
 	uint8_t config[8];
 	u64 v2;
+
 	lv1_get_repository_node_value(PS3_LPAR_ID_PME, FIELD_FIRST("sys", 0), FIELD("hw", 0), FIELD("config", 0), 0, (u64 *)config, &v2);
 	if (config[6]&1) // has emotion engine
 	{
@@ -2708,6 +2708,7 @@ static int get_ps2emu_type(void)
 	{
 		return PS2EMU_GX;
 	}
+
 	return PS2EMU_SW;
 }
 
@@ -2964,6 +2965,25 @@ static INLINE void do_umount_discfile(void)
 	emu_ps3_rec = 0;
 }
 
+static int umount_discfile(void)
+{
+	int ret = SUCCEEDED;
+
+	mutex_lock(mutex, 0);
+
+	if (disc_emulation)
+	{
+		do_umount_discfile();
+	}
+	else
+	{
+		ret = FAILED;
+	}
+
+	mutex_unlock(mutex);
+	return ret;
+}
+
 static INLINE int check_files_and_allocate(unsigned int filescount, char *files[])
 {
 	if (filescount == 0 || filescount > 32)
@@ -3003,9 +3023,9 @@ static INLINE int check_files_and_allocate(unsigned int filescount, char *files[
 			return ret;
 		}
 
-			#ifdef DEBUG
-			DPRINTF("%s, filesize: %lx\n", files[i], stat.st_size);
-			#endif
+		#ifdef DEBUG
+		DPRINTF("%s, filesize: %lx\n", files[i], stat.st_size);
+		#endif
 
 		if (stat.st_size < _4KB_)
 		{
@@ -3037,25 +3057,6 @@ static int mount_common(unsigned int filescount, char *files[])
 	discfile->cached_offset = 0;
 
 	return SUCCEEDED;
-}
-
-static int umount_discfile(void)
-{
-	int ret = SUCCEEDED;
-
-	mutex_lock(mutex, 0);
-
-	if (disc_emulation)
-	{
-		do_umount_discfile();
-	}
-	else
-	{
-		ret = FAILED;
-	}
-
-	mutex_unlock(mutex);
-	return ret;
 }
 
 static int mount_ps3_discfile(unsigned int filescount, char *files[])
@@ -3718,7 +3719,7 @@ static INLINE void patch_ps2emu_entry(int ps2emu_type)
 			#ifdef DEBUG
 			DPRINTF("PS2 auth patch at HV:%lx\n", search_addr+0x10);
 			#endif
-			lv1_pokew(search_addr+0x10, LI(R3, 0x29));
+			lv1_pokew(search_addr + 0x10, LI(R3, 0x29));
 
 			patch_count++;
 		}
@@ -3728,7 +3729,7 @@ static INLINE void patch_ps2emu_entry(int ps2emu_type)
 			#ifdef DEBUG
 			DPRINTF("PS2 unauth patch at HV:%lx\n", search_addr+0x10);
 			#endif
-			lv1_pokew(search_addr+0x10, LI(R3, 0x29));
+			lv1_pokew(search_addr + 0x10, LI(R3, 0x29));
 
 			patch_count++;
 		}
@@ -3757,7 +3758,7 @@ void storage_ext_init(void)
 	ppu_thread_create(&dispatch_thread, dispatch_thread_entry, 0, -0x1D8, 0x4000, 0, THREAD_NAME);
 }
 
-uint8_t storage_ext_patches_done;
+uint8_t storage_ext_patches_done = 0;
 
 void storage_ext_patches(void)
 {
@@ -3797,7 +3798,7 @@ void storage_ext_patches(void)
 	uint64_t cobra_sc7 = *(uint64_t *)MKA(syscall_table_symbol + (8 * 7));
 	if((cobra_sc7 == 0x8000000000001780ULL) || (cobra_sc7 == syscall_not_impl))
 	{
-		uint64_t test_hdd0=*(uint64_t *)MKA(0x17e0);
+		uint64_t test_hdd0 = *(uint64_t *)MKA(0x17e0);
 		if(!test_hdd0)
 		{
 			hook_function_on_precall_success(cellFsUtilMount_symbol, post_cellFsUtilMount, 8);

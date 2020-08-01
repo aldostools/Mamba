@@ -5,6 +5,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
+extern int disc_emulation; // storage_ext.c
+
 uint8_t allow_create_sc = 1; // allow re-create cfw syscalls accessing system update on XMB
 uint8_t auto_dev_blind  = 1; // auto-mount dev_blind
 
@@ -106,7 +108,19 @@ static inline int block_homebrew(const char *path)
 		uint8_t syscalls_disabled = ((*(uint64_t *)MKA(syscall_table_symbol + 8 * 6)) == (*(uint64_t *)MKA(syscall_table_symbol)));
 
 //		if(!syscalls_disabled && (!strncmp(path + 15, "ENSTONEXX", 9) || !strncmp(path + 15, "IDPSET000", 9))) syscalls_disabled = 1;
-
+/*
+		// Check CFW2OFW: /dev_hdd0/game/NPEB12345/LICDIR/LIC.EDAT
+		if ((disc_emulation != EMU_OFF) && !strncmp(path + 24, "/LICDIR/LIC.EDAT", 16))
+		{
+			#ifdef DEBUG
+			DPRINTF("CFW2OFW detected: Unmounting DISC\n");
+			#endif
+			sys_storage_ext_umount_discfile();
+			sys_map_path("/dev_bdvd", NULL);
+			sys_map_path("//dev_bdvd", NULL);
+		}
+		else
+*/
 		if (syscalls_disabled && strstr(path + 15, "/EBOOT.BIN"))
 		{
 			// syscalls are disabled and an EBOOT.BIN is being called from hdd. Let's test it.
