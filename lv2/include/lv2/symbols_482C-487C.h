@@ -1,4 +1,4 @@
-#if defined(FIRMWARE_482C) || defined(FIRMWARE_483C) || defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C)
+#if defined(FIRMWARE_482C) || defined(FIRMWARE_483C) || defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C) || defined(FIRMWARE_487C)
 
     #if defined(FIRMWARE_482C)
         #define FIRMWARE_VERSION                             0x482
@@ -10,6 +10,8 @@
         #define FIRMWARE_VERSION                             0x485
     #elif defined(FIRMWARE_486C)
         #define FIRMWARE_VERSION                             0x486
+    #elif defined(FIRMWARE_487C)
+        #define FIRMWARE_VERSION                             0x487
     #endif
     #define FIRMWARE_CEX                                     FIRMWARE_VERSION
 

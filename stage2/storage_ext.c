@@ -2330,7 +2330,7 @@ static INLINE void do_video_mode_patch(void)
 			#ifdef DEBUG
 			DPRINTF("Patching Video mode in VSH: %08X\n", patch);
 			#endif
-			#if defined (FIRMWARE_484C) ||  defined (FIRMWARE_485C) || defined(FIRMWARE_486C)
+			#if defined(FIRMWARE_484C) ||  defined(FIRMWARE_485C) || defined(FIRMWARE_486C) || defined(FIRMWARE_487C)
 			process_write_memory(vsh_process, (void *)0x4531DC, &patch, 4, 1);
 			#else
 			if(vmode_patch_offset) copy_to_user(&patch, (void *)(vmode_patch_offset + _64KB_), 4);
@@ -3824,10 +3824,10 @@ void unhook_all_storage_ext(void)
 {
 	suspend_intr();
 
-#if defined (FIRMWARE_482C) || defined (FIRMWARE_483C) || defined (FIRMWARE_484C) || defined (FIRMWARE_485C) || defined (FIRMWARE_486C)
+#if defined(FIRMWARE_482C) || defined(FIRMWARE_483C) || defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C) || defined(FIRMWARE_487C)
 	*(uint32_t *)MKA(device_event_port_send_call) = 0x4BD91004;
 	*(uint32_t *)MKA(shutdown_copy_params_call)   = 0x48004FBD;
-#elif defined (FIRMWARE_482D) || defined (FIRMWARE_483D) || defined (FIRMWARE_484D) || defined (FIRMWARE_485D) || defined (FIRMWARE_486D)
+#elif defined(FIRMWARE_482D) || defined(FIRMWARE_483D) || defined(FIRMWARE_484D) || defined(FIRMWARE_485D) || defined(FIRMWARE_486D) || defined(FIRMWARE_487D)
 	*(uint32_t *)MKA(device_event_port_send_call) = 0x4BD7CAC4;
 	*(uint32_t *)MKA(shutdown_copy_params_call)   = 0x48005585;
 #endif

@@ -8146,12 +8146,16 @@
     #define cex_psp_extra_drm_patch                     0x245AF0
 #endif
 
-#if defined(FIRMWARE_484C) || defined(FIRMWARE_485C)
+#if defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C) || defined(FIRMWARE_487C)
 
     #if defined(FIRMWARE_484C)
       #define FIRMWARE_VERSION                               0x484
     #elif defined(FIRMWARE_485C)
       #define FIRMWARE_VERSION                               0x485
+    #elif defined(FIRMWARE_486C)
+      #define FIRMWARE_VERSION                               0x486
+    #elif defined(FIRMWARE_487C)
+      #define FIRMWARE_VERSION                               0x487
     #endif
     #define FIRMWARE_CEX                                     FIRMWARE_VERSION
 
@@ -8491,12 +8495,16 @@
     #define dex_psp_extra_drm_patch                     0x24D318
 #endif
 
-#if defined(FIRMWARE_484D) || defined(FIRMWARE_485D)
+#if defined(FIRMWARE_484D) || defined(FIRMWARE_485D) || defined(FIRMWARE_486D) || defined(FIRMWARE_487D)
 
     #if defined(FIRMWARE_484D)
       #define FIRMWARE_VERSION                               0x484
     #elif defined(FIRMWARE_485D)
       #define FIRMWARE_VERSION                               0x485
+    #elif defined(FIRMWARE_486D)
+      #define FIRMWARE_VERSION                               0x486
+    #elif defined(FIRMWARE_487D)
+      #define FIRMWARE_VERSION                               0x487
     #endif
     #define FIRMWARE_DEX                                     FIRMWARE_VERSION
 
@@ -8725,7 +8733,7 @@
     #define cex_psp_extra_drm_patch                     0x245AF0
 #endif
 
-#if defined(FIRMWARE_475E) || defined(FIRMWARE_476E) || defined(FIRMWARE_478E) || defined(FIRMWARE_480E) || defined(FIRMWARE_481E) || defined(FIRMWARE_482E) || defined(FIRMWARE_483E) || defined(FIRMWARE_484E)
+#if defined(FIRMWARE_475E) || defined(FIRMWARE_476E) || defined(FIRMWARE_478E) || defined(FIRMWARE_480E) || defined(FIRMWARE_481E) || defined(FIRMWARE_482E) || defined(FIRMWARE_483E) || defined(FIRMWARE_484E) || defined(FIRMWARE_485E) || defined(FIRMWARE_486E) || defined(FIRMWARE_487E)
 
     /* WIP: these offsets are a mix from 4.80 DEX and 4.78 DEH; they haven't been verified due the lack of a DECR system to test */
 
@@ -8745,6 +8753,12 @@
         #define FIRMWARE_VERSION                        0x483
     #elif defined(FIRMWARE_484E)
         #define FIRMWARE_VERSION                        0x484
+    #elif defined(FIRMWARE_485E)
+        #define FIRMWARE_VERSION                        0x485
+    #elif defined(FIRMWARE_486E)
+        #define FIRMWARE_VERSION                        0x486
+    #elif defined(FIRMWARE_487E)
+        #define FIRMWARE_VERSION                        0x487
     #endif
     #define FIRMWARE_DEH                                FIRMWARE_VERSION
 
@@ -8763,10 +8777,10 @@
     #define open_kernel_object_symbol                   0x12C48
     #define alloc_symbol                                0x685DC
     #define dealloc_symbol                              0x68A18
-    #define copy_to_user_symbol                         0xFEB4 
+    #define copy_to_user_symbol                         0xFEB4
     #define copy_from_user_symbol                       0x100D0
-    #define copy_to_process_symbol                      0xFF6C 
-    #define copy_from_process_symbol                    0xFD7C 
+    #define copy_to_process_symbol                      0xFF6C
+    #define copy_from_process_symbol                    0xFD7C
     #define page_allocate_symbol                        0x6414C
     #define page_free_symbol                            0x63BB0
     #define page_export_to_proc_symbol                  0x642E8
@@ -8789,8 +8803,8 @@
     #define strchr_symbol                               0x51510
     #define spin_lock_irqsave_ex_symbol                 0x2765F0
     #define spin_unlock_irqrestore_ex_symbol            0x2765C4
-    #define load_process_symbol                         0x5004  
-    #define ppu_thread_create_symbol                    0x1454C 
+    #define load_process_symbol                         0x5004
+    #define ppu_thread_create_symbol                    0x1454C
     #define ppu_thread_exit_symbol                      0x14604
     #define ppu_thread_join_symbol                      0x14658
     #define ppu_thread_delay_symbol                     0x2AA28
@@ -8799,18 +8813,18 @@
     #define run_thread_symbol                           0x2536C
     #define register_thread_symbol                      0x26EDB8
     #define allocate_user_stack_symbol                  0x26F6C0
-    #define mutex_create_symbol                         0x13C8C 
-    #define mutex_destroy_symbol                        0x13C24 
-    #define mutex_lock_symbol                           0x13C1C 
-    #define mutex_unlock_symbol                         0x13C14 
-    #define event_port_create_symbol                    0x136C8 
+    #define mutex_create_symbol                         0x13C8C
+    #define mutex_destroy_symbol                        0x13C24
+    #define mutex_lock_symbol                           0x13C1C
+    #define mutex_unlock_symbol                         0x13C14
+    #define event_port_create_symbol                    0x136C8
     #define event_port_destroy_symbol                   0x13B30
     #define event_port_connect_symbol                   0x13BA8
     #define event_port_disconnect_symbol                0x13AD4
     #define event_port_send_symbol                      0x136C0
     #define event_queue_create_symbol                   0x139D0
     #define event_queue_destroy_symbol                  0x13958
-    #define event_queue_receive_symbol                  0x1379C 
+    #define event_queue_receive_symbol                  0x1379C
     #define cellFsOpen_symbol                           0x2C8AA8
     #define cellFsClose_symbol                          0x2C8910
     #define cellFsRead_symbol                           0x2C8A4C
@@ -8832,16 +8846,16 @@
     #define storage_map_io_memory_symbol                0x2A1700
     #define storage_unmap_io_memory_symbol              0x2A27A4
     #define storage_internal_get_device_object_symbol   0x29E8C8
-    #define decrypt_func_symbol                         0x38678 
-    #define lv1_call_99_wrapper_symbol                  0x52C38 
-    #define modules_verification_symbol                 0x5C870 
-    #define prx_load_module_symbol                      0x8D998 
-    #define prx_start_module_symbol                     0x8C664 
-    #define prx_stop_module_symbol                      0x8DA3C 
-    #define prx_unload_module_symbol                    0x8C398 
-    #define prx_get_module_info_symbol                  0x8BD90 
-    #define prx_get_module_list_symbol                  0x8BE10 
-    #define extend_kstack_symbol                        0x73FDC 
+    #define decrypt_func_symbol                         0x38678
+    #define lv1_call_99_wrapper_symbol                  0x52C38
+    #define modules_verification_symbol                 0x5C870
+    #define prx_load_module_symbol                      0x8D998
+    #define prx_start_module_symbol                     0x8C664
+    #define prx_stop_module_symbol                      0x8DA3C
+    #define prx_unload_module_symbol                    0x8C398
+    #define prx_get_module_info_symbol                  0x8BD90
+    #define prx_get_module_list_symbol                  0x8BE10
+    #define extend_kstack_symbol                        0x73FDC
     #define get_pseudo_random_number_symbol             0x22F2A4
     #define syscall_table_symbol                        0x3B28F8
     #define syscall_call_offset                         0x285E70
@@ -8849,19 +8863,19 @@
     #define read_bdvd1_symbol                           0x1AD340
     #define read_bdvd2_symbol                           0x1BA4F8
     #define device_event_port_send_call                 0x2B3334
-    #define process_map_caller_call                     0x4D24  
+    #define process_map_caller_call                     0x4D24
     #define fsloop_open_call                            0x2C8C40
     #define fsloop_close_call                           0x2C8C90
     #define fsloop_read_call                            0x2C8CD0
-    #define io_rtoc_entry_1                             0x3800  
-    #define io_sub_rtoc_entry_1                         -0x7EA0 
-    #define decrypt_rtoc_entry_2                        -0x6578 
-    #define storage_rtoc_entry_1                        0x2C10  
-    #define device_event_rtoc_entry_1                   0x2F98  
-    #define process_rtoc_entry_1                        -0x7758 
-    #define user_thread_prio_patch                      0x221EC 
-    #define user_thread_prio_patch2                     0x221F8 
-    #define patch_func2                                 0x5DB3C 
+    #define io_rtoc_entry_1                             0x3800
+    #define io_sub_rtoc_entry_1                         -0x7EA0
+    #define decrypt_rtoc_entry_2                        -0x6578
+    #define storage_rtoc_entry_1                        0x2C10
+    #define device_event_rtoc_entry_1                   0x2F98
+    #define process_rtoc_entry_1                        -0x7758
+    #define user_thread_prio_patch                      0x221EC
+    #define user_thread_prio_patch2                     0x221F8
+    #define patch_func2                                 0x5DB3C
     #define patch_func2_offset                          0x2C
     #define shutdown_copy_params_call                   0xAB4C
     #define shutdown_patch_offset                       0xAB38
@@ -8889,8 +8903,8 @@
     #define vsh_pos_in_ram                              0x930000
 
     /* vsh */
-    #define ps2tonet_patch                              0xC9578 
-    #define ps2tonet_size_patch                         0xC956C 
+    #define ps2tonet_patch                              0xC9578
+    #define ps2tonet_size_patch                         0xC956C
     #define vmode_patch_offset                          0x44D0C8
     #define psp_drm_patch1                              0x24CB14
     #define psp_drm_patch2                              0x24D5B4
@@ -8955,8 +8969,8 @@
     #define aio_copy_root_offset                        0xD658
 
     /* CEX */
-    #define cex_ps2tonet_patch                          0xC9578 
-    #define cex_ps2tonet_size_patch                     0xC956C 
+    #define cex_ps2tonet_patch                          0xC9578
+    #define cex_ps2tonet_size_patch                     0xC956C
     #define cex_vmode_patch_offset                      0x44D0C8
     #define cex_psp_drm_patch1                          0x24CB14
     #define cex_psp_drm_patch2                          0x24D5B4

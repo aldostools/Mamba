@@ -1,4 +1,4 @@
-#if defined(FIRMWARE_482C) || defined(FIRMWARE_483C) || defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C)
+#if defined(FIRMWARE_482C) || defined(FIRMWARE_483C) || defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C) || defined(FIRMWARE_487C)
 
 	#if	defined(FIRMWARE_482C)
 		#define FIRMWARE_VERSION							0x482
@@ -10,6 +10,8 @@
 		#define FIRMWARE_VERSION							0x485
 	#elif defined(FIRMWARE_486C)
 		#define FIRMWARE_VERSION							0x486
+	#elif defined(FIRMWARE_487C)
+		#define FIRMWARE_VERSION							0x487
 	#endif
 	#define FIRMWARE_CEX									FIRMWARE_VERSION
 
@@ -177,7 +179,7 @@
 	#define close_prx_object_symbol							0x7FE08
 	#define lock_prx_mutex_symbol							0x86F44
 	#define unlock_prx_mutex_symbol							0x86F50
-	
+
 	#define extend_kstack_symbol							0x700A4
 
 	#define get_pseudo_random_number_symbol					0x228180
@@ -282,7 +284,7 @@
 	#define sm_get_fan_policy_symbol						0x26293C
 	#define sm_set_fan_policy_symbol						0x264734
 	#define sysmem_obj										0x474C38
-	
+
 	/* RAP Activation */
 	#define SHA1_init_symbol								0x2ce688
 	#define SHA1_update_symbol								0x2ce6e8
@@ -368,7 +370,7 @@
 	#define EMULATOR_DRM_DATA_HASH							0x2f3ab00000010000
 	#define LIBSYSUTIL_SAVEDATA_PSP_HASH					0x0dfdc00000003000
 	#define LIBAUDIO_HASH									0x2200600000002000
-	
+
 	/* bdp_disccheck_plugin	*/
 	#define dvd_video_region_check_offset					0x152C
 

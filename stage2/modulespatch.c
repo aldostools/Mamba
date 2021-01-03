@@ -140,10 +140,10 @@ LV2_HOOKED_FUNCTION_PRECALL_2(int, post_lv1_call_99_wrapper, (uint64_t *spu_obj,
 static void disable_kernel_patches(void)
 {
 #ifdef DO_PATCH_COBRA810
-	#if defined (FIRMWARE_482C) || defined (FIRMWARE_484C) || defined (FIRMWARE_485C) || defined (FIRMWARE_486C)
+	#if defined(FIRMWARE_482C) || defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C) || defined(FIRMWARE_487C)
 	do_patch32(MKA(patch_func8_offset2),     0x48216FB5);
 	do_patch32(MKA(lic_patch),               0x48240EED); // ignore LIC.DAT check
-	#elif defined (FIRMWARE_482D) || defined (FIRMWARE_484D) || defined (FIRMWARE_485D) || defined (FIRMWARE_486D)
+	#elif defined(FIRMWARE_482D) || defined(FIRMWARE_484D) || defined(FIRMWARE_485D) || defined(FIRMWARE_486D) || defined(FIRMWARE_487D)
 	do_patch32(MKA(patch_func8_offset2),     0x4821B4BD);
 	do_patch32(MKA(lic_patch),               0x482584B5); // ignore LIC.DAT check
 	#endif
@@ -701,7 +701,7 @@ static SprxPatch pemucorelib_patches[] =
 	// Prometheus
 	{ psp_prometheus_patch, '.OLD', &condition_psp_prometheus },
 
-	/*#if defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C)
+	/*#if defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C) || defined(FIRMWARE_487C)
 		// Extra save data patch required since some 3.60+ firmware
 		{ psp_extra_savedata_patch, LI(R31, 1), &condition_psp_iso },
 	#endif */
@@ -1655,10 +1655,10 @@ void unhook_all_modules(void)
 {
 	suspend_intr();
 
-#if defined (FIRMWARE_4_82) || defined (FIRMWARE_4_83) || defined (FIRMWARE_4_84) || defined (FIRMWARE_4_85) || defined (FIRMWARE_4_86)
+#if defined(FIRMWARE_482C) || defined(FIRMWARE_483C) || defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C) || defined(FIRMWARE_487C)
 	*(uint32_t *)MKA(patch_func2 + patch_func2_offset) = 0x4BFDABC1;
 	clear_icache((void *)MKA(patch_func2 + patch_func2_offset), 4);
-#elif defined(FIRMWARE_4_82DEX) || defined (FIRMWARE_4_84DEX) || defined (FIRMWARE_4_85DEX) || defined (FIRMWARE_4_86DEX)
+#elif defined(FIRMWARE_482D) || defined(FIRMWARE_484D) || defined(FIRMWARE_485D) || defined(FIRMWARE_486D) || defined(FIRMWARE_487D)
 	*(uint32_t *)MKA(patch_func2 + patch_func2_offset) = 0x4BFDAB11;
 	clear_icache((void *)MKA(patch_func2 + patch_func2_offset), 4);
 #endif

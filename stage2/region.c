@@ -69,7 +69,7 @@ static INLINE void set_dvd_video_region(uint8_t *region)
 			fake_region = dvd_video_region_map[i].ps3_region;
 		}
 	}
-	
+
 	if (fake_region)
 		*region = fake_region;
 }
@@ -90,7 +90,7 @@ static INLINE void set_bd_video_region(uint8_t *region)
 			fake_region = bd_video_region_map[i].ps3_region;
 		}
 	}
-	
+
 	if (fake_region != 0)
 		*region = fake_region;
 }
@@ -108,15 +108,15 @@ LV2_HOOKED_FUNCTION_PRECALL_SUCCESS_2(int, region_func, (uint64_t func, uint8_t 
 		{
 			if (strcmp(procname + 8, "_main_bdp_BDVD.self") == SUCCEEDED)
 			{
-				if (dvd_video_region)				
-					set_dvd_video_region(&buf[3]);				
+				if (dvd_video_region)
+					set_dvd_video_region(&buf[3]);
 			}
 			else if (strcmp(procname+8, "_main_bdp_BDMV.self") == SUCCEEDED)
 			{
-				if (bd_video_region)				
-					set_bd_video_region(&buf[3]);				
+				if (bd_video_region)
+					set_bd_video_region(&buf[3]);
 			}
-		}		
+		}
 	}
 
 	return 0;

@@ -89,26 +89,29 @@ static void fan_control(uint64_t arg0)
 	{
 		timer_usleep(SECONDS(10));
 
-		t_cpu = t_rsx = 0;
-		get_temperature(0, &t_cpu);
-		get_temperature(1, &t_rsx);
+		if(fan_control_running) // Avoid activating the previous mode
+		{
+			t_cpu = t_rsx = 0;
+			get_temperature(0, &t_cpu);
+			get_temperature(1, &t_rsx);
 
-		if(t_rsx > t_cpu) t_cpu = t_rsx;
-		if(prev == t_cpu) continue;
+			if(t_rsx > t_cpu) t_cpu = t_rsx;
+			if(prev == t_cpu) continue;
 
-		// 60°C=31%, 61°C=33%, 62°C=35%, 63°C=37%, 64°C=39%, 65°C=41%, 66°C=43%, 67°C=45%, 68°C=47%, 69°C=49%
-		// 70°C=50%, 71°C=53%, 72°C=56%, 73°C=59%, 74°C=62%, 75°C=65%, 76°C=68%, 77°C=71%, 78°C=74%,+79°C=80%
+			// 60°C=31%, 61°C=33%, 62°C=35%, 63°C=37%, 64°C=39%, 65°C=41%, 66°C=43%, 67°C=45%, 68°C=47%, 69°C=49%
+			// 70°C=50%, 71°C=53%, 72°C=56%, 73°C=59%, 74°C=62%, 75°C=65%, 76°C=68%, 77°C=71%, 78°C=74%, 79°C=77%,+80°C=80%
 
-		if(t_cpu > 78)
-			sm_set_fan_policy(0, 2, 0xCC); // 80%
-		else if(t_cpu >= 70)
-			sm_set_fan_policy(0, 2, 0x80 + 0x8*(t_cpu - 70)); // 50% + 3% per degree °C
-		else if(t_cpu >= 60)
-			sm_set_fan_policy(0, 2, 0x50 + 0x5*(t_cpu - 60)); // 30% + 2% per degree °C
-		else
-			sm_set_fan_policy(0, 1, 0); // SYSCON < 60°C
+			if(t_cpu >= 80)
+				sm_set_fan_policy(0, 2, 0xCC); // 80%
+			else if(t_cpu >= 70)
+				sm_set_fan_policy(0, 2, 0x80 + 0x8*(t_cpu - 70)); // 50% + 3% per degree °C
+			else if(t_cpu >= 60)
+				sm_set_fan_policy(0, 2, 0x50 + 0x5*(t_cpu - 60)); // 30% + 2% per degree °C
+			else
+				sm_set_fan_policy(0, 1, 0); // SYSCON < 60°C
 
-		prev = t_cpu;
+			prev = t_cpu;
+		}
 	}
 
 	ppu_thread_exit(0);
