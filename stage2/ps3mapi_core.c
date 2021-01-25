@@ -231,11 +231,6 @@ int ps3mapi_process_page_allocate(process_id_t pid, uint64_t size, uint64_t page
 		return ret;
 	}
 
-	if (kbuf)
-	{
-		page_free(process, kbuf, flags);
-	}
-
 	return SUCCEEDED;
 }
 #endif

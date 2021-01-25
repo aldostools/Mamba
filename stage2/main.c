@@ -168,7 +168,7 @@ int disable_cobra_stage()
 
 extern f_desc_t open_path_callback;
 
-extern uint8_t allow_create_sc; // homebrew_blocker.h
+extern uint8_t allow_restore_sc; // homebrew_blocker.h
 
 #ifdef DO_AUTO_DEV_BLIND
 extern uint8_t auto_dev_blind;	// homebrew_blocker.h
@@ -463,8 +463,8 @@ LV2_SYSCALL2(int64_t, syscall8, (uint64_t function, uint64_t param1, uint64_t pa
 					create_syscalls();
 					return SUCCEEDED;
 				break;
-				case PS3MAPI_OPCODE_ALLOW_CREATE_SYSCALLS:
-					allow_create_sc = (uint8_t)param2; // 1 = allow, 0 = do not allow
+				case PS3MAPI_OPCODE_ALLOW_RESTORE_SYSCALLS:
+					allow_restore_sc = (uint8_t)param2; // 1 = allow, 0 = do not allow
 					return SUCCEEDED;
 				break;
 				//----------

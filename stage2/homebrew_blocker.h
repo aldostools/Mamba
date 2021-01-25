@@ -7,8 +7,8 @@
 
 extern int disc_emulation; // storage_ext.c
 
-uint8_t allow_create_sc = 1; // allow re-create cfw syscalls accessing system update on XMB
-uint8_t auto_dev_blind  = 1; // auto-mount dev_blind
+uint8_t allow_restore_sc = 1; // allow re-create cfw syscalls accessing system update on XMB
+uint8_t auto_dev_blind  = 1;  // auto-mount dev_blind
 
 static uint8_t mount_dev_blind  = 1;
 
@@ -183,7 +183,7 @@ static inline int block_homebrew(const char *path)
 		}
 		else
 		#endif
-		if(allow_create_sc)
+		if(allow_restore_sc)
 		{
 			if(!strcmp(path, "/dev_flash/vsh/module/software_update_plugin.sprx"))
 			{
