@@ -67,7 +67,7 @@
 #endif
 
 #define MAMBA_VERSION		0x0F
-#define MAMBA_VERSION_BCD	0x0830
+#define MAMBA_VERSION_BCD	0x0840
 
 // Format of version:
 // byte 0, 7 MS bits -> reserved

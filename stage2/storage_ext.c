@@ -151,6 +151,7 @@ static int8_t hdd0_mounted = 0;
 
 static int video_mode = -2;
 
+static uint32_t base_offset = 0;
 
 static unsigned int real_disctype = 0; /* Real disc in the drive */
 static unsigned int effective_disctype = 0; /* The type of disc we want it to be, and the one faked in storage event. */
@@ -327,7 +328,7 @@ static INLINE int process_read_iso_cmd(ReadIsoCmd *cmd)
 
 			if (doseek)
 			{
-				ret = cellFsLseek(discfd, filepos, SEEK_SET, &v);
+				ret = cellFsLseek(discfd, base_offset + filepos, SEEK_SET, &v);
 				if (ret != SUCCEEDED)
 					break;
 
@@ -441,7 +442,7 @@ static INLINE int process_read_cd_iso2048_cmd(ReadIsoCmd *cmd)
 		{
 			if (doseek)
 			{
-				ret = cellFsLseek(discfd, sector * cd_sector_size, SEEK_SET, &v);
+				ret = cellFsLseek(discfd, base_offset + (sector * cd_sector_size), SEEK_SET, &v);
 				if (ret != SUCCEEDED)
 					break;
 
@@ -612,7 +613,7 @@ static INLINE int process_read_cd_iso2352_cmd(ReadCdIso2352Cmd *cmd)
 		{
 			if (doseek)
 			{
-				ret = cellFsLseek(discfd, sector * cd_sector_size, SEEK_SET, &v);
+				ret = cellFsLseek(discfd, base_offset + (sector * cd_sector_size), SEEK_SET, &v);
 				if (ret != SUCCEEDED)
 					break;
 
@@ -967,7 +968,7 @@ static int read_psx_sector(void *dma, void *buf, uint64_t sector)
 	{
 		uint64_t x;
 
-		cellFsLseek(discfd, (sector * cd_sector_size) + 0x18, SEEK_SET, &x);
+		cellFsLseek(discfd, base_offset + (sector * cd_sector_size) + 0x18, SEEK_SET, &x);
 		return cellFsRead(discfd, buf, 2048, &x);
 	}
 	else if (discfile_proxy)
@@ -2883,7 +2884,7 @@ LV2_HOOKED_FUNCTION(int, shutdown_copy_params_patched, (uint8_t *argp_user, uint
 				if (discfile_cd)
 				{
 					buf[0x800] = discfile_cd->numtracks;
-					memcpy(buf + 0x801, discfile_cd->tracks, discfile_cd->numtracks*sizeof(ScsiTrackDescriptor));
+					memcpy(buf + 0x801, discfile_cd->tracks, discfile_cd->numtracks * sizeof(ScsiTrackDescriptor));
 				}
 
 				buf[0x702] = 'm'; // 0x6d;
@@ -2963,6 +2964,7 @@ static INLINE void do_umount_discfile(void)
 	disc_emulation = EMU_OFF;
 	total_emulation = 0;
 	emu_ps3_rec = 0;
+	base_offset = 0;
 }
 
 static int umount_discfile(void)
@@ -2986,6 +2988,8 @@ static int umount_discfile(void)
 
 static INLINE int check_files_and_allocate(unsigned int filescount, char *files[])
 {
+	base_offset = 0;
+
 	if (filescount == 0 || filescount > 32)
 		return EINVAL;
 
@@ -2994,8 +2998,10 @@ static INLINE int check_files_and_allocate(unsigned int filescount, char *files[
 	for (int i = 0; i < filescount; i++)
 	{
 		int len = strlen(files[i]);
-		if (len >= MAX_PATH)
+		if ((len >= MAX_PATH) || (len < 4))
 			return EINVAL;
+
+		if(strcmp(files[i] + (len - 4), ".PNG") == 0) base_offset = _64KB_; // EXT
 
 		allocsize += (len + 1);
 	}
@@ -3008,8 +3014,8 @@ static INLINE int check_files_and_allocate(unsigned int filescount, char *files[
 	discfile->activefile = 0;
 	discfile->totalsize = 0;
 	discfile->files = (char **)(discfile + 1);
-	discfile->sizes = (uint64_t *)(discfile->files+filescount);
-	char *p = (char *)(discfile->sizes+filescount);
+	discfile->sizes = (uint64_t *)(discfile->files + filescount);
+	char *p = (char *)(discfile->sizes + filescount);
 
 	for (int i = 0; i < filescount; i++)
 	{
@@ -3027,15 +3033,15 @@ static INLINE int check_files_and_allocate(unsigned int filescount, char *files[
 		DPRINTF("%s, filesize: %lx\n", files[i], stat.st_size);
 		#endif
 
-		if (stat.st_size < _4KB_)
+		if (stat.st_size < (_4KB_ + base_offset))
 		{
 			free(discfile);
 			discfile = NULL;
 			return EINVAL;
 		}
 
-		discfile->totalsize += stat.st_size;
-		discfile->sizes[i] = stat.st_size;
+		discfile->sizes[i] = (stat.st_size - base_offset);
+		discfile->totalsize += discfile->sizes[i];
 		discfile->files[i] = p;
 		strcpy(p, files[i]);
 		p += (strlen(p) + 1);
@@ -3136,6 +3142,8 @@ static int mount_ps_cd(char *file, unsigned int trackscount, ScsiTrackDescriptor
 		if (ret == SUCCEEDED)
 		{
 			// -- AV: cd sector size
+			if(strcmp(file + (len - 4), ".PNG") == 0) base_offset = _64KB_; // EXT
+
 			if(cd_sector_size == 2352)
 			{
 				// detect sector size
@@ -3146,7 +3154,7 @@ static int mount_ps_cd(char *file, unsigned int trackscount, ScsiTrackDescriptor
 					u16 sec_size[7] = {2352, 2048, 2336, 2448, 2328, 2340, 2368};
 					for(u8 n = 0; n < 7; n++)
 					{
-						cellFsLseek(discfd, (sec_size[n]<<4) + 0x18, SEEK_SET, &v);
+						cellFsLseek(discfd, base_offset + (sec_size[n]<<4) + 0x18, SEEK_SET, &v);
 						cellFsRead(discfd, buffer, 20, &v);
 						if(  (memcmp(buffer + 8, "PLAYSTATION ", 0xC) == 0) ||
 							((memcmp(buffer + 1, "CD001", 5) == 0) && buffer[0] == 0x01) ) {cd_sector_size = sec_size[n]; break;}
@@ -3207,6 +3215,8 @@ static int mount_ps2_discfile(unsigned int filescount, char *files[], unsigned i
 	int8_t is_2352 = 0;
 	int ret = SUCCEEDED;
 
+	if(strcmp(files[0] + (strlen(files[0]) - 4), ".PNG") == 0) base_offset = _64KB_; // EXT
+
 	if (trackscount > 1)
 	{
 		// We assume cd 2352 (cd_sector_size) here
@@ -3216,7 +3226,7 @@ static int mount_ps2_discfile(unsigned int filescount, char *files[], unsigned i
 	else
 	{
 		uint8_t buf[0xB0];
-		if (read_file_at_offset(files[0], buf, 0xB0, 0x8000) != 0xB0)
+		if (read_file_at_offset(files[0], buf, 0xB0, base_offset + 0x8000) != 0xB0)
 		{
 			return EINVAL;
 		}

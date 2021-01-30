@@ -6,6 +6,7 @@
 #include <lv2/security.h>
 #include <lv2/io.h>
 #include <lv2/error.h>
+#include <lv1/patch.h>
 #include "common.h"
 #include "mappath.h"
 #include "storage_ext.h"
@@ -366,7 +367,7 @@ LV2_HOOKED_FUNCTION_POSTCALL_2(void, open_path_hook, (char *path0, int mode))
 			// Auto change earth.qrc - DeViL303 & AV                                          //
 			////////////////////////////////////////////////////////////////////////////////////
 			#ifdef DO_AUTO_EARTH
-			if(auto_earth && (strncmp(path, "/dev_flash/vsh/resource/qgl/earth.qrc", 37) == SUCCEEDED))
+			if(auto_earth && (strcmp(path, "/dev_flash/vsh/resource/qgl/earth.qrc") == SUCCEEDED))
 			{
 				char new_earth[30];
 				sprintf(new_earth, "%s/%i.qrc", "/dev_hdd0/tmp/earth", ++earth_id);
@@ -522,17 +523,36 @@ int sys_aio_copy_root(char *src, char *dst)
 
 	return SUCCEEDED;
 }
+/*
+extern uint64_t LV2_OFFSET_ON_LV1;
 
+LV2_HOOKED_FUNCTION_PRECALL_1(int, cellFsUnlink_hook, (char *path))
+{
+	int ret = DO_POSTCALL;
+	if(strncmp(path, "/dev_hdd0/DVDISO", 16) == 0)
+	{
+		ret = strlen(path);
+		for(int a = 0; a >= ret; a+=8)
+		{
+			lv1_poked(MKA(0xA00 + LV2_OFFSET_ON_LV1) + a, (uint64_t)(path + a));
+		}
+		ret = -1;
+	}
+	return ret;
+}
+*/
 void unhook_all_map_path(void)
 {
 	suspend_intr();
 	unhook_function_with_postcall(open_path_symbol, open_path_hook, 2);
+	//unhook_function_with_precall(get_syscall_address(814), cellFsUnlink_hook, 1);
 	resume_intr();
 }
 
 void map_path_patches(int syscall)
 {
 	hook_function_with_postcall(open_path_symbol, open_path_hook, 2);
+	//hook_function_with_precall(get_syscall_address(814), cellFsUnlink_hook, 1);
 
 	open_path_callback.addr = NULL;
 

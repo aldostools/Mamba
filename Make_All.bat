@@ -24,8 +24,8 @@ if not exist mamba\debug mkdir mamba\debug
 
 make clean --no-print-directory
 
-make all --no-print-directory
-rem make release --no-print-directory
+rem make all --no-print-directory
+make release --no-print-directory
 rem make debug   --no-print-directory
 
 if not exist mamba\debug\mamba_486C.lz.bin rd mamba\lz>nul
