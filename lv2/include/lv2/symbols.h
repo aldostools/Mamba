@@ -44,7 +44,7 @@
 #include "symbols_475E-487E.h"
 
 #define DO_PHOTO_GUI
-#define DO_AUTO_EARTH
+//#define DO_AUTO_EARTH
 #define DO_AUTO_DEV_BLIND
 
 #if defined(aescbccfb_enc_symbol) && defined(aescbccfb_dec_symbol)
