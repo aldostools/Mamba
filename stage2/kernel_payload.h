@@ -17,6 +17,7 @@ int inst_and_run_kernel(uint8_t *payload, int size)
 	int (* func)(void);
 	func = (void *)&f;
 	func();
+
 	return SUCCEEDED;
 }
 
@@ -44,10 +45,11 @@ int inst_and_run_kernel_dynamic(uint8_t *payload, int size, uint64_t *residence)
 
 		uint64_t resident = (uint64_t)skprx;
 		copy_to_user(&resident, get_secure_user_ptr(residence), 8);
-		return 1;
+
+		return SUCCEEDED;
 	}
 
-	return 0;
+	return FAILED;
 }
 
 int unload_plugin_kernel(uint64_t residence)

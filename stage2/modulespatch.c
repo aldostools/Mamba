@@ -1520,9 +1520,7 @@ void load_boot_plugins_kernel(void)
 
 				if (read_text_line(fd, path, MAX_FILE_LEN, &eof) > 0)
 				{
-					int ret = load_plugin_kernel(path);
-
-					if (ret)
+					if (load_plugin_kernel(path))
 					{
 						DPRINTF("Load boot plugin %s -> %x\n", path, num_loaded_kernel);
 						num_loaded_kernel++;
