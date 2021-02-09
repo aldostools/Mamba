@@ -19,4 +19,3 @@ void kfree(void *ptr)
 {
 	dealloc(ptr, 0x35);
 }
-

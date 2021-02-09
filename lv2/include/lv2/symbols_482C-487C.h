@@ -151,6 +151,9 @@
     #define mem_base2										0x3D90
     #define PATCH_JUMP										0x56604
     #define lic_patch										0x56230
+    #define sm_get_temperature_patch 						0xC6A8
+    #define sm_get_fan_policy_patch 						0x9E38
+    #define sm_set_fan_policy_patch 						0xA334
     #define ode_patch										0x2275F4
     #define ECDSA_FLAG										0x474A80
     #define sysmem_obj										0x474C38

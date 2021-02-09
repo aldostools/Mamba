@@ -29,6 +29,7 @@ int map_dma_mem(int bus_id, int dev_id, void *start, size_t len, u64 *r_bus_addr
 	u64 flags = 0xf800000000000000UL;
 
 	result = lv1_allocate_device_dma_region(bus_id, dev_id, map_end - map_start, 12, 0, &bus_addr);
+
 	if (result)
 		return result;
 	
@@ -53,6 +54,7 @@ int unmap_dma_mem(int bus_id, int dev_id, u64 bus_addr, size_t len)
 	len = (len + 0xfff) & ~0xfff;
 
 	result = lv1_unmap_device_dma_region(bus_id, dev_id, real_bus_addr, len);
+
 	if (result)
 		return result;
 
@@ -66,17 +68,20 @@ int find_device_by_type(int type, int index, int *pbus_id, int *pdev_id, int *pi
 	s64 result;
 
 	printf("Locating device with type %d and index %d...\n", type, index);
-	for (bus_ndx=0; bus_ndx<10; bus_ndx++) {
-		u64 bus_id=0, bus_type=0, num_dev=0;
+	for (bus_ndx = 0; bus_ndx < 10; bus_ndx++)
+	{
+		u64 bus_id = 0, bus_type = 0, num_dev = 0;
 
 		result = lv1_get_repository_node_value(PS3_LPAR_ID_PME, FIELD_FIRST("bus",bus_ndx),
 											   FIELD("type",0), 0, 0, &bus_type, &v2);
 		if (result)
 			continue;
+
 		result = lv1_get_repository_node_value(PS3_LPAR_ID_PME, FIELD_FIRST("bus",bus_ndx),
 											   FIELD("id",0), 0, 0, &bus_id, &v2);
 		if (result)
 			continue;
+
 		result = lv1_get_repository_node_value(PS3_LPAR_ID_PME, FIELD_FIRST("bus",bus_ndx),
 											   FIELD("num_dev",0), 0, 0, &num_dev, &v2);
 		if (result)
@@ -84,6 +89,7 @@ int find_device_by_type(int type, int index, int *pbus_id, int *pdev_id, int *pi
 
 		printf("Bus #%ld id %ld type %ld num_dev %ld\n", bus_ndx, bus_id, bus_type, num_dev);
 		u64 dev_ndx;
+
 		for (dev_ndx=0; dev_ndx<num_dev; dev_ndx++) 
 		{
 			s64 dev_id=0, dev_type=0, dev_intr=0;
@@ -119,6 +125,7 @@ int find_device_by_type(int type, int index, int *pbus_id, int *pdev_id, int *pi
 					*pdev_id = dev_id;
 				if (pirq)
 					*pirq = dev_intr;
+
 				return 0;
 			}
 		}

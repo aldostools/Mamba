@@ -93,7 +93,5 @@ see file COPYING or http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
   .section .name.text, "ax"; \
   .global name; \
   name: \
-  
 
 #endif
-

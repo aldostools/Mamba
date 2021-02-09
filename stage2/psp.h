@@ -43,14 +43,14 @@ typedef struct
 	Elf32_Word	sh_link;		/* Index of a related section. */
 	Elf32_Word	sh_info;		/* Depends on section type. */
 	Elf32_Size	sh_addralign;	/* Alignment in bytes. */
-	Elf32_Size	sh_entsize;	/* Size of each entry in section. */
+	Elf32_Size	sh_entsize;		/* Size of each entry in section. */
 } __attribute__((packed))Elf32_Shdr;
 
 /*
  * Program header.
  */
 
-typedef struct 
+typedef struct
 {
 	Elf32_Word	p_type;			/* Entry type. */
 	Elf32_Off	p_offset;		/* File offset of contents. */

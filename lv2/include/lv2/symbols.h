@@ -45,7 +45,9 @@
 
 #define DO_PHOTO_GUI
 //#define DO_AUTO_EARTH
-#define DO_AUTO_DEV_BLIND
+#define DO_AUTO_RESTORE_SC
+#define DO_AUTO_MOUNT_DEV_BLIND
+#define DO_PARTIAL_MAP_PATH
 
 #if defined(aescbccfb_enc_symbol) && defined(aescbccfb_dec_symbol)
   #define MAKE_RIF
@@ -63,7 +65,7 @@
  #endif
 #endif
 
-#if defined(sysmem_obj) && defined(sm_set_fan_policy_symbol)
+#if defined(sm_get_temperature_symbol) && defined(sm_get_temperature_patch)
  #define FAN_CONTROL
 #endif
 

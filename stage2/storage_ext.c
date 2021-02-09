@@ -16,7 +16,6 @@
 #include <lv1/lv1call.h>
 #include <lv1/stor.h>
 #include <lv1/patch.h>
-
 #include "common.h"
 #include "storage_ext.h"
 #include "scsi.h"
@@ -172,7 +171,7 @@ int emu_storage_read(device_handle_t device_handle, uint64_t unk, uint64_t start
 size_t read_file_at_offset(const char *path, void *buf, size_t size, uint64_t offset)
 {
 	int fd;
-	if (cellFsOpen(path, CELL_FS_O_RDONLY, &fd, 0, NULL, 0) == SUCCEEDED)
+	if (cellFsOpen(path, CELL_FS_O_RDONLY, &fd, 0, NULL, 0) == CELL_FS_SUCCEEDED)
 	{
 		cellFsLseek(fd, offset, SEEK_SET, &offset);
 		cellFsRead(fd, buf, size, &size);
@@ -190,7 +189,7 @@ size_t read_file(const char *path, void *buf, size_t size)
 int save_file(const char *path, void *buf, size_t size)
 {
 	int fd;
-	if (cellFsOpen(path, CELL_FS_O_WRONLY | CELL_FS_O_CREAT | CELL_FS_O_TRUNC, &fd, 0666, NULL, 0) == SUCCEEDED)
+	if (cellFsOpen(path, CELL_FS_O_WRONLY | CELL_FS_O_CREAT | CELL_FS_O_TRUNC, &fd, 0666, NULL, 0) == CELL_FS_SUCCEEDED)
 	{
 		cellFsWrite(fd, buf, size, &size);
 		cellFsClose(fd);
@@ -288,7 +287,7 @@ static INLINE int process_read_iso_cmd(ReadIsoCmd *cmd)
 	{
 		bufsize = (remaining > READ_BUF_SIZE) ? READ_BUF_SIZE : remaining;
 		ret = page_allocate_auto(NULL, bufsize, &readbuf);
-		if (ret != SUCCEEDED)
+		if (ret) // (ret != SUCCEEDED)
 			return ret;
 	}
 
@@ -316,7 +315,7 @@ static INLINE int process_read_iso_cmd(ReadIsoCmd *cmd)
 				#endif
 
 				ret = cellFsOpen(discfile->files[file], CELL_FS_O_RDONLY, &discfd, 0, NULL, 0);
-				if (ret != SUCCEEDED)
+				if (ret) // (ret != SUCCEEDED)
 				{
 					discfd = UNDEFINED;
 					break;
@@ -329,14 +328,14 @@ static INLINE int process_read_iso_cmd(ReadIsoCmd *cmd)
 			if (doseek)
 			{
 				ret = cellFsLseek(discfd, base_offset + filepos, SEEK_SET, &v);
-				if (ret != SUCCEEDED)
+				if (ret) // (ret != SUCCEEDED)
 					break;
 
 				doseek = 0;
 			}
 
 			ret = cellFsRead(discfd, readbuf, readsize, &v);
-			if (ret != SUCCEEDED)
+			if (ret) // (ret != SUCCEEDED)
 				break;
 
 			if (v != readsize)
@@ -355,7 +354,7 @@ static INLINE int process_read_iso_cmd(ReadIsoCmd *cmd)
 		if (!iskernel)
 		{
 			ret = copy_to_process(cmd->process, readbuf, ptr, readsize);
-			if (ret != SUCCEEDED)
+			if (ret) // (ret != SUCCEEDED)
 				break;
 		}
 
@@ -416,13 +415,13 @@ static INLINE int process_read_cd_iso2048_cmd(ReadIsoCmd *cmd)
 	if (discfd == UNDEFINED)
 	{
 		ret = cellFsOpen(discfile_cd->file, CELL_FS_O_RDONLY, &discfd, 0, NULL, 0);
-		if (ret != SUCCEEDED)
+		if (ret) // (ret != SUCCEEDED)
 			return ret;
 	}
 
 	bufsize = (remaining > READ_BUF_SIZE_SECTORS_PSX) ? READ_BUF_SIZE_SECTORS_PSX : remaining;
 	ret = page_allocate_auto(NULL, bufsize * cd_sector_size, (void **)&readbuf);
-	if (ret != SUCCEEDED)
+	if (ret) // (ret != SUCCEEDED)
 		return ret;
 
 	ptr = cmd->buf;
@@ -443,7 +442,7 @@ static INLINE int process_read_cd_iso2048_cmd(ReadIsoCmd *cmd)
 			if (doseek)
 			{
 				ret = cellFsLseek(discfd, base_offset + (sector * cd_sector_size), SEEK_SET, &v);
-				if (ret != SUCCEEDED)
+				if (ret) // (ret != SUCCEEDED)
 					break;
 
 				doseek = 0;
@@ -453,7 +452,7 @@ static INLINE int process_read_cd_iso2048_cmd(ReadIsoCmd *cmd)
 		if (read)
 		{
 			ret = cellFsRead(discfd, readbuf, readsize * cd_sector_size, &v);
-			if (ret != SUCCEEDED)
+			if (ret) // (ret != SUCCEEDED)
 				break;
 
 			if (v < (readsize * cd_sector_size))
@@ -508,7 +507,7 @@ static INLINE int process_read_cd_iso2352_cmd(ReadCdIso2352Cmd *cmd)
 	if (discfd == UNDEFINED)
 	{
 		ret = cellFsOpen(discfile_cd->file, CELL_FS_O_RDONLY, &discfd, 0, NULL, 0);
-		if (ret != SUCCEEDED)
+		if (ret) // (ret != SUCCEEDED)
 			return ret;
 	}
 
@@ -582,7 +581,7 @@ static INLINE int process_read_cd_iso2352_cmd(ReadCdIso2352Cmd *cmd)
 		{
 			bufsize = (remaining > READ_BUF_SIZE_SECTORS_PSX) ? READ_BUF_SIZE_SECTORS_PSX : remaining;
 			ret = page_allocate_auto(NULL, bufsize * cd_sector_size, (void **)&readbuf);
-			if (ret != SUCCEEDED)
+			if (ret) // (ret != SUCCEEDED)
 				return ret;
 		}
 	}
@@ -614,7 +613,7 @@ static INLINE int process_read_cd_iso2352_cmd(ReadCdIso2352Cmd *cmd)
 			if (doseek)
 			{
 				ret = cellFsLseek(discfd, base_offset + (sector * cd_sector_size), SEEK_SET, &v);
-				if (ret != SUCCEEDED)
+				if (ret) // (ret != SUCCEEDED)
 					break;
 
 				doseek = 0;
@@ -624,7 +623,7 @@ static INLINE int process_read_cd_iso2352_cmd(ReadCdIso2352Cmd *cmd)
 		if (read)
 		{
 			ret = cellFsRead(discfd, readbuf, readsize * cd_sector_size, &v);
-			if (ret != SUCCEEDED)
+			if (ret) // (ret != SUCCEEDED)
 				break;
 
 			if (v < (readsize * cd_sector_size))
@@ -733,7 +732,7 @@ static int process_proxy_cmd(uint64_t command, process_t process, uint8_t *buf, 
 		#endif
 
 		ret = event_port_send(proxy_command_port, command, offset, (((uint64_t)buf)<<32ULL) | remaining);
-		if (ret != SUCCEEDED)
+		if (ret) // (ret != SUCCEEDED)
 		{
 			#ifdef DEBUG
 			DPRINTF("event_port send failed: %x\n", ret);
@@ -742,7 +741,7 @@ static int process_proxy_cmd(uint64_t command, process_t process, uint8_t *buf, 
 		}
 
 		ret = event_queue_receive(proxy_result_queue, &event, 0);
-		if (ret != SUCCEEDED)
+		if (ret) // (ret != SUCCEEDED)
 		{
 			#ifdef DEBUG
 			DPRINTF("event_queue_receive failed: %x\n", ret);
@@ -792,7 +791,7 @@ static int process_proxy_cmd(uint64_t command, process_t process, uint8_t *buf, 
 		read_size = (remaining <= discfile_proxy->read_size) ? remaining : discfile_proxy->read_size;
 
 		ret = page_allocate_auto(vsh_process, read_size, &kbuf);
-		if (ret != SUCCEEDED)
+		if (ret) // (ret != SUCCEEDED)
 		{
 			#ifdef DEBUG
 			DPRINTF("page_allocate failed: %x\n", ret);
@@ -801,7 +800,7 @@ static int process_proxy_cmd(uint64_t command, process_t process, uint8_t *buf, 
 		}
 
 		ret = page_export_to_proc(vsh_process, kbuf, 0x40000, &vbuf);
-		if (ret != SUCCEEDED)
+		if (ret) // (ret != SUCCEEDED)
 		{
 			#ifdef DEBUG
 			DPRINTF("page_export_to_proc failed: %x\n", ret);
@@ -816,15 +815,15 @@ static int process_proxy_cmd(uint64_t command, process_t process, uint8_t *buf, 
 
 			this_read_size = (remaining <= read_size) ? remaining : read_size;
 			ret = event_port_send(proxy_command_port, command, offset, (((uint64_t)vbuf)<<32ULL) | this_read_size);
-			if (ret != SUCCEEDED)
+			if (ret) // (ret != SUCCEEDED)
 				break;
 
 			ret = event_queue_receive(proxy_result_queue, &event, 0);
-			if (ret != SUCCEEDED)
+			if (ret) // (ret != SUCCEEDED)
 				break;
 
 			ret = (int)event.data1;
-			if (ret != SUCCEEDED)
+			if (ret) // (ret != SUCCEEDED)
 				break;
 
 			if (iskernel)
@@ -862,7 +861,7 @@ static int process_proxy_cmd(uint64_t command, process_t process, uint8_t *buf, 
 	}
 
 	#ifdef DEBUG
-	if (ret != SUCCEEDED)
+	if (ret) // (ret != SUCCEEDED)
 	{
 		DPRINTF("proxy read failed: %x\n", ret);
 	}
@@ -1109,7 +1108,7 @@ static void dispatch_thread_entry(uint64_t arg)
 		int64_t cmd_result = 0;
 
 		ret = event_queue_receive(command_queue, &event, 0);
-		if (ret != SUCCEEDED)
+		if (ret) // (ret != SUCCEEDED)
 			break;
 
 		switch (event.data1)
@@ -1629,7 +1628,7 @@ LV2_HOOKED_FUNCTION_COND_POSTCALL_7(int, emu_sys_storage_async_read, (sys_device
 				storage_mutex = (mutex_t)sys_storage_object[0x98/8];
 
 				#ifdef DEBUG
-				if (unk2 != 0)
+				if (unk2) // (unk2 != 0)
 				{
 					DPRINTF("WARNING: unk2 not 0: %lx\n", unk2);
 				}
@@ -2117,7 +2116,7 @@ static int process_cd_iso_scsi_cmd(uint8_t *indata, uint64_t inlen, uint8_t *out
 				return FAILED;
 			}
 
-			if (GET_EXPECTED_SECTOR_TYPE(cmd) != 0)
+			if (GET_EXPECTED_SECTOR_TYPE(cmd)) // (GET_EXPECTED_SECTOR_TYPE(cmd) != 0)
 			{
 				#ifdef DEBUG
 				DPRINTF("Unexpected value for expected sector type: %d\n", GET_EXPECTED_SECTOR_TYPE(cmd));
@@ -2161,7 +2160,7 @@ static int process_cd_iso_scsi_cmd(uint8_t *indata, uint64_t inlen, uint8_t *out
 			if (outsize > outlen)
 			{
 				ret = page_allocate_auto(process, outsize, (void **)&buf);
-				if (ret != SUCCEEDED)
+				if (ret) // (ret != SUCCEEDED)
 					return FAILED;
 			}
 			else
@@ -2181,7 +2180,7 @@ static int process_cd_iso_scsi_cmd(uint8_t *indata, uint64_t inlen, uint8_t *out
 				if (ret == SUCCEEDED)
 					ret = (int)(int64_t)event.data1;
 
-				if (ret != SUCCEEDED)
+				if (ret) // (ret != SUCCEEDED)
 					return FAILED;
 			}
 			else
@@ -2202,7 +2201,7 @@ static int process_cd_iso_scsi_cmd(uint8_t *indata, uint64_t inlen, uint8_t *out
 						if (ret == SUCCEEDED)
 							ret = (int)(int64_t)event.data1;
 
-						if (ret != SUCCEEDED)
+						if (ret) // (ret != SUCCEEDED)
 							return FAILED;
 
 						p += cd_sector_size;
@@ -2411,7 +2410,7 @@ static int process_cmd(unsigned int command, void *indata, uint64_t inlen, void 
 		break;
 
 		case STORAGE_COMMAND_GET_DEVICE_TYPE:
-			if (fake_disctype != 0)
+			if (fake_disctype) // (fake_disctype != 0)
 			{
 				memset(outdata, 0, outlen);
 				memcpy(outdata, &fake_disctype, (sizeof(fake_disctype) > outlen) ? sizeof(fake_disctype) : outlen);
@@ -2671,7 +2670,7 @@ void init_mount_hdd0(void)
 		{
 			fake_reinsert(disctype);
 		}
-		else if (disctype != 0)
+		else if (disctype) // (disctype != 0)
 		{
 			process_disc_insert(disctype);
 		}
@@ -2701,6 +2700,7 @@ static int get_ps2emu_type(void)
 	u64 v2;
 
 	lv1_get_repository_node_value(PS3_LPAR_ID_PME, FIELD_FIRST("sys", 0), FIELD("hw", 0), FIELD("config", 0), 0, (u64 *)config, &v2);
+
 	if (config[6]&1) // has emotion engine
 	{
 		return PS2EMU_HW;
@@ -2709,7 +2709,6 @@ static int get_ps2emu_type(void)
 	{
 		return PS2EMU_GX;
 	}
-
 	return PS2EMU_SW;
 }
 
@@ -3022,7 +3021,7 @@ static INLINE int check_files_and_allocate(unsigned int filescount, char *files[
 		CellFsStat stat;
 
 		int ret = cellFsStat(files[i], &stat);
-		if (ret != SUCCEEDED)
+		if (ret) // (ret != SUCCEEDED)
 		{
 			free(discfile);
 			discfile = NULL;
@@ -3056,7 +3055,7 @@ static int mount_common(unsigned int filescount, char *files[])
 		return EBUSY;
 
 	int ret = check_files_and_allocate(filescount, files);
-	if (ret != SUCCEEDED)
+	if (ret) // (ret != SUCCEEDED)
 		return ret;
 
 	discfile->cached_sector = NULL;
@@ -3346,7 +3345,7 @@ int sys_storage_ext_read_ps3_disc(void *buf, uint64_t start_sector, uint32_t cou
 	handle = NULL;
 
 	ret = open_fs_object(NULL, "/dev_bdvd", &object, &unk1, &handle, NULL);
-	if (ret != SUCCEEDED)
+	if (ret) // (ret != SUCCEEDED)
 		return ret;
 
 	if (!object)
@@ -3584,7 +3583,7 @@ int sys_storage_ext_mount_discfile_proxy(sys_event_port_t result_port, sys_event
 			if (ret == SUCCEEDED)
 			{
 				ret = event_port_connect(proxy_result_port, proxy_result_queue);
-				if (ret != SUCCEEDED)
+				if (ret) // (ret != SUCCEEDED)
 				{
 					#ifdef DEBUG
 					DPRINTF("Failed in connecting proxy result port/queue: %x\n", ret);
@@ -3599,7 +3598,7 @@ int sys_storage_ext_mount_discfile_proxy(sys_event_port_t result_port, sys_event
 			}
 			#endif
 
-			if (ret != SUCCEEDED)
+			if (ret) // (ret != SUCCEEDED)
 			{
 				event_port_destroy(proxy_command_port);
 				event_queue_destroy(proxy_result_queue);
@@ -3682,7 +3681,7 @@ int sys_storage_ext_mount_encrypted_image(char *image, char *mount_point, char *
 		return EBUSY;
 
 	ret = pathdup_from_user(image, &encrypted_image);
-	if (ret != 0)
+	if (ret) // (ret != 0)
 		return ret;
 
 	if (strlen(encrypted_image) >= 0x40)
@@ -3695,7 +3694,7 @@ int sys_storage_ext_mount_encrypted_image(char *image, char *mount_point, char *
 	*(uint32_t *)&loop_device[0x44] = 0;
 
 	ret = cellFsUtilMount_h(loop_device, filesystem, mount_point, 0, 1, 0, NULL, 0);
-	if (ret != SUCCEEDED)
+	if (ret) // (ret != SUCCEEDED)
 	{
 		#ifdef DEBUG
 		DPRINTF("cellFsUtilMount failed: %x\n", ret);

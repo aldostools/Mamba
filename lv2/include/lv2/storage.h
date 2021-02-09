@@ -60,13 +60,13 @@ typedef struct
 	uint32_t unk_34; 		// 0x34 not copied in sys_storage_get_device_info		0xE4   unused
 	uint64_t unk_38; 		// 0x38 not copied in sys_storage_get_device_info		0xE8   unused
 	uint8_t unk_40[8]; 		// 0x40													0xF0   0xA8
-	
+
 } __attribute__((packed)) device_info_t;
 
 typedef struct
 {
 	uint32_t inlen;
-	uint32_t unk1; 
+	uint32_t unk1;
 	uint32_t outlen;
 	uint32_t unk2;
 	uint32_t unk3;
@@ -80,7 +80,7 @@ LV2_EXPORT int storage_get_device_config(int *unk, int *unk2);
 LV2_EXPORT int storage_open(uint64_t device_id, uint64_t unk, device_handle_t *device_handle, uint64_t unk2);
 LV2_EXPORT int storage_close(device_handle_t device_handle);
 // storage_read(3, 0, 0x220, 0x10, buf, &nread, 4); // flash?
-// storage_read(0x13, 0, 0x030761E0, 0x80, buf, &nread, 0); // hdd 
+// storage_read(0x13, 0, 0x030761E0, 0x80, buf, &nread, 0); // hdd
 // storage_read(0x24, 0, 0x3C01, 0x20, buf, &nread, 4); // usb. Raw sector, not partition one.
 // storage_read(0x41, 0, 0x10, 0x10, buf, &nread, 0); // dev_bdvd
 LV2_EXPORT int storage_read(device_handle_t device_handle, uint64_t unk, uint64_t start_sector, uint32_t sector_count, void *buf, uint32_t *nread, uint64_t flags);
@@ -106,15 +106,14 @@ LV2_EXPORT int storage_unmap_io_memory(uint64_t device, void *buf);
 static INLINE uint64_t storage_get_flash_device(void)
 {
 	u64 value, v2;
-	
+
 	lv1_get_repository_node_value(PS3_LPAR_ID_PME, FIELD_FIRST("sys", 0), FIELD("flash", 0), FIELD("ext", 0), 0, &value, &v2);
-	
+
 	if (value&1)
 		return NAND_FLASH;
-	
+
 	return NOR_FLASH;
 }
-
 
 #endif /* __LV2_STORAGE_H__ */
 

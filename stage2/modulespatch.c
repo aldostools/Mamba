@@ -4,7 +4,7 @@
 #include <lv2/modules.h>
 #include <lv2/process.h>
 #include <lv2/memory.h>
-#include <lv2/time.h>
+//#include <lv2/time.h>
 #include <lv2/io.h>
 #include <lv2/pad.h>
 #include <lv2/symbols.h>
@@ -13,18 +13,18 @@
 #include <lv2/security.h>
 #include <lv2/thread.h>
 #include <lv2/syscall.h>
-#include <lv1/patch.h>
+//#include <lv1/patch.h>
 #include "common.h"
-#include "storage_ext.h"
 #include "modulespatch.h"
-#include "ps3mapi_core.h"
 #include "crypto.h"
 #include "config.h"
+#include "storage_ext.h"
+#include "psp.h"
 #include "self.h"
 #include "syscall8.h"
 #include "mappath.h"
 #include "region.h"
-#include "psp.h"
+#include "ps3mapi_core.h"
 
 #undef APPLY_KERNEL_PATCHES
 
@@ -1083,7 +1083,7 @@ LV2_PATCHED_FUNCTION(int, modules_patching, (uint64_t *arg1, uint32_t *arg2))
 				int j = 0;
 				SprxPatch *patch = &patch_table[i].patch_table[j];
 
-				while (patch->offset != 0)
+				while (patch->offset)
 				{
 					if (*patch->condition)
 					{
@@ -1277,7 +1277,7 @@ int prx_load_vsh_plugin(unsigned int slot, char *path, void *arg, uint32_t arg_s
 	if (slot >= MAX_VSH_PLUGINS || (arg != NULL && arg_size > KB(64)))
 		return EINVAL;
 
-	if (vsh_plugins[slot] != 0)
+	if (vsh_plugins[slot])
 		return EKRESOURCE;
 
 	CellFsStat stat;
@@ -1336,30 +1336,6 @@ int prx_load_vsh_plugin(unsigned int slot, char *path, void *arg, uint32_t arg_s
 	#endif
 
 	return ret;
-}
-
-// load system modules by haxxxen
-int prx_start_modules(sys_prx_id_t id, process_t process, uint64_t flags, uint64_t arg)
-{
-	int ret;
-	uint64_t meminfo[5];
-	uint32_t toc[2];
-
-	meminfo[0] = sizeof(meminfo);
-	meminfo[1] = 1;
-
-	ret = prx_start_module(id, process, flags, meminfo);
-	if (ret != 0)
-		return ret;
-
-	ret = copy_from_process(process, (void *)meminfo[2], toc, sizeof(toc));
-	if (ret != 0)
-		return ret;
-
-	meminfo[1] = 2;
-	meminfo[3] = 0;
-
-	return prx_start_module(id, process, flags, meminfo);
 }
 
 // User version of prx_load_vsh_plugin
@@ -1436,7 +1412,7 @@ int read_text_line(int fd, char *line, unsigned int size, int *eof)
 		uint8_t ch;
 		uint64_t r;
 
-		if ((cellFsRead(fd, &ch, 1, &r) != SUCCEEDED) || (r != 1))
+		if ((cellFsRead(fd, &ch, 1, &r) != CELL_FS_SUCCEEDED) || (r != 1))
 		{
 			*eof = 1;
 			break;
@@ -1482,7 +1458,7 @@ static int load_plugin_kernel(char *path)
 	if (vsh_process <= 0) return ESRCH;}
 
 	CellFsStat stat;
-	if(cellFsStat(path, &stat) == SUCCEEDED)
+	if(cellFsStat(path, &stat) == CELL_FS_SUCCEEDED)
 	{
 		if(stat.st_size & 0x7) return EINVAL; // check payload is aligned to 8 / 16
 
@@ -1518,10 +1494,8 @@ static void locate_file(char *path, const char *file)
 {
 	CellFsStat stat;
 	sprintf(path, "/dev_usb000/%s", file);
-	if (cellFsStat(path, &stat) == CELL_OK) return;
-	path[10] = '1';
-	if (cellFsStat(path, &stat) == CELL_OK) return;
-	sprintf(path, "/dev_hdd0/%s", file);
+	if (cellFsStat(path, &stat) /* != CELL_FS_SUCCEEDED */) path[10] = '1';
+	if (cellFsStat(path, &stat) /* != CELL_FS_SUCCEEDED */) sprintf(path, "/dev_hdd0/%s", file);
 }
 
 void load_boot_plugins_kernel(void)
@@ -1536,7 +1510,7 @@ void load_boot_plugins_kernel(void)
 		locate_file(path, "mamba_plugins_kernel.txt");
 
 		int fd;
-		if (cellFsOpen(path, CELL_FS_O_RDONLY, &fd, 0, NULL, 0) == SUCCEEDED)
+		if (cellFsOpen(path, CELL_FS_O_RDONLY, &fd, 0, NULL, 0) == CELL_FS_SUCCEEDED)
 		{
 			int num_loaded_kernel = 0;
 
@@ -1578,7 +1552,7 @@ void load_boot_plugins(void)
 		locate_file(path, "mamba_plugins.txt");
 
 		int fd;
-		if (cellFsOpen(path, CELL_FS_O_RDONLY, &fd, 0, NULL, 0) == SUCCEEDED)
+		if (cellFsOpen(path, CELL_FS_O_RDONLY, &fd, 0, NULL, 0) == CELL_FS_SUCCEEDED)
 		{
 			int current_slot = BOOT_PLUGINS_FIRST_SLOT;
 			int num_loaded = 0;
@@ -1636,10 +1610,6 @@ void modules_patch_init(void)
 	hook_function_with_precall(get_syscall_address(802), sys_fs_read,  4);
 	hook_function_with_precall(get_syscall_address(804), sys_fs_close, 1);
 	#endif
-	#ifdef QA_FLAG
-	hook_function_with_cond_postcall(update_mgr_if_get_token_symbol, um_if_get_token,5);
-	hook_function_with_cond_postcall(update_mgr_read_eeprom_symbol, read_eeprom_by_offset,3);
-	#endif
 
 	storage_ext_patches();
 	region_patches();
@@ -1678,10 +1648,6 @@ void unhook_all_modules(void)
 	unhook_function_with_precall(get_syscall_address(802), sys_fs_read,  4);
 	unhook_function_with_precall(get_syscall_address(804), sys_fs_close, 1);
 	#endif
-	#ifdef QA_FLAG
-	unhook_function_with_cond_postcall(update_mgr_if_get_token_symbol, um_if_get_token,5);
-	unhook_function_with_cond_postcall(update_mgr_read_eeprom_symbol, read_eeprom_by_offset,3);
-	#endif
 
 	enable_kernel_patches();
 
@@ -1695,6 +1661,9 @@ void ps3mapi_unhook_all(void)
 	unhook_all_map_path();
 	unhook_all_storage_ext();
 //	unhook_all_permissions();
+	#ifdef FAN_CONTROL
+	unhook_all_fan_patches();
+	#endif
 }
 
 //----------------------------------------

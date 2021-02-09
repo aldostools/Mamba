@@ -30,6 +30,7 @@ see file COPYING or http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 #include <lv2/symbols.h>
 
 #endif
+
 #include "printf.h"
 
 #undef printf
@@ -207,6 +208,7 @@ int64_t debug_init(void)
 	u64 vlan_id;
 	result = lv1_net_control(bus_id, dev_id, GELIC_LV1_GET_VLAN_ID, \
 							 GELIC_LV1_VLAN_TX_ETHERNET_0, 0, 0, &vlan_id, &v2);
+
 	if (result == 0)
 	{
 		h_eth->type = 0x8100;

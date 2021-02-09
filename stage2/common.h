@@ -25,6 +25,7 @@ static INLINE void dump_stack_trace(unsigned int n)
 	{
 		void *p = get_call_address(i);
 		DPRINTF("%p\n", p);
+
 		if (!p)
 			break;
 	}
@@ -80,6 +81,7 @@ static INLINE void dump_stack_trace3(uint64_t *stack, unsigned int n)
 	{
 		void *p = get_call_address2(stack, i);
 		DPRINTF("%p\n", p);
+
 		if (!p)
 			break;
 	}

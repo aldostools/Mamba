@@ -521,11 +521,11 @@ int sys_psp_read_header(int fd, char *buf, uint64_t nbytes, uint64_t *nread)
 	kfree(list);
 	kfree(unk);
 
-	if (ret != SUCCEEDED)
+	if (ret) // (ret != SUCCEEDED)
 		return ret;
 
 	ret = cellFsOpen(umd_file, CELL_FS_O_RDONLY, &umd_fd, 0, NULL, 0);
-	if (ret != SUCCEEDED)
+	if (ret) // (ret != SUCCEEDED)
 		return ret;
 
 	cellFsLseek(umd_fd, 0, SEEK_END, &umd_size);
@@ -568,7 +568,7 @@ int sys_psp_read_umd(int unk, void *buf, uint64_t sector, uint64_t ofs, uint64_t
 
 		int ret = open_kernel_object(object_table, *(uint32_t *)(emulator_api_base+umd_mutex_offset), (void **)&mutex, &obj_handle, SYS_MUTEX_OBJECT);
 
-		if (ret != SUCCEEDED)
+		if (ret) // (ret != SUCCEEDED)
 		{
 			#ifdef DEBUG
 			DPRINTF("Cannot open user mutex, using an own one\n");
@@ -589,13 +589,13 @@ int sys_psp_read_umd(int unk, void *buf, uint64_t sector, uint64_t ofs, uint64_t
 	mutex_lock(mutex, 0);
 	offset = sector * 0x800;
 
-	if (ofs != 0)
+	if (ofs) // (ofs != 0)
 	{
 		offset = offset + 0x800 - ofs;
 	}
 
 	ret = cellFsLseek(umd_fd, base_offset + offset, SEEK_SET, &dummy);
-	if (ret != SUCCEEDED)
+	if (ret) // (ret != SUCCEEDED)
 	{
 		mutex_unlock(mutex);
 		return ret;
@@ -649,7 +649,7 @@ int sys_psp_set_umdfile(char *file, char *id, int prometheus)
 			DPRINTF("[PSP VSH PATCHES] Restore original data\n");
 			#endif
 
-			for (int i = 0; patches_backup[i].offset != 0; i++)
+			for (int i = 0; patches_backup[i].offset; i++)
 			{
 				lv1_pokew(patches_backup[i].offset, patches_backup[i].data);
 				#ifdef DEBUG
@@ -675,7 +675,7 @@ int sys_psp_set_umdfile(char *file, char *id, int prometheus)
 		return EINVAL;
 
 	ret = pathdup_from_user(file, &umd_file);
-	if (ret != SUCCEEDED)
+	if (ret) // (ret != SUCCEEDED)
 		return ret;
 
 	int len = strlen(umd_file);
@@ -706,7 +706,7 @@ int sys_psp_set_umdfile(char *file, char *id, int prometheus)
 		DPRINTF("Making patches..\n");
 		#endif
 
-		for (int i = 0; psp_drm_patches[i].offset != 0; i++)
+		for (int i = 0; psp_drm_patches[i].offset; i++)
 		{
 			patches_backup[i].data = lv1_peekw(patches_backup[i].offset);
 			lv1_pokew(psp_drm_patches[i].offset, psp_drm_patches[i].data);

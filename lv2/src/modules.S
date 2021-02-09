@@ -56,8 +56,3 @@ LV2_FUNCTION(lock_prx_mutex, lock_prx_mutex_symbol)
 #ifdef unlock_prx_mutex_symbol
 LV2_FUNCTION(unlock_prx_mutex, unlock_prx_mutex_symbol)
 #endif
-
-
-
-
-

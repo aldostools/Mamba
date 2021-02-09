@@ -11,7 +11,7 @@ char *strstr(const char *haystack, const char *needle)
 	needlelen = strlen(needle);
 	for (; (haystack = strchr(haystack, *needle)) != NULL; haystack++)
 		if (strncmp(haystack, needle, needlelen) == 0)
-			return (char *) haystack;		
+			return (char *) haystack;
 		return NULL;
 }
 

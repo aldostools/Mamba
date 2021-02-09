@@ -4,7 +4,7 @@
 extern uint8_t dvd_video_region;
 extern uint8_t bd_video_region;
 
-enum 
+enum
 {
 	DVD_VIDEO_REGION_1 = 1,
 	DVD_VIDEO_REGION_2 = 2,
@@ -32,6 +32,3 @@ void unhook_all_region(void);
 #endif
 
 #endif
-
-
-

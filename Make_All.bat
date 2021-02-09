@@ -32,7 +32,7 @@ if not exist mamba\debug\mamba_486C.lz.bin rd mamba\lz>nul
 if not exist mamba\debug\mamba_486C.bin rd mamba\debug>nul
 
 FOR /F "usebackq" %%A IN ('"mamba\mamba_486C.bin"') DO set SIZE=%%~zA
-SET SIZE=%SIZE:~0,2%,%SIZE:~2%
+SET SIZE=%SIZE:~0,3%,%SIZE:~3%
 echo mamba_486C.bin is %SIZE% bytes
 
 pause

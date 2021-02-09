@@ -275,7 +275,7 @@ int _vsnprintf(char *str, size_t size, const char *format, va_list args)
 {
 	if (!format)
 		return 0;
-	
+
 	INTMAX_T value;
 	unsigned char cvalue;
 	const char *strvalue;
@@ -310,7 +310,7 @@ int _vsnprintf(char *str, size_t size, const char *format, va_list args)
 
 	while (ch != '\0')
 	{
-		switch (state) 	
+		switch (state)
 		{
 			case PRINT_S_DEFAULT:
 			{
@@ -324,7 +324,7 @@ int _vsnprintf(char *str, size_t size, const char *format, va_list args)
 
 			case PRINT_S_FLAGS:
 			{
-				switch (ch) 
+				switch (ch)
 				{
 					case '-':
 						flags |= PRINT_F_MINUS;
@@ -360,10 +360,10 @@ int _vsnprintf(char *str, size_t size, const char *format, va_list args)
 
 			case PRINT_S_WIDTH:
 			{
-				if (ISDIGIT(ch)) 
+				if (ISDIGIT(ch))
 				{
 					ch = CHARTOINT(ch);
-					if (width > (INT_MAX - ch) / 10) 
+					if (width > (INT_MAX - ch) / 10)
 					{
 						overflow = 1;
 						goto out;
@@ -371,15 +371,15 @@ int _vsnprintf(char *str, size_t size, const char *format, va_list args)
 
 					width = 10 * width + ch;
 					ch = *format++;
-				} 
-				else if (ch == '*') 
+				}
+				else if (ch == '*')
 				{
 					/*
 					 * C99 says: "A negative field width argument is
 					 * taken as a `-' flag followed by a positive
 					 * field width." (7.19.6.1, 5)
 					 */
-					if ((width = va_arg(args, int)) < 0) 
+					if ((width = va_arg(args, int)) < 0)
 					{
 						flags |= PRINT_F_MINUS;
 						width = -width;
@@ -387,7 +387,7 @@ int _vsnprintf(char *str, size_t size, const char *format, va_list args)
 
 					ch = *format++;
 					state = PRINT_S_DOT;
-				} 
+				}
 				else
 					state = PRINT_S_DOT;
 
@@ -396,11 +396,11 @@ int _vsnprintf(char *str, size_t size, const char *format, va_list args)
 
 			case PRINT_S_DOT:
 			{
-				if (ch == '.') 
+				if (ch == '.')
 				{
 					state = PRINT_S_PRECISION;
 					ch = *format++;
-				} 
+				}
 				else
 					state = PRINT_S_MOD;
 
@@ -411,10 +411,10 @@ int _vsnprintf(char *str, size_t size, const char *format, va_list args)
 			{
 				if (precision == -1)
 					precision = 0;
-				if (ISDIGIT(ch)) 
+				if (ISDIGIT(ch))
 				{
 					ch = CHARTOINT(ch);
-					if (precision > (INT_MAX - ch) / 10) 
+					if (precision > (INT_MAX - ch) / 10)
 					{
 						overflow = 1;
 						goto out;
@@ -422,8 +422,8 @@ int _vsnprintf(char *str, size_t size, const char *format, va_list args)
 
 					precision = 10 * precision + ch;
 					ch = *format++;
-				} 
-				else if (ch == '*') 
+				}
+				else if (ch == '*')
 				{
 					/*
 					 * C99 says: "A negative precision argument is
@@ -434,7 +434,7 @@ int _vsnprintf(char *str, size_t size, const char *format, va_list args)
 						precision = -1;
 					ch = *format++;
 					state = PRINT_S_MOD;
-				} 
+				}
 				else
 					state = PRINT_S_MOD;
 
@@ -443,25 +443,25 @@ int _vsnprintf(char *str, size_t size, const char *format, va_list args)
 
 			case PRINT_S_MOD:
 			{
-				switch (ch) 
+				switch (ch)
 				{
 					case 'h':
 						ch = *format++;
-						if (ch == 'h') 
+						if (ch == 'h')
 						{	/* It's a char. */
 							ch = *format++;
 							cflags = PRINT_C_CHAR;
-						} 
+						}
 						else
 							cflags = PRINT_C_SHORT;
 						break;
 					case 'l':
 						ch = *format++;
-						if (ch == 'l') 
+						if (ch == 'l')
 						{	/* It's a long long. */
 							ch = *format++;
 							cflags = PRINT_C_LLONG;
-						} 
+						}
 						else
 							cflags = PRINT_C_LONG;
 						break;
@@ -485,13 +485,13 @@ int _vsnprintf(char *str, size_t size, const char *format, va_list args)
 
 			case PRINT_S_CONV:
 			{
-				switch (ch) 
+				switch (ch)
 				{
 					case 'd':
 						/* FALLTHROUGH */
 					case 'i':
 					{
-						switch (cflags) 
+						switch (cflags)
 						{
 							case PRINT_C_CHAR:
 							{
@@ -547,27 +547,27 @@ int _vsnprintf(char *str, size_t size, const char *format, va_list args)
 
 						break;
 					}
-					
+
 					case 'X':
 						flags |= PRINT_F_UP;
 						/* FALLTHROUGH */
-					
+
 					case 'x':
 						base = 16;
 						/* FALLTHROUGH */
-					
+
 					case 'o':
 						if (base == 0)
 							base = 8;
 						/* FALLTHROUGH */
-					
+
 					case 'u':
 					{
 						if (base == 0)
 							base = 10;
 						flags |= PRINT_F_UNSIGNED;
 
-						switch (cflags) 
+						switch (cflags)
 						{
 							case PRINT_C_CHAR:
 							{
@@ -639,7 +639,7 @@ int _vsnprintf(char *str, size_t size, const char *format, va_list args)
 						strvalue = va_arg(args, char *);
 						fmtstr(str, &len, size, strvalue, width,
 						    precision, flags);
-						
+
 						break;
 					}
 
@@ -658,7 +658,7 @@ int _vsnprintf(char *str, size_t size, const char *format, va_list args)
 							 */
 							fmtstr(str, &len, size, "(nil)", width,
 							    -1, flags);
-						else 
+						else
 						{
 							/*
 							 * We use the BSD/glibc format.  SysV
@@ -676,7 +676,7 @@ int _vsnprintf(char *str, size_t size, const char *format, va_list args)
 					}
 					case 'n':
 					{
-						switch (cflags) 
+						switch (cflags)
 						{
 							case PRINT_C_CHAR:
 							{
@@ -770,9 +770,9 @@ out:
 	else if (size > 0)
 		str[size - 1] = '\0';
 
-	if (overflow || len >= INT_MAX) 
+	if (overflow || len >= INT_MAX)
 		return -1;
-	
+
 	return (int)len;
 }
 
@@ -795,21 +795,21 @@ static void fmtstr(char *str, size_t *len, size_t size, const char *value, int w
 	if (flags & PRINT_F_MINUS)	/* Left justify. */
 		padlen = -padlen;
 
-	while (padlen > 0) 
-	{	
+	while (padlen > 0)
+	{
 		/* Leading spaces. */
 		OUTCHAR(str, *len, size, ' ');
 		padlen--;
 	}
 
-	while (*value != '\0' && (noprecision || precision-- > 0)) 
+	while (*value != '\0' && (noprecision || precision-- > 0))
 	{
 		OUTCHAR(str, *len, size, *value);
 		value++;
 	}
 
-	while (padlen < 0) 
-	{	
+	while (padlen < 0)
+	{
 		/* Trailing spaces. */
 		OUTCHAR(str, *len, size, ' ');
 		padlen++;
@@ -831,7 +831,7 @@ static void fmtint(char *str, size_t *len, size_t size, INTMAX_T value, int base
 
 	if (flags & PRINT_F_UNSIGNED)
 		uvalue = value;
-	else 
+	else
 	{
 		uvalue = (value >= 0) ? value : -value;
 		if (value < 0)
@@ -845,7 +845,7 @@ static void fmtint(char *str, size_t *len, size_t size, INTMAX_T value, int base
 	pos = convert(uvalue, iconvert, sizeof(iconvert), base,
 	    flags & PRINT_F_UP);
 
-	if (flags & PRINT_F_NUM && uvalue != 0) 
+	if (flags & PRINT_F_NUM && uvalue != 0)
 	{
 		/*
 		 * C99 says: "The result is converted to an `alternative form'.
@@ -855,7 +855,7 @@ static void fmtint(char *str, size_t *len, size_t size, INTMAX_T value, int base
 		 * printed).  For `x' (or `X') conversion, a nonzero result has
 		 * `0x' (or `0X') prefixed to it." (7.19.6.1, 6)
 		 */
-		switch (base) 
+		switch (base)
 		{
 			case 8:
 			{
@@ -863,7 +863,7 @@ static void fmtint(char *str, size_t *len, size_t size, INTMAX_T value, int base
 					precision = pos + 1;
 				break;
 			}
-			
+
 			case 16:
 			{
 				hexprefix = (flags & PRINT_F_UP) ? 'X' : 'x';
@@ -894,13 +894,13 @@ static void fmtint(char *str, size_t *len, size_t size, INTMAX_T value, int base
 	 */
 	if (flags & PRINT_F_MINUS)	/* Left justify. */
 		spadlen = -spadlen;
-	else if (flags & PRINT_F_ZERO && noprecision) 
+	else if (flags & PRINT_F_ZERO && noprecision)
 	{
 		zpadlen += spadlen;
 		spadlen = 0;
 	}
 
-	while (spadlen > 0) 
+	while (spadlen > 0)
 	{	/* Leading spaces. */
 		OUTCHAR(str, *len, size, ' ');
 		spadlen--;
@@ -908,22 +908,22 @@ static void fmtint(char *str, size_t *len, size_t size, INTMAX_T value, int base
 
 	if (sign != 0)	/* Sign. */
 		OUTCHAR(str, *len, size, sign);
-	if (hexprefix != 0) 
-	{	
+	if (hexprefix)
+	{
 		/* A "0x" or "0X" prefix. */
 		OUTCHAR(str, *len, size, '0');
 		OUTCHAR(str, *len, size, hexprefix);
 	}
 
-	while (zpadlen > 0) 
-	{	
+	while (zpadlen > 0)
+	{
 		/* Leading zeros. */
 		OUTCHAR(str, *len, size, '0');
 		zpadlen--;
 	}
 
-	while (pos > 0) 
-	{	
+	while (pos > 0)
+	{
 		/* The actual digits. */
 		pos--;
 		OUTCHAR(str, *len, size, iconvert[pos]);
@@ -931,8 +931,8 @@ static void fmtint(char *str, size_t *len, size_t size, INTMAX_T value, int base
 			printsep(str, len, size);
 	}
 
-	while (spadlen < 0) 
-	{	
+	while (spadlen < 0)
+	{
 		/* Trailing spaces. */
 		OUTCHAR(str, *len, size, ' ');
 		spadlen++;
@@ -960,7 +960,7 @@ convert(UINTMAX_T value, char *buf, size_t size, int base, int caps)
 	size_t pos = 0;
 
 	/* We return an unterminated buffer with the digits in reverse order. */
-	do 
+	do
 	{
 		buf[pos++] = digits[value % base];
 		value /= base;

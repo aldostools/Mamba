@@ -14,14 +14,23 @@
 
 MambaConfig config;
 
-#ifndef sysmem_obj
- #undef FAN_CONTROL
+#ifdef FAN_CONTROL
+extern uint8_t set_fan_speed;		// fan_control.h
+void load_fan_control(void);
+#endif
+#ifdef DO_AUTO_MOUNT_DEV_BLIND
+extern uint8_t auto_dev_blind;		// homebrew_blocker.h
+#endif
+#ifdef DO_AUTO_RESTORE_SC
+extern uint8_t allow_restore_sc;	// homebrew_blocker.h
+#endif
+#ifdef DO_PHOTO_GUI
+extern uint8_t photo_gui;			// mappath.c
+#endif
+#ifdef DO_AUTO_EARTH
+extern uint8_t auto_earth;			// mappath.c
 #endif
 
-#ifdef FAN_CONTROL
-int sm_set_fan_policy(uint8_t arg1, uint8_t arg2, uint8_t arg3);
-void do_fan_control(void);
-#endif
 
 static void check_and_correct(MambaConfig *cfg)
 {
@@ -88,18 +97,26 @@ int read_mamba_config(void)
 	bd_video_region = config.bd_video_region;
 	dvd_video_region = config.dvd_video_region;
 
+	#ifdef DO_AUTO_MOUNT_DEV_BLIND
+	auto_dev_blind   = !config.auto_dev_blind;		// 0 = Allow auto-mount /dev_blind   | 1 = Does not allow auto-mount /dev_blind
+	#endif
+	#ifdef DO_AUTO_RESTORE_SC
+	allow_restore_sc = !config.allow_restore_sc;	// 0 = Allow to restore CFW syscalls | 1 = Does not allow to restore CFW syscalls
+	#endif
+	#ifdef DO_PHOTO_GUI
+	photo_gui        = !config.photo_gui;			// 0 = Allow Photo GUI				 | 1 = Does not allow Photo GUI
+	#endif
+	#ifdef DO_AUTO_EARTH
+	auto_earth       = !config.auto_earth;			// 0 = Allow auto-map earth.qrc      | 1 = Does not allow auto-map earth.qrc
+	#endif
+	#ifdef FAN_CONTROL
+	set_fan_speed    = config.fan_speed;			// 0 = DISABLED, 1 = SYSCON, 2 = Dynamic Fan Controller, 0x33 to 0xFF = Set manual fan speed
+	load_fan_control();
+	#endif
+
 	#ifdef DEBUG
 		DPRINTF("Configuration read. bd_video_region=%d,dvd_video_region=%d\n",
 				bd_video_region, dvd_video_region);
-	#endif
-
-	#ifdef FAN_CONTROL
-	if(config.fan_speed >= 0x33 && config.fan_speed <= 0x80)
-		sm_set_fan_policy(0, 2, config.fan_speed); // Manual mode
-	else if(config.fan_speed <= 1)
-		sm_set_fan_policy(0, 1, 0); // SYSCON mode
-	else // if(config.fan_speed >= 2 && config.fan_speed <= 0x32)
-		do_fan_control();  // Dynamic fan control
 	#endif
 
 	return SUCCEEDED;
