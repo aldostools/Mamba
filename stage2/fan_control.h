@@ -93,7 +93,9 @@ LV2_HOOKED_FUNCTION_COND_POSTCALL_3(int, sys_shutdown, (uint16_t op, const void 
 	// Avoids max FAN speed after a shutdown by Evilnat
 	if(op == SYS_SHUTDOWN || op == SYS_SHUTDOWN2)
 	{
+		#ifdef DEBUG
 		DPRINTF("Shutdown executed, resetting FAN policy\n");
+		#endif
 		sm_set_fan_policy(0, 1, 0);
 	}
 

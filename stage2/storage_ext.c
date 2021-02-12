@@ -37,6 +37,11 @@
 #define THREAD_NAME	""
 #endif
 
+#ifdef DO_CFW2OFW_FIX
+extern uint8_t CFW2OFW_game; // homebrew_blocker.h
+int map_path(char *oldpath, char *newpath, uint32_t flags);
+#endif
+
 #ifdef DO_PATCH_PS2
 #define PS2EMU_STAGE2_FILE	"/dev_hdd0/vm/pm0"
 #define PS2EMU_CONFIG_FILE	"/dev_hdd0/tmp/cfg.bin"
@@ -2583,6 +2588,18 @@ static void fake_reinsert(unsigned int disctype)
 	process_fake_storage_event_cmd(&cmd);
 }
 
+#ifdef DO_CFW2OFW_FIX
+void restore_BD(void)
+{
+	mutex_lock(mutex, 0);
+
+	unsigned int disctype = get_disc_type();
+	fake_reinsert(disctype);
+
+	mutex_unlock(mutex);
+}
+#endif
+
 LV2_HOOKED_FUNCTION_COND_POSTCALL_2(int, emu_disc_auth, (uint64_t func, uint64_t param))
 {
 #ifdef DEBUG
@@ -2683,10 +2700,31 @@ LV2_HOOKED_FUNCTION_PRECALL_SUCCESS_8(int, post_cellFsUtilMount, (const char *bl
 	#ifdef DEBUG
 		DPRINTF("cellFsUtilMount: %s\n", mount_point);
 	#endif
-	if (!hdd0_mounted && strcmp(mount_point, "/dev_hdd0") == 0 && strcmp(filesystem, "CELL_FS_UFS") == 0)
+
+	#ifdef DO_CFW2OFW_FIX
+	if(CFW2OFW_game && !strcmp(mount_point, "/dev_bdvd/PS3_GAME"))
+	{
+		CFW2OFW_game = 0;
+
+		#ifdef DEBUG
+		DPRINTF("Detected CFW2OFW game: Unmounting DISC\n");
+		#endif
+
+		sys_storage_ext_umount_discfile();
+
+		map_path("/dev_bdvd/PS3_GAME", NULL, 0);
+		map_path("/app_home/PS3_GAME", NULL, 0);
+		map_path("/dev_bdvd", NULL, 0);
+		map_path("/app_home", NULL, 0);
+		map_path("//dev_bdvd", NULL, 0);
+		map_path("//app_home", NULL, 0);
+	}
+	#endif
+
+	if (!hdd0_mounted && !strcmp(mount_point, "/dev_hdd0") && !strcmp(filesystem, "CELL_FS_UFS"))
 	{
 		init_mount_hdd0();
-		#ifndef DEBUG
+		#ifndef DO_CFW2OFW_FIX
 			unhook_function_on_precall_success(cellFsUtilMount_symbol, post_cellFsUtilMount, 8);
 		#endif
 	}
@@ -3858,7 +3896,7 @@ void unhook_all_storage_ext(void)
 	// SS function
 	unhook_function_with_cond_postcall(get_syscall_address(864), emu_disc_auth, 2);
 
-	#ifdef DEBUG
+	#ifdef DO_CFW2OFW_FIX
 	unhook_function_on_precall_success(cellFsUtilMount_symbol, post_cellFsUtilMount, 8);
 	#else
 	if (!hdd0_mounted)

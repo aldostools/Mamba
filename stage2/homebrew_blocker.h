@@ -14,6 +14,9 @@ uint8_t allow_restore_sc = 1; // allow re-create cfw syscalls accessing system u
 uint8_t auto_dev_blind  = 1; // auto-mount dev_blind
 static uint8_t mount_dev_blind  = 1;
 #endif
+#ifdef DO_CFW2OFW_FIX
+uint8_t CFW2OFW_game = 0;
+#endif
 
 #define BLACKLIST_FILENAME	"/dev_hdd0/tmp/blacklist.cfg"
 #define WHITELIST_FILENAME	"/dev_hdd0/tmp/whitelist.cfg"
@@ -111,19 +114,19 @@ static inline int block_homebrew(const char *path)
 		uint8_t syscalls_disabled = ((*(uint64_t *)MKA(syscall_table_symbol + 8 * 6)) == (*(uint64_t *)MKA(syscall_table_symbol)));
 
 //		if(!syscalls_disabled && (!strncmp(path + 15, "ENSTONEXX", 9) || !strncmp(path + 15, "IDPSET000", 9))) syscalls_disabled = 1;
-/*
-		// Check CFW2OFW: /dev_hdd0/game/NPEB12345/LICDIR/LIC.EDAT
-		if ((disc_emulation != EMU_OFF) && !strncmp(path + 24, "/LICDIR/LIC.EDAT", 16))
+
+		// CFW2OFW fix by Evilnat
+		// Fixes black screen while a CFW2OFW game is loaded with a mounted JB folder game
+		#ifdef DO_CFW2OFW_FIX
+		if (strstr(path + 15, "/LIC.EDAT")) // Check CFW2OFW: /dev_hdd0/game/NPEB12345/LICDIR/LIC.EDAT
 		{
 			#ifdef DEBUG
-			DPRINTF("CFW2OFW detected: Unmounting DISC\n");
+			DPRINTF("CFW2OFW detected\n");
 			#endif
-			sys_storage_ext_umount_discfile();
-			sys_map_path("/dev_bdvd", NULL);
-			sys_map_path("//dev_bdvd", NULL);
+			CFW2OFW_game = 1; // unmount in post_cellFsUtilMount of storage_ext.c
 		}
 		else
-*/
+		#endif
 		if (syscalls_disabled && strstr(path + 15, "/EBOOT.BIN"))
 		{
 			// syscalls are disabled and an EBOOT.BIN is being called from hdd. Let's test it.

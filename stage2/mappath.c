@@ -89,7 +89,7 @@ void map_first_slot(char *oldpath, char *newpath)
 	return;
 }
 */
-static int map_path(char *oldpath, char *newpath, uint32_t flags)
+int map_path(char *oldpath, char *newpath, uint32_t flags)
 {
 	int8_t i, firstfree = UNDEFINED, is_dev_bdvd = 0;
 

@@ -28,6 +28,10 @@
 
 #undef APPLY_KERNEL_PATCHES
 
+#ifdef DO_CFW2OFW_FIX
+extern uint8_t CFW2OFW_game; // homebrew_blocker.h
+#endif
+
 static inline void enable_kernel_patches(void)
 {
 #ifdef DO_PATCH_COBRA810
@@ -1131,15 +1135,27 @@ LV2_HOOKED_FUNCTION_PRECALL_SUCCESS_8(int, load_process_hooked, (process_t proce
 	#ifdef DEBUG
 	DPRINTF("PROCESS %s (%08X) loaded\n", path, process->pid);
 	#endif
+
+	// CFW2OFW fix by Evilnat
+	// Restores disc in BD drive, this fixes leftovers of previous game mounted
+	#ifdef DO_CFW2OFW_FIX
+	if (CFW2OFW_game && !strcmp(path, "/dev_flash/vsh/module/mcore.self"))
+	{
+		#ifdef DEBUG
+			DPRINTF("Resetting BD Drive after CFW2OFW game...\n");
+		#endif
+
+		restore_BD();
+		CFW2OFW_game =  0;
+	}
+	#endif
+
 	//Get VSH process
 	if (!vsh_process)
 	{
 		if(is_vsh_process(process->parent)) vsh_process = process->parent;
 		else if (is_vsh_process(process)) vsh_process = process;
 		else vsh_process = get_vsh_process();
-		#ifndef DEBUG
-		if (vsh_process) unhook_function_on_precall_success(load_process_symbol, load_process_hooked, 9);
-		#endif
 
 		if ((vsh_process) && (storage_ext_patches_done == 0))
 		{
@@ -1147,8 +1163,9 @@ LV2_HOOKED_FUNCTION_PRECALL_SUCCESS_8(int, load_process_hooked, (process_t proce
 			storage_ext_patches();
 		}
 	}
-	#ifndef DEBUG
-	else unhook_function_on_precall_success(load_process_symbol, load_process_hooked, 9);
+	#ifndef DO_CEX2OFW_FIX
+	if (vsh_process)
+		unhook_function_on_precall_success(load_process_symbol, load_process_hooked, 9);
 	#endif
 
 	return 0;
@@ -1635,8 +1652,11 @@ void unhook_all_modules(void)
 	unhook_function_with_cond_postcall(modules_verification_symbol, pre_modules_verification, 2);
 	unhook_function_with_postcall(map_process_memory_symbol, pre_map_process_memory, 7);
 
+	#ifdef DO_CEX2OFW_FIX
+	unhook_function_on_precall_success(load_process_symbol, load_process_hooked, 9);
+	#endif
+
 	#ifdef DEBUG
-	unhook_function_on_precall_success(load_process_symbol, load_process_hooked, 9); //unhook it-self if not set to debug
 	//unhook_function_on_precall_success(create_process_common_symbol, create_process_common_hooked, 16);
 	//unhook_function_with_postcall(create_process_common_symbol, create_process_common_hooked_pre, 8);
 	#endif

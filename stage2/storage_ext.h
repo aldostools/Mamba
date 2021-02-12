@@ -66,5 +66,9 @@ void unhook_all_storage_ext(void);
 
 void init_mount_hdd0(void);
 
+#ifdef DO_CFW2OFW_FIX
+void restore_BD(void);
+#endif
+
 #endif /* __STORAGE_EXT_H__ */
 
