@@ -1,5 +1,5 @@
 #ifdef FAN_CONTROL
-//#include <lv2/fan.h>
+//#include <lv2/ctrl.h>
 
 #define SYS_SHUTDOWN			0x0100
 #define SYS_SHUTDOWN2			0x1100

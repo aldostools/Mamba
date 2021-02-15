@@ -2701,6 +2701,14 @@ LV2_HOOKED_FUNCTION_PRECALL_SUCCESS_8(int, post_cellFsUtilMount, (const char *bl
 		DPRINTF("cellFsUtilMount: %s\n", mount_point);
 	#endif
 
+	if (!hdd0_mounted && !strcmp(mount_point, "/dev_hdd0") && !strcmp(filesystem, "CELL_FS_UFS"))
+	{
+		init_mount_hdd0();
+		#ifndef DO_CFW2OFW_FIX
+			unhook_function_on_precall_success(cellFsUtilMount_symbol, post_cellFsUtilMount, 8);
+		#endif
+	}
+
 	#ifdef DO_CFW2OFW_FIX
 	if(CFW2OFW_game && !strcmp(mount_point, "/dev_bdvd/PS3_GAME"))
 	{
@@ -2720,14 +2728,6 @@ LV2_HOOKED_FUNCTION_PRECALL_SUCCESS_8(int, post_cellFsUtilMount, (const char *bl
 		map_path("//app_home", NULL, 0);
 	}
 	#endif
-
-	if (!hdd0_mounted && !strcmp(mount_point, "/dev_hdd0") && !strcmp(filesystem, "CELL_FS_UFS"))
-	{
-		init_mount_hdd0();
-		#ifndef DO_CFW2OFW_FIX
-			unhook_function_on_precall_success(cellFsUtilMount_symbol, post_cellFsUtilMount, 8);
-		#endif
-	}
 	return SUCCEEDED;
 }
 

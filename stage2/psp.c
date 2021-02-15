@@ -44,7 +44,7 @@ static uint64_t emulator_api_base;
 static uint32_t *savedata_param;
 
 /* vsh.self */
-SprxPatch psp_drm_patches[] =
+static SprxPatch psp_drm_patches[] =
 {
 	{ psp_drm_patch1, LI(R3, 0) 	},
 	{ psp_drm_patch2, LI(R3, 0) 	},
@@ -108,7 +108,7 @@ static INLINE void psp_patches_type()
 	}
 }
 
-int patches_found;
+static int patches_found;
 
 static INLINE int get_psp_patches()
 {

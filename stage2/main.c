@@ -26,7 +26,7 @@
 #include <lv2/syscall.h>
 #include <lv1/stor.h>
 #include <lv1/patch.h>
-#include <lv2/fan.h>
+#include <lv2/ctrl.h>
 #include "common.h"
 #include "syscall8.h"
 #include "modulespatch.h"
@@ -536,6 +536,12 @@ LV2_SYSCALL2(int64_t, syscall8, (uint64_t function, uint64_t param1, uint64_t pa
 
 				case PS3MAPI_OPCODE_GET_FAN_SPEED:
 					return sm_get_fan_speed();
+				break;
+				#endif
+
+				#ifdef sm_ring_buzzer_symbol
+				case PS3MAPI_OPCODE_RING_BUZZER:
+					return sm_ring_buzzer((uint16_t)param2);
 				break;
 				#endif
 

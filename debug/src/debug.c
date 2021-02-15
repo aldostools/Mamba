@@ -33,6 +33,10 @@ see file COPYING or http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
 #include "printf.h"
 
+#ifdef FAN_CONTROL
+#include <lv2/ctrl.h>
+#endif
+
 #undef printf
 
 #define DEBUG_PORT 18194
@@ -313,6 +317,9 @@ int64_t debug_print(const char* buffer, size_t msgsize)
 void abort(void)
 {
 	_debug_printf("abort() called! Panicking.\n");
+	#ifdef FAN_CONTROL
+	sm_set_fan_policy(0, 1, 0);
+	#endif
 	lv1_panic(0);
 	while (1);
 }
@@ -321,6 +328,9 @@ void fatal(const char *msg)
 {
 	_debug_printf("FATAL: %s\n", msg);
 	_debug_printf("Panicking.\n");
+	#ifdef FAN_CONTROL
+	sm_set_fan_policy(0, 1, 0);
+	#endif
 	lv1_panic(0);
 	while (1);
 }
