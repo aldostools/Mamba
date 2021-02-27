@@ -11,10 +11,11 @@ typedef struct
 	uint32_t spoof_version;  // deprecated (use SEN Enabler for version spoofer) // version in BCD, eg. 0x0484, Max value: 0x0999
 	uint32_t spoof_revision; // deprecated (use SEN Enabler for version spoofer) // revision number (decimal), MAx value: 99999
 	uint8_t fan_speed; // 0 = Disabled, 1 = SYSCON, 2 = Dynamic Fan Controller, 0x33 to 0xFF = Set manual fan speed
-	uint8_t auto_dev_blind;		// 0 = Allow auto-mount /dev_blind   | 1 = Does not allow auto-mount /dev_blind
-	uint8_t allow_restore_sc;	// 0 = Allow to restore CFW syscalls | 1 = Does not allow to restore CFW syscalls
-	uint8_t photo_gui;			// 0 = Allow Photo GUI               | 1 = Does not allow Photo GUI
-	uint8_t auto_earth;			// 0 = Allow auto-map earth.qrc      | 1 = Does not allow auto-map earth.qrc
+	uint8_t allow_restore_sc;	// 1 = Allow to restore CFW syscalls | 0 = Does not allow to restore CFW syscalls
+	uint8_t skip_existing_rif;	// 1 = skip if .rif already exists   | 0 = Skip if .rif already exists
+	uint8_t photo_gui;			// 1 = Allow Photo GUI               | 0 = Does not allow Photo GUI
+	uint8_t auto_earth;			// 1 = Allow auto-map earth.qrc      | 0 = Does not allow auto-map earth.qrc
+	uint8_t auto_dev_blind;		// 1 = Allow auto-mount /dev_blind   | 0 = Does not allow auto-mount /dev_blind
 } __attribute__((packed)) MambaConfig;
 
 extern MambaConfig config;
