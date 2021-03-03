@@ -192,9 +192,15 @@ static void make_rif(const char *path)
 
 		if(!is_ps2_classic)
 		{
-			sprintf(rap_path, "/dev_usb000/exdata/%.36s.rap", content_id);
-			if(cellFsStat(rap_path, &stat) /* != CELL_FS_SUCCEEDED */) {rap_path[10] = '1'; //usb001
-			if(cellFsStat(rap_path, &stat) /* != CELL_FS_SUCCEEDED */) sprintf(rap_path, "/dev_hdd0/exdata/%.36s.rap", content_id);}
+			const char *ext = ".rap";
+			for(u8 i = 0; i < 2; i++)
+			{
+				sprintf(rap_path, "/dev_usb000/exdata/%.36s%s", content_id, ext);
+				if(cellFsStat(rap_path, &stat) /* != CELL_FS_SUCCEEDED */) {rap_path[10] = '1'; //usb001
+				if(cellFsStat(rap_path, &stat) /* != CELL_FS_SUCCEEDED */) sprintf(rap_path, "/dev_hdd0/exdata/%.36s%s", content_id, ext);}
+				if(cellFsStat(rap_path, &stat)) ext = ".RAP"; else break;
+
+			}
 		}
 
 		// default: ps2classic rap
