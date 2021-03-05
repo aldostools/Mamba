@@ -279,7 +279,7 @@ static INLINE int process_read_iso_cmd(ReadIsoCmd *cmd)
 
 	if (discfile->cached_sector)
 	{
-		dealloc(discfile->cached_sector, 0x2F);
+		pfree(discfile->cached_sector);
 		discfile->cached_sector = NULL;
 	}
 
@@ -375,7 +375,7 @@ static INLINE int process_read_iso_cmd(ReadIsoCmd *cmd)
 	{
 		if (cache)
 		{
-			discfile->cached_sector = alloc(2048, 0x2F);
+			discfile->cached_sector = palloc(2048);
 
 			if (iskernel)
 			{
@@ -789,7 +789,7 @@ static int process_proxy_cmd(uint64_t command, process_t process, uint8_t *buf, 
 
 		if (discfile_proxy->cached_sector)
 		{
-			dealloc(discfile_proxy->cached_sector, 0x2F);
+			pfree(discfile_proxy->cached_sector);
 			discfile_proxy->cached_sector = NULL;
 		}
 
@@ -850,7 +850,7 @@ static int process_proxy_cmd(uint64_t command, process_t process, uint8_t *buf, 
 
 		if (cache)
 		{
-			discfile_proxy->cached_sector = alloc(2048, 0x2F);
+			discfile_proxy->cached_sector = palloc(2048);
 
 			if (iskernel)
 			{
@@ -2961,7 +2961,7 @@ static INLINE void do_umount_discfile(void)
 	{
 		if (discfile->cached_sector)
 		{
-			dealloc(discfile->cached_sector, 0x2F);
+			pfree(discfile->cached_sector);
 		}
 
 		free(discfile);
@@ -2983,7 +2983,7 @@ static INLINE void do_umount_discfile(void)
 	{
 		if (discfile_proxy->cached_sector)
 		{
-			dealloc(discfile_proxy->cached_sector, 0x2F);
+			pfree(discfile_proxy->cached_sector);
 		}
 
 		free(discfile_proxy);
