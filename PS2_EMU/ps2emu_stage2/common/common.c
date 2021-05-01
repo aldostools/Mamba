@@ -408,8 +408,8 @@ static INLINE int setup_iso(void)
 
 	iso_size = get_file_size(iso_fd);
 	iso_size_sectors = iso_size / 2048;
-	device_type = ((buf[0]&1) == 0) ? DEVICE_TYPE_PS2_DVD : DEVICE_TYPE_PS2_CD;
-	total_emulation = (buf[0]&2);
+	device_type = ((buf[0] & 1) == 0) ? DEVICE_TYPE_PS2_DVD : DEVICE_TYPE_PS2_CD;
+	total_emulation = (buf[0] & 2);
 	is_dual_layer = 0;
 	layer0_size = iso_size_sectors;
 
@@ -423,7 +423,7 @@ static INLINE int setup_iso(void)
 		if (IS_2352())
 		{
 			tracks = malloc(num_tracks*sizeof(ScsiTrackDescriptor));
-			ufs_read(cfg_fd, 0x801, tracks, num_tracks*sizeof(ScsiTrackDescriptor));
+			ufs_read(cfg_fd, 0x801, tracks, num_tracks * sizeof(ScsiTrackDescriptor));
 			iso_size_sectors = iso_size / 2352;
 		}
 	}
@@ -726,7 +726,7 @@ static INLINE void optical_dvd_read_2064(uint8_t *buf, uint64_t lba, uint32_t le
 		}
 		else
 		{
-			id = 0x030000 + (lba-layer0_size);
+			id = 0x030000 + (lba - layer0_size);
 			id |= (1 << 24); // Layer 1
 		}
 

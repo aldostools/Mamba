@@ -44,7 +44,6 @@
 #include "symbols_475E-487E.h"
 
 #define DO_PHOTO_GUI
-//#define DO_AUTO_EARTH
 #define DO_AUTO_RESTORE_SC
 #define DO_AUTO_MOUNT_DEV_BLIND
 #define DO_PARTIAL_MAP_PATH

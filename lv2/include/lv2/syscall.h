@@ -605,7 +605,7 @@
 #define SYS_SS_INDIVIDUAL_INFO_MANAGER								868	// indi_info_manager_if (Interface)
 #define SYS_SS_FACTORY_DATA_MANAGER									869	// factory_data_manager_if (Interface)
 #define SYS_SS_GET_CONSOLE_ID										870	// int sys_ss_get_console_id(uint8_t *buf) //returns IDPS in buf
-#define SYS_SS_ACCESS_CONTROL_ENGINE								871	// 3 params 
+#define SYS_SS_ACCESS_CONTROL_ENGINE								871	// 3 params
 #define SYS_SS_GET_OPEN_PSID										872 // int sys_ss_get_open_psid(CellSsOpenPSID *ptr) ; typedef struct CellSsOpenPSID { uint64_t high; uint64_t low;}
 #define SYS_SS_GET_CACHE_OF_PRODUCT_MODE							873	/* Added */
 #define SYS_SS_GET_CACHE_OF_FLASH_EXT_FLAG							874	/* Added */

@@ -1861,10 +1861,10 @@ ret _##name args
 ret name args; \
 ret _##name args
 
-typedef struct function_descriptor 
+typedef struct function_descriptor
 {
 	void	*addr;
-	void    *toc;	
+	void    *toc;
 } f_desc_t;
 
 void 	clear_icache(void *addr, uint64_t size);
@@ -1917,9 +1917,9 @@ static INLINE void change_function(uint64_t func_addr, void *newfunc)
 	clear_icache((void *)MKA(func_addr), 4);
 }
 
-static INLINE void patch_jump(uint64_t jump_addr, void *newfunc) 
-{ 
-	change_function(jump_addr, newfunc); 
+static INLINE void patch_jump(uint64_t jump_addr, void *newfunc)
+{
+	change_function(jump_addr, newfunc);
 }
 
 static INLINE void *hook_function(uint64_t func_addr, void *newfunc, f_desc_t *f)
@@ -1927,7 +1927,7 @@ static INLINE void *hook_function(uint64_t func_addr, void *newfunc, f_desc_t *f
 	f_desc_t *g = (f_desc_t *)newfunc;
 	uint32_t inst = *(uint32_t *)MKA(func_addr);
 	uint32_t *orig_call = &((uint32_t *)g->addr)[19]; // WARNING: relies on HOOKED_FUNCTION not being changed
-	
+
 	orig_call[0] = inst;
 	MAKE_JUMP(&orig_call[1], MKA(func_addr+4));
 	clear_icache(orig_call, 8);
@@ -1941,7 +1941,7 @@ static INLINE void unhook_function(uint64_t func_addr, void *newfunc)
 {
 	f_desc_t *f = (f_desc_t *)newfunc;
 	uint32_t *orig_call = &((uint32_t *)f->addr)[19]; // WARNING: relies on HOOKED_FUNCTION not being changed
-	
+
 	*(uint32_t *)MKA(func_addr) = orig_call[0];
 	clear_icache((void *)MKA(func_addr), 4);
 }
@@ -1950,11 +1950,11 @@ static INLINE void hook_function_with_precall(uint64_t func_addr, void *newfunc,
 {
 	if (nparams > 8)
 		nparams = 8;
-	
+
 	f_desc_t *f = (f_desc_t *)newfunc;
 	uint32_t inst = *(uint32_t *)MKA(func_addr);
-	uint32_t *orig_call = &((uint32_t *)f->addr)[2+nparams]; // WARNING: relies on HOOKED_FUNCTION_PRECALL_N not being changed	
-	
+	uint32_t *orig_call = &((uint32_t *)f->addr)[2+nparams]; // WARNING: relies on HOOKED_FUNCTION_PRECALL_N not being changed
+
 	orig_call[0] = inst;
 	MAKE_CALL(&orig_call[1], MKA(func_addr+4));
 	clear_icache(orig_call, 8);
@@ -1965,10 +1965,10 @@ static INLINE void unhook_function_with_precall(uint64_t func_addr, void *newfun
 {
 	if (nparams > 8)
 		nparams = 8;
-	
+
 	f_desc_t *f = (f_desc_t *)newfunc;
-	uint32_t *orig_call = &((uint32_t *)f->addr)[2+nparams]; // WARNING: relies on HOOKED_FUNCTION_PRECALL_N not being changed	
-	
+	uint32_t *orig_call = &((uint32_t *)f->addr)[2+nparams]; // WARNING: relies on HOOKED_FUNCTION_PRECALL_N not being changed
+
 	*(uint32_t *)MKA(func_addr) = orig_call[0];
 	clear_icache((void *)MKA(func_addr), 4);
 }
@@ -1987,11 +1987,11 @@ static INLINE void hook_function_with_postcall(uint64_t func_addr, void *newfunc
 {
 	if (nparams > 8)
 		nparams = 8;
-	
+
 	f_desc_t *f = (f_desc_t *)newfunc;
 	uint32_t inst = *(uint32_t *)MKA(func_addr);
-	uint32_t *orig_call = &((uint32_t *)f->addr)[16+(nparams*2)]; // WARNING: relies on HOOKED_FUNCTION_POST_CALL_N not being changed	
-	
+	uint32_t *orig_call = &((uint32_t *)f->addr)[16+(nparams*2)]; // WARNING: relies on HOOKED_FUNCTION_POST_CALL_N not being changed
+
 	orig_call[0] = inst;
 	MAKE_CALL(&orig_call[1], MKA(func_addr+4));
 	clear_icache(orig_call, 8);
@@ -2002,23 +2002,23 @@ static INLINE void unhook_function_with_postcall(uint64_t func_addr, void *newfu
 {
 	if (nparams > 8)
 		nparams = 8;
-	
+
 	f_desc_t *f = (f_desc_t *)newfunc;
-	uint32_t *orig_call = &((uint32_t *)f->addr)[16+(nparams*2)]; // WARNING: relies on HOOKED_FUNCTION_POST_CALL_N not being changed	
-	
+	uint32_t *orig_call = &((uint32_t *)f->addr)[16+(nparams*2)]; // WARNING: relies on HOOKED_FUNCTION_POST_CALL_N not being changed
+
 	*(uint32_t *)MKA(func_addr) = orig_call[0];
-	clear_icache((void *)MKA(func_addr), 4);	
+	clear_icache((void *)MKA(func_addr), 4);
 }
 
 static INLINE void hook_function_with_cond_postcall(uint64_t func_addr, void *newfunc, unsigned int nparams)
 {
 	if (nparams > 8)
 		nparams = 8;
-	
+
 	f_desc_t *f = (f_desc_t *)newfunc;
 	uint32_t inst = *(uint32_t *)MKA(func_addr);
-	uint32_t *orig_call = &((uint32_t *)f->addr)[19+(nparams*2)]; // WARNING: relies on HOOKED_FUNCTION_COND_POST_CALL_N not being changed	
-	
+	uint32_t *orig_call = &((uint32_t *)f->addr)[19+(nparams*2)]; // WARNING: relies on HOOKED_FUNCTION_COND_POST_CALL_N not being changed
+
 	orig_call[0] = inst;
 	MAKE_CALL(&orig_call[1], MKA(func_addr+4));
 	clear_icache(orig_call, 8);
@@ -2029,24 +2029,24 @@ static INLINE void unhook_function_with_cond_postcall(uint64_t func_addr, void *
 {
 	if (nparams > 8)
 		nparams = 8;
-	
+
 	f_desc_t *f = (f_desc_t *)newfunc;
-	uint32_t *orig_call = &((uint32_t *)f->addr)[19+(nparams*2)]; // WARNING: relies on HOOKED_FUNCTION_COND_POST_CALL_N not being changed	
-	
+	uint32_t *orig_call = &((uint32_t *)f->addr)[19+(nparams*2)]; // WARNING: relies on HOOKED_FUNCTION_COND_POST_CALL_N not being changed
+
 	*(uint32_t *)MKA(func_addr) = orig_call[0];
 	clear_icache((void *)MKA(func_addr), 4);
 }
 
 static INLINE void set_postcall_function(uint64_t postcall_func_addr, void *func, unsigned int nparams)
-{	
+{
 	if (nparams > 8)
 		nparams = 8;
-	
+
 	f_desc_t *f = (f_desc_t *)func;
-	uint32_t *orig_call = &((uint32_t *)f->addr)[16+(nparams*2)]; // WARNING: relies on HOOKED_FUNCTION_POST_CALL_N not being changed	
-	
+	uint32_t *orig_call = &((uint32_t *)f->addr)[16+(nparams*2)]; // WARNING: relies on HOOKED_FUNCTION_POST_CALL_N not being changed
+
 	MAKE_CALL(&orig_call[1], MKA(postcall_func_addr+4));
-	clear_icache(&orig_call[1], 4);	
+	clear_icache(&orig_call[1], 4);
 }
 
 /* Only to call pre/postcall hooked functions, not normal hooked or patched */
