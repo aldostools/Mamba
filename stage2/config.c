@@ -210,3 +210,33 @@ int sys_write_mamba_config(MambaConfig *cfg)
 
 	return write_mamba_config();
 }
+
+// For internal purposes
+// Saves current value in cobra config through opcodes
+// Only for fan_speed, ps2_speed, allow_restore_sc and skip_existing_rif
+int save_config_value(uint8_t member, uint8_t value)
+{
+	int fd;
+	uint64_t r;
+
+	if(cellFsOpen(MAMBA_CONFIG_FILE, CELL_FS_O_RDONLY, &fd, 0, NULL, 0) != SUCCEEDED)
+		return 1;
+
+	cellFsRead(fd, &config, sizeof(config), &r);
+	cellFsClose(fd);
+
+	if(member == cfg_fan_speed)
+		config.fan_speed = value;
+	else if(member == cfg_ps2_speed)
+		config.ps2_speed = value;
+	else if(member == cfg_allow_restore_sc)
+		config.allow_restore_sc = value;
+	else if(member == cfg_skip_existing_rif)
+		config.skip_existing_rif = value;
+	else
+		return 1;
+
+	sys_write_mamba_config((MambaConfig *)&config);
+
+	return SUCCEEDED;
+}

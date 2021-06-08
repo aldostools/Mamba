@@ -5,16 +5,17 @@
 
 typedef struct
 {
-	uint16_t size; // size of structure, this will be set automatically by the library
-	uint16_t checksum; // this check now is disabled
-	u8 bd_video_region; // One of BDRegion, or 0 for default
-	u8 dvd_video_region; // One of DVDRegion or 0 for default
-	u8 ps2softemu; // Non-zero to show ps2 discs in non bc consoles
-	u32 spoof_version;  // deprecated (use SEN Enabler for version spoofer) // version in BCD, eg. 0x0484, Max value: 0x0999
-	u32 spoof_revision; // deprecated (use SEN Enabler for version spoofer) // revision number (decimal), MAx value: 99999
-	u8 fan_speed; // 0 = Disabled, 1 = SYSCON, 2 = Dynamic Fan Controller, 0x33 to 0xFF = Set manual fan speed
-	u8 allow_restore_sc;	// 1 = Allow to restore CFW syscalls | 0 = Does not allow to restore CFW syscalls
-	u8 skip_existing_rif;	// 1 = skip if .rif already exists   | 0 = Skip if .rif already exists
+	uint16_t size;			// size of structure, this will be set automatically by the library
+	uint16_t checksum;		// Only for core, don't mess with this
+	u8 bd_video_region;		// One of BDRegion, or 0 for default
+	u8 dvd_video_region;	// One of DVDRegion or 0 for default
+	u8 ps2softemu;			// Non-zero to show ps2 discs in non bc consoles
+	u32 spoof_version;		// version in BCD, eg. 0x0484, Max value: 0x0999 // feature is unavailable (use SEN Enabler for version spoofer)
+	u32 spoof_revision;		// revision number (decimal), MAx value: 99999 // feature is unavailable (use SEN Enabler for version spoofer)
+	u8 fan_speed;			// 0 = Disabled | 1 = SYSCON | Dynamic Fan Controller (2 = Max 60°C | 3 = Max 65°C | 4 = Max 70°C | 5 = Max 75°C) | 0x33 to 0xFF = Manual
+	u8 ps2_speed;			// 0 = Disabled | 1 = SYSCON | 0x60 | 0x65 | 0x70 | 0x75 | 0x80 | 0x85 | 0x90
+	u8 allow_restore_sc;	// 0 = Does not allow to restore CFW syscalls | 1 = Allow to restore CFW syscalls
+	u8 skip_existing_rif;	// 0 = Does not skip if .rif already exists | 1 = Skip if .rif already exists
 	u8 photo_gui;			// 1 = Allow Photo GUI               | 0 = Does not allow Photo GUI
 	u8 auto_earth;			// deprecated
 	u8 auto_dev_blind;		// 1 = Allow auto-mount /dev_blind   | 0 = Does not allow auto-mount /dev_blind
@@ -27,5 +28,11 @@ int read_mamba_config(void);
 // Syscalls
 int sys_read_mamba_config(MambaConfig *cfg);
 int sys_write_mamba_config(MambaConfig *cfg);
+int save_config_value(uint8_t member, uint8_t value);
+
+#define cfg_fan_speed			1
+#define cfg_ps2_speed			2
+#define cfg_allow_restore_sc	3
+#define cfg_skip_existing_rif	4
 
 #endif /* __CONFIG_H__ */

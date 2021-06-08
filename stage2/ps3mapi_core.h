@@ -12,33 +12,33 @@
 #include <lv2/process.h>
 #include <lv2/modules.h>
 
-#define SYSCALL8_OPCODE_PS3MAPI			 		0x7777
+#define SYSCALL8_OPCODE_PS3MAPI			 			0x7777
 
-//-----------------------------------------------
+//----------------------------------------------------------
 //CORE
-//-----------------------------------------------
+//----------------------------------------------------------
 
-#define PS3MAPI_CORE_VERSION					0x0123
-#define PS3MAPI_CORE_MINVERSION					0x0111
-#define PS3MAPI_FW_VERSION						FIRMWARE_VERSION
+#define PS3MAPI_CORE_VERSION			 			0x0123
+#define PS3MAPI_CORE_MINVERSION			 			0x0111
+#define PS3MAPI_FW_VERSION							FIRMWARE_VERSION
 
-#define PS3MAPI_OPCODE_GET_CORE_VERSION			0x0011
-#define PS3MAPI_OPCODE_GET_CORE_MINVERSION		0x0012
-#define PS3MAPI_OPCODE_GET_FW_TYPE				0x0013
-#define PS3MAPI_OPCODE_GET_FW_VERSION			0x0014
+#define PS3MAPI_OPCODE_GET_CORE_VERSION				0x0011
+#define PS3MAPI_OPCODE_GET_CORE_MINVERSION			0x0012
+#define PS3MAPI_OPCODE_GET_FW_TYPE					0x0013
+#define PS3MAPI_OPCODE_GET_FW_VERSION				0x0014
 
 int ps3mapi_get_fw_type(char *fw);
 
-//-----------------------------------------------
+//----------------------------------------------------------
 //PROCESSES
-//-----------------------------------------------
+//----------------------------------------------------------
 #define MAX_PROCESS 16
 
-#define PS3MAPI_OPCODE_GET_ALL_PROC_PID			0x0021
-#define PS3MAPI_OPCODE_GET_PROC_NAME_BY_PID		0x0022
-#define PS3MAPI_OPCODE_GET_PROC_BY_PID			0x0023
-#define PS3MAPI_OPCODE_GET_CURRENT_PROC			0x0024
-#define PS3MAPI_OPCODE_GET_CURRENT_PROC_CRIT	0x0025
+#define PS3MAPI_OPCODE_GET_ALL_PROC_PID				0x0021
+#define PS3MAPI_OPCODE_GET_PROC_NAME_BY_PID			0x0022
+#define PS3MAPI_OPCODE_GET_PROC_BY_PID				0x0023
+#define PS3MAPI_OPCODE_GET_CURRENT_PROC				0x0024
+#define PS3MAPI_OPCODE_GET_CURRENT_PROC_CRIT		0x0025
 
 typedef u32 process_id_t;
 
@@ -49,13 +49,13 @@ int ps3mapi_process_kill_by_pid(process_id_t pid);
 int ps3mapi_get_current_process_critical(process_t process);
 int ps3mapi_get_current_process(process_t process);
 
-//-----------------------------------------------
+//----------------------------------------------------------
 //MEMORY
-//-----------------------------------------------
+//----------------------------------------------------------
 
-#define PS3MAPI_OPCODE_GET_PROC_MEM				0x0031
-#define PS3MAPI_OPCODE_SET_PROC_MEM				0x0032
-#define PS3MAPI_OPCODE_PROC_PAGE_ALLOCATE		0x0033
+#define PS3MAPI_OPCODE_GET_PROC_MEM					0x0031
+#define PS3MAPI_OPCODE_SET_PROC_MEM					0x0032
+#define PS3MAPI_OPCODE_PROC_PAGE_ALLOCATE			0x0033
 
 int ps3mapi_set_process_mem(process_id_t pid, u64 addr, char *buf, int size);
 int ps3mapi_get_process_mem(process_id_t pid, u64 addr, char *buf, int size);
@@ -88,88 +88,100 @@ int ps3mapi_unload_process_modules(process_id_t pid, sys_prx_id_t prx_id);
 
 int ps3mapi_get_vsh_plugin_info(unsigned int slot, char *name, char *filename);
 int ps3mapi_get_vsh_plugin_slot_by_name(const char *name, u8 unload);
-int prx_unload_vsh_plugin(unsigned int slot);
 int ps3mapi_unload_vsh_plugin(char* name);
+int sys_prx_unload_vsh_plugin(unsigned int slot);
 int prx_start_modules(sys_prx_id_t id, process_t process, u64 flags, u64 arg);
 
-//-----------------------------------------------
+//----------------------------------------------------------
 //THREAD
-//-----------------------------------------------
+//----------------------------------------------------------
 
-//#define SYSCALL8_OPCODE_PROC_CREATE_THREAD			0x6E03 // not enough params for PS3MAPI_OPCODE
+#define SYSCALL8_OPCODE_PROC_CREATE_THREAD			0x6E03 // not eough params for PS3MAPI_OPCODE
 
 int ps3mapi_create_process_thread(process_id_t pid, thread_t *thread, void *entry, u64 arg, int prio, size_t stacksize, char *threadname); // TheRouletteBoi
 
-//-----------------------------------------------
+//----------------------------------------------------------
 //SYSCALL
-//-----------------------------------------------
+//----------------------------------------------------------
 
-#define SYSCALL8_OPCODE_STEALTH_TEST			0x3993 //KW PSNPatch stealth extension compatibility
-#define SYSCALL8_OPCODE_STEALTH_ACTIVATE		0x3995 //KW PSNPatch stealth extension compatibility
-#define SYSCALL8_STEALTH_OK						0x5555 //KW PSNPatch stealth extension compatibility
-#define PS3MAPI_OPCODE_CHECK_SYSCALL			0x0091
-#define PS3MAPI_OPCODE_DISABLE_SYSCALL			0x0092
-#define PS3MAPI_OPCODE_PDISABLE_SYSCALL8 		0x0093 //Look in main.c for code.
-#define PS3MAPI_OPCODE_PCHECK_SYSCALL8 			0x0094 //Look in main.c for code.
-#define PS3MAPI_OPCODE_CREATE_CFW_SYSCALLS		0x0095
-#define PS3MAPI_OPCODE_ALLOW_RESTORE_SYSCALLS	0x0096
+#define SYSCALL8_OPCODE_STEALTH_TEST				0x3993 //KW PSNPatch stealth extension compatibility
+#define SYSCALL8_OPCODE_STEALTH_ACTIVATE    		0x3995 //KW PSNPatch stealth extension compatibility
+#define SYSCALL8_STEALTH_OK							0x5555 //KW PSNPatch stealth extension compatibility
+#define PS3MAPI_OPCODE_CHECK_SYSCALL				0x0091
+#define PS3MAPI_OPCODE_DISABLE_SYSCALL				0x0092
+#define PS3MAPI_OPCODE_PDISABLE_SYSCALL8 			0x0093 //Look in main.c for code.
+#define PS3MAPI_OPCODE_PCHECK_SYSCALL8 				0x0094 //Look in main.c for code.
+#define PS3MAPI_OPCODE_CREATE_CFW_SYSCALLS			0x0095
+#define PS3MAPI_OPCODE_ALLOW_RESTORE_SYSCALLS		0x0096
+#define PS3MAPI_OPCODE_GET_RESTORE_SYSCALLS			0x0097
 
 int ps3mapi_check_syscall(int num);
 int ps3mapi_disable_syscall(int num);
 
-//-----------------------------------------------
+//----------------------------------------------------------
 //PEEK POKE
-//-----------------------------------------------
+//----------------------------------------------------------
 
-#define PS3MAPI_OPCODE_SUPPORT_SC8_PEEK_POKE	0x1000
-#define PS3MAPI_OPCODE_LV2_PEEK					0x1006
-#define PS3MAPI_OPCODE_LV2_POKE					0x1007
-#define PS3MAPI_OPCODE_LV1_PEEK					0x1008
-#define PS3MAPI_OPCODE_LV1_POKE					0x1009
+#define PS3MAPI_OPCODE_SUPPORT_SC8_PEEK_POKE		0x1000
+#define PS3MAPI_OPCODE_LV2_PEEK						0x1006
+#define PS3MAPI_OPCODE_LV2_POKE						0x1007
+#define PS3MAPI_OPCODE_LV1_PEEK						0x1008
+#define PS3MAPI_OPCODE_LV1_POKE						0x1009
 
-#define PS3MAPI_OPCODE_SUPPORT_SC8_PEEK_POKE_OK	0x6789
+#define PS3MAPI_OPCODE_SUPPORT_SC8_PEEK_POKE_OK		0x6789
 
-//-----------------------------------------------
+//----------------------------------------------------------
 //SECURITY
-//-----------------------------------------------
+//----------------------------------------------------------
 
-#define PS3MAPI_OPCODE_SET_ACCESS_KEY		0x2000
-#define PS3MAPI_OPCODE_REQUEST_ACCESS		0x2001
+#define PS3MAPI_OPCODE_SET_ACCESS_KEY				0x2000
+#define PS3MAPI_OPCODE_REQUEST_ACCESS				0x2001
 
-//-----------------------------------------------
+//----------------------------------------------------------
 //REMOVE COBRA/MAMBA HOOK
-//-----------------------------------------------
+//----------------------------------------------------------
 
 #define PS3MAPI_OPCODE_REMOVE_HOOK			0x0101 //Look in main.c for code.
 
-//-----------------------------------------------
+//----------------------------------------------------------
 //PSID/IDPS
-//-----------------------------------------------
+//----------------------------------------------------------
 
-#define PS3MAPI_OPCODE_GET_IDPS				0x0081
-#define PS3MAPI_OPCODE_SET_IDPS				0x0082
-#define PS3MAPI_OPCODE_GET_PSID				0x0083
-#define PS3MAPI_OPCODE_SET_PSID				0x0084
+#define PS3MAPI_OPCODE_GET_IDPS 					0x0081
+#define PS3MAPI_OPCODE_SET_IDPS 					0x0082
+#define PS3MAPI_OPCODE_GET_PSID 					0x0083
+#define PS3MAPI_OPCODE_SET_PSID						0x0084
 
-//-----------------------------------------------
+//----------------------------------------------------------
 //MISC
-//-----------------------------------------------
-#define PS3MAPI_OPCODE_AUTO_DEV_BLIND		0x2221
-#define PS3MAPI_OPCODE_PHOTO_GUI			0x2222
+//----------------------------------------------------------
 
-#define PS3MAPI_OPCODE_GET_FAN_SPEED		0x2233
-#define PS3MAPI_OPCODE_SET_FAN_SPEED		0x2235
+#define PS3MAPI_OPCODE_AUTO_DEV_BLIND				0x2221
+#define PS3MAPI_OPCODE_PHOTO_GUI					0x2222
 
-#define PS3MAPI_OPCODE_SKIP_EXISTING_RIF	0x2241
+#define PS3MAPI_OPCODE_GET_FAN_SPEED				0x2233
+#define PS3MAPI_OPCODE_SET_FAN_SPEED				0x2235
+#define PS3MAPI_OPCODE_SET_PS2_FAN_SPEED			0x2236
 
-#define PS3MAPI_OPCODE_RING_BUZZER 			0x2245
+#define PS3MAPI_OPCODE_GET_SKIP_EXISTING_RIF		0x2240
+#define PS3MAPI_OPCODE_SKIP_EXISTING_RIF			0x2241
 
-//-----------------------------------------------
+#define PS3MAPI_OPCODE_RING_BUZZER 					0x2245
+
+#define PS3MAPI_OPCODE_CONVERT_SAVEDATA 			0x2246
+
+#define PS3MAPI_OPCODE_SET_FAKE_ACCOUNTID 			0x2247
+
+#define PS3MAPI_OPCODE_ACTIVATE_ACOUNT 	 			0x2248
+
+#define PS3MAPI_OPCODE_CREATE_RIF 		 			0x2249
+
+//----------------------------------------------------------
 //QA
-//-----------------------------------------------
+//----------------------------------------------------------
 
-#define PS3MAPI_OPCODE_CHECK_QA 			0x2242
-#define PS3MAPI_OPCODE_SET_QA	 			0x2243
+#define PS3MAPI_OPCODE_CHECK_QA 					0x2242
+#define PS3MAPI_OPCODE_SET_QA 						0x2243
 
 int ps3mapi_get_idps(u64 *idps);
 int ps3mapi_set_idps(u64 part1, u64 part2);

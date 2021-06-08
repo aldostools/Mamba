@@ -408,7 +408,7 @@ int ps3mapi_get_vsh_plugin_slot_by_name(const char *name, u8 unload)
 		}
 		else if(!strcmp(tmp_name, name) || strstr(tmp_filename, name))
 		{
-			if(unload) prx_unload_vsh_plugin(slot);
+			if(unload) sys_prx_unload_vsh_plugin(slot);
 			break;
 		}
 	}

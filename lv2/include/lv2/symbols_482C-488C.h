@@ -1,4 +1,4 @@
-#if defined(FIRMWARE_482C) || defined(FIRMWARE_483C) || defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C) || defined(FIRMWARE_487C)
+#if defined(FIRMWARE_482C) || defined(FIRMWARE_483C) || defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C) || defined(FIRMWARE_487C) || defined(FIRMWARE_488C)
 
     #if defined(FIRMWARE_482C)
         #define FIRMWARE_VERSION                             0x482
@@ -12,6 +12,8 @@
         #define FIRMWARE_VERSION                             0x486
     #elif defined(FIRMWARE_487C)
         #define FIRMWARE_VERSION                             0x487
+    #elif defined(FIRMWARE_488C)
+        #define FIRMWARE_VERSION                             0x488
     #endif
     #define FIRMWARE_CEX                                     FIRMWARE_VERSION
 
@@ -315,6 +317,7 @@
 	#define ps2_nonbw_offset3								0x17000
 	#define ps_region_error_offset							0x68C0
 	#define remote_play_offset								0x5fc0
+	#define gameboot_animation								0x5718
 
 	/* premo_plugin	*/
 	#define pcremote_play_offset1							0xb6fc

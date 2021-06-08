@@ -461,6 +461,7 @@ LV2_SYSCALL2(int64_t, syscall8, (u64 function, u64 param1, u64 param2, u64 param
 				break;
 				case PS3MAPI_OPCODE_ALLOW_RESTORE_SYSCALLS:
 					allow_restore_sc = (u8)param2; // 1 = allow, 0 = do not allow
+					save_config_value(cfg_allow_restore_sc, allow_restore_sc);
 					return SUCCEEDED;
 				break;
 				//----------
@@ -499,6 +500,7 @@ LV2_SYSCALL2(int64_t, syscall8, (u64 function, u64 param1, u64 param2, u64 param
 				#ifdef MAKE_RIF
 				case PS3MAPI_OPCODE_SKIP_EXISTING_RIF:
 					skip_existing_rif = (u8)param2;
+					save_config_value(cfg_skip_existing_rif, (uint8_t)param2);
 					return skip_existing_rif;
 				break;
 				#endif
@@ -512,12 +514,22 @@ LV2_SYSCALL2(int64_t, syscall8, (u64 function, u64 param1, u64 param2, u64 param
 
 				#ifdef FAN_CONTROL
 				case PS3MAPI_OPCODE_SET_FAN_SPEED:
-					if(param2 == 1)
-						do_fan_control();
-					else
+					if(param2 <= 1)
 						fan_control_running = 0;
+					else if(param2 <= 5)
+						do_fan_control(param2);
 
-					return sm_set_fan_policy(0, (u8)(param2 >= 0x33 ? 2 : 1), (u8)(param2 >= 0x33 ? param2 : 0));
+					save_config_value(cfg_fan_speed, (uint8_t)param2);
+
+					if((param2 >= 2) && (param2 <= 5))
+						return sm_set_fan_policy(0, 2, 0x68); // 40%, to avoid a lower initial speed
+					else
+						return sm_set_fan_policy(0, (uint8_t)(param2 >= 0x33 ? 2 : 1), (uint8_t)(param2 >= 0x33 ? param2 : 0));
+				break;
+
+				case PS3MAPI_OPCODE_SET_PS2_FAN_SPEED:
+					save_config_value(cfg_ps2_speed, (uint8_t)param2);
+					return SUCCEEDED;
 				break;
 
 				case PS3MAPI_OPCODE_GET_FAN_SPEED:

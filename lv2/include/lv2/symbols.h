@@ -39,9 +39,9 @@
 #include "symbols_480D.h"
 #include "symbols_481C.h"
 #include "symbols_481D.h"
-#include "symbols_482C-487C.h"
-#include "symbols_482D-487D.h"
-#include "symbols_475E-487E.h"
+#include "symbols_482C-488C.h"
+#include "symbols_482D-488D.h"
+#include "symbols_475E-488E.h"
 
 #define DO_PHOTO_GUI
 #define DO_AUTO_RESTORE_SC

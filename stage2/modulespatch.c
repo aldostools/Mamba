@@ -144,10 +144,10 @@ LV2_HOOKED_FUNCTION_PRECALL_2(int, post_lv1_call_99_wrapper, (u64 *spu_obj, u64 
 static void disable_kernel_patches(void)
 {
 #ifdef DO_PATCH_COBRA810
-	#if defined(FIRMWARE_482C) || defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C) || defined(FIRMWARE_487C)
+	#if defined(FIRMWARE_482C) || defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C) || defined(FIRMWARE_487C) || defined(FIRMWARE_488C)
 	do_patch32(MKA(patch_func8_offset2),     0x48216FB5);
 	do_patch32(MKA(lic_patch),               0x48240EED); // ignore LIC.DAT check
-	#elif defined(FIRMWARE_482D) || defined(FIRMWARE_484D) || defined(FIRMWARE_485D) || defined(FIRMWARE_486D) || defined(FIRMWARE_487D)
+	#elif defined(FIRMWARE_482D) || defined(FIRMWARE_484D) || defined(FIRMWARE_485D) || defined(FIRMWARE_486D) || defined(FIRMWARE_487D) || defined(FIRMWARE_488D)
 	do_patch32(MKA(patch_func8_offset2),     0x4821B4BD);
 	do_patch32(MKA(lic_patch),               0x482584B5); // ignore LIC.DAT check
 	#endif
@@ -423,6 +423,9 @@ static SprxPatch game_ext_plugin_patches[] =
 	{ remote_play_offset, 0x419e0028, &condition_true },
 	//{ ps_video_error_offset, LI(R3, 0), &condition_game_ext_psx },
 	//{ ps_video_error_offset+4, BLR, &condition_game_ext_psx }, // experimental, disabled due to its issue with remote play
+#endif
+#if defined(gameboot_animation)
+	{ gameboot_animation, 0x38600002, &condition_true },
 #endif
 	{ 0 }
 };
@@ -705,7 +708,7 @@ static SprxPatch pemucorelib_patches[] =
 	// Prometheus
 	{ psp_prometheus_patch, '.OLD', &condition_psp_prometheus },
 
-	/*#if defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C) || defined(FIRMWARE_487C)
+	/*#if defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C) || defined(FIRMWARE_487C) || defined(FIRMWARE_488C)
 		// Extra save data patch required since some 3.60+ firmware
 		{ psp_extra_savedata_patch, LI(R31, 1), &condition_psp_iso },
 	#endif */
@@ -1640,10 +1643,10 @@ void unhook_all_modules(void)
 {
 	suspend_intr();
 
-#if defined(FIRMWARE_482C) || defined(FIRMWARE_483C) || defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C) || defined(FIRMWARE_487C)
+#if defined(FIRMWARE_482C) || defined(FIRMWARE_483C) || defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C) || defined(FIRMWARE_487C) || defined(FIRMWARE_488C)
 	*(u32 *)MKA(patch_func2 + patch_func2_offset) = 0x4BFDABC1;
 	clear_icache((void *)MKA(patch_func2 + patch_func2_offset), 4);
-#elif defined(FIRMWARE_482D) || defined(FIRMWARE_484D) || defined(FIRMWARE_485D) || defined(FIRMWARE_486D) || defined(FIRMWARE_487D)
+#elif defined(FIRMWARE_482D) || defined(FIRMWARE_484D) || defined(FIRMWARE_485D) || defined(FIRMWARE_486D) || defined(FIRMWARE_487D) || defined(FIRMWARE_488D)
 	*(u32 *)MKA(patch_func2 + patch_func2_offset) = 0x4BFDAB11;
 	clear_icache((void *)MKA(patch_func2 + patch_func2_offset), 4);
 #endif
