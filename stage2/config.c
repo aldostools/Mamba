@@ -16,6 +16,7 @@ MambaConfig config;
 
 #ifdef FAN_CONTROL
 extern u8 set_fan_speed;		// fan_control.h
+extern u8 set_ps2_speed;
 void load_fan_control(void);
 #endif
 #ifdef DO_AUTO_MOUNT_DEV_BLIND
@@ -125,6 +126,7 @@ int read_mamba_config(void)
 	#endif
 	#ifdef FAN_CONTROL
 	set_fan_speed    = config.fan_speed;		// 1 = DISABLED, 1 = SYSCON, 2 = Dynamic Fan Controller, 0x33 to 0xFF = Set manual fan speed
+	set_ps2_speed    = config.ps2_speed;
 	load_fan_control();
 	#endif
 
@@ -186,6 +188,7 @@ int sys_write_mamba_config(MambaConfig *cfg)
 
 	#ifdef FAN_CONTROL
 	set_fan_speed = config.fan_speed;
+	set_ps2_speed = config.ps2_speed;
 	#endif
 	#ifdef DO_AUTO_RESTORE_SC
 	allow_restore_sc = config.allow_restore_sc;

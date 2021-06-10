@@ -12,6 +12,7 @@
 #include <lv2/syscall.h>
 #include <lv2/error.h>
 #include <lv2/symbols.h>
+#include <lv2/ctrl.h>
 #include <lv1/lv1.h>
 #include <lv1/lv1call.h>
 #include <lv1/stor.h>
@@ -40,6 +41,10 @@
 #ifdef DO_CFW2OFW_FIX
 extern u8 CFW2OFW_game; // homebrew_blocker.h
 int map_path(char *oldpath, char *newpath, u32 flags);
+#endif
+
+#ifdef FAN_CONTROL
+extern u8 set_ps2_speed;
 #endif
 
 #ifdef DO_PATCH_PS2
@@ -2903,6 +2908,12 @@ LV2_HOOKED_FUNCTION(int, shutdown_copy_params_patched, (u8 *argp_user, u8 *argp,
 
 	if (prepare_ps2emu)
 	{
+		#ifdef FAN_CONTROL
+		// Set constant FAN Speed while you are in a PS2 game
+		if(set_ps2_speed)
+			sm_set_fan_policy(0, (set_ps2_speed == 1) ? 1 : 2, (set_ps2_speed == 1) ? 0 : set_ps2_speed);
+		#endif
+
 		if (disc_emulation == EMU_PS2_DVD || disc_emulation == EMU_PS2_CD)
 		{
 			u8 *buf;

@@ -1,12 +1,13 @@
 #ifdef FAN_CONTROL
 //#include <lv2/ctrl.h>
 
-#define SYS_SHUTDOWN 0x0100
-#define SYS_SHUTDOWN2 0x1100
+#define SYS_SHUTDOWN			0x0100
+#define SYS_SHUTDOWN2			0x1100
 
 static thread_t fan_control_id = 0, control_id = 0;
 static uint8_t fan_control_running = 0;
 uint8_t set_fan_speed;
+uint8_t set_ps2_speed;
 
 static int sm_get_fan_speed(void)
 {
