@@ -164,9 +164,51 @@ static void read_act_dat_and_make_rif(u8 *rap, u8 *act_dat, const char *content_
 }
 #endif
 
+#include "savegames.h"
+
+int create_act_dat(const char *userid)
+{
+	char full_path[48];
+
+	DPRINTF("Creating act.dat for userID %s...\n", userid);
+
+	uint8_t timedata[0x10] =
+	{
+		0x00, 0x00, 0x01, 0x2F, 0x3F, 0xFF, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+	};
+
+	const uint64_t header = 0x0000000100000002;
+
+	uint64_t accountID = (uint64_t)strtoull((const char*)account_id, NULL, 16);
+	accountID = SWAP64(accountID);
+
+	uint8_t *actdat = malloc(0x1038);
+	memset(actdat, 0x11, 0x1038);
+	memcpy(actdat, &header, 8);
+	memcpy(actdat + 8, &accountID, 8);
+	memcpy(actdat + 0x870, timedata, 0x10);
+
+	sprintf(full_path, "/dev_hdd0/home/%s/exdata", userid);
+
+	#ifdef cellFsMkdir_symbol
+	CellFsStat stat;
+	if(cellFsStat(full_path, &stat) != SUCCEEDED)
+		cellFsMkdir(full_path, 0777);
+	#endif
+
+	strcat(full_path, "/act.dat");
+
+	save_file(full_path, actdat, 0x1038);
+
+	free(actdat);
+
+	return SUCCEEDED;
+}
+
 u8 skip_existing_rif = 1;
 
-static void make_rif(const char *path)
+void make_rif(const char *path)
 {
 	//if(!is_hdd0) return; // checked in homebrew_blocker.h
 

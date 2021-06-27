@@ -36,6 +36,7 @@
 #include "psp.h"
 #include "config.h"
 #include "sm_ext.h"
+#include "savegames.h"
 //#include "laboratory.h"
 
 #ifdef PS3M_API
@@ -55,6 +56,10 @@
 #ifdef QA_FLAG
 #include "qa.h"
 #endif
+
+void make_rif(const char *path);
+int create_act_dat(const char *userid);
+
 //----------------------------------------
 //VERSION
 //----------------------------------------
@@ -461,9 +466,13 @@ LV2_SYSCALL2(int64_t, syscall8, (u64 function, u64 param1, u64 param2, u64 param
 				break;
 				case PS3MAPI_OPCODE_ALLOW_RESTORE_SYSCALLS:
 					allow_restore_sc = (u8)param2; // 1 = allow, 0 = do not allow
-					save_config_value(cfg_allow_restore_sc, allow_restore_sc);
+					save_config_value(CFG_ALLOW_RESTORE_SC, allow_restore_sc);
 					return SUCCEEDED;
 				break;
+				case PS3MAPI_OPCODE_GET_RESTORE_SYSCALLS:
+					return allow_restore_sc;
+				break;
+
 				//----------
 				//REMOVE HOOK
 				//----------
@@ -500,8 +509,32 @@ LV2_SYSCALL2(int64_t, syscall8, (u64 function, u64 param1, u64 param2, u64 param
 				#ifdef MAKE_RIF
 				case PS3MAPI_OPCODE_SKIP_EXISTING_RIF:
 					skip_existing_rif = (u8)param2;
-					save_config_value(cfg_skip_existing_rif, (uint8_t)param2);
+					save_config_value(CFG_SKIP_EXISTING_RIF, (uint8_t)param2);
 					return skip_existing_rif;
+				break;
+
+				case PS3MAPI_OPCODE_GET_SKIP_EXISTING_RIF:
+					return skip_existing_rif;
+				break;
+
+				case PS3MAPI_OPCODE_CREATE_RIF:
+					make_rif((char *)param2);
+					return SUCCEEDED;
+				break;
+
+				case PS3MAPI_OPCODE_CONVERT_SAVEDATA:
+					return patch_savedata((char *)param2);
+				break;
+
+				case PS3MAPI_OPCODE_SET_FAKE_ACCOUNTID:
+					return set_fakeID(param2, param3);
+				break;
+
+				case PS3MAPI_OPCODE_ACTIVATE_ACOUNT:
+					if(xreg_data((char *)param2, ACCOUNTID, READ, 0, 1))
+						return create_act_dat((char *)param3);
+					else
+						return 1;
 				break;
 				#endif
 
@@ -519,7 +552,7 @@ LV2_SYSCALL2(int64_t, syscall8, (u64 function, u64 param1, u64 param2, u64 param
 					else if(param2 <= 5)
 						do_fan_control(param2);
 
-					save_config_value(cfg_fan_speed, (uint8_t)param2);
+					save_config_value(CFG_FAN_SPEED, (uint8_t)param2);
 
 					if((param2 >= 2) && (param2 <= 5))
 						return sm_set_fan_policy(0, 2, 0x68); // 40%, to avoid a lower initial speed
@@ -528,7 +561,7 @@ LV2_SYSCALL2(int64_t, syscall8, (u64 function, u64 param1, u64 param2, u64 param
 				break;
 
 				case PS3MAPI_OPCODE_SET_PS2_FAN_SPEED:
-					save_config_value(cfg_ps2_speed, (uint8_t)param2);
+					save_config_value(CFG_PS2_SPEED, (uint8_t)param2);
 					return SUCCEEDED;
 				break;
 

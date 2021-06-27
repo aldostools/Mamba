@@ -105,7 +105,7 @@ static int listed(int blacklist, const char *gameid)
 // ** WARNING ** If only a parcial disablement was made, this assumption WILL FAIL !!!
 static inline int block_homebrew(const char *path)
 {
-	u8 is_hdd0 = (path[1] == 'd' && path[5] == 'h' && !strncmp(path, "/dev_hdd0/", 10));
+	u8 is_hdd0 = !strncmp(path, "/dev_hdd0/", 10);
 
 	u8 is_game_dir = (is_hdd0 && !strncmp(path + 10, "game/", 5));
 

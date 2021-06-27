@@ -66,8 +66,8 @@ static void check_and_correct(MambaConfig *cfg)
 	if (cfg->ps2softemu > 1)
 		cfg->ps2softemu = 0;
 
-	//cfg->spoof_version  = 0;
-	//cfg->spoof_revision = 0;
+	cfg->spoof_version  = 0; // deprecated
+	cfg->spoof_revision = 0; // deprecated
 
 	if(cfg->size == 0)
 	{
@@ -105,10 +105,9 @@ int read_mamba_config(void)
 {
 	memset(&config, 0, sizeof(config));
 
-	read_file(MAMBA_CONFIG_FILE, &config, sizeof(config));
+	config.size = read_file(MAMBA_CONFIG_FILE, &config, sizeof(config));
 
 	check_and_correct(&config);
-	config.size = sizeof(config);
 
 	bd_video_region = config.bd_video_region;
 	dvd_video_region = config.dvd_video_region;
@@ -183,9 +182,6 @@ int sys_write_mamba_config(MambaConfig *cfg)
 
 	check_and_correct(cfg);
 
-	config.spoof_version  = 0; // deprecated
-	config.spoof_revision = 0; // deprecated
-
 	#ifdef FAN_CONTROL
 	set_fan_speed = config.fan_speed;
 	set_ps2_speed = config.ps2_speed;
@@ -219,27 +215,18 @@ int sys_write_mamba_config(MambaConfig *cfg)
 // Only for fan_speed, ps2_speed, allow_restore_sc and skip_existing_rif
 int save_config_value(uint8_t member, uint8_t value)
 {
-	int fd;
-	uint64_t r;
+	read_mamba_config();
 
-	if(cellFsOpen(MAMBA_CONFIG_FILE, CELL_FS_O_RDONLY, &fd, 0, NULL, 0) != SUCCEEDED)
-		return 1;
-
-	cellFsRead(fd, &config, sizeof(config), &r);
-	cellFsClose(fd);
-
-	if(member == cfg_fan_speed)
+	if(member == CFG_FAN_SPEED)
 		config.fan_speed = value;
-	else if(member == cfg_ps2_speed)
+	else if(member == CFG_PS2_SPEED)
 		config.ps2_speed = value;
-	else if(member == cfg_allow_restore_sc)
+	else if(member == CFG_ALLOW_RESTORE_SC)
 		config.allow_restore_sc = value;
-	else if(member == cfg_skip_existing_rif)
+	else if(member == CFG_SKIP_EXISTING_RIF)
 		config.skip_existing_rif = value;
 	else
 		return 1;
 
-	sys_write_mamba_config((MambaConfig *)&config);
-
-	return SUCCEEDED;
+	return write_mamba_config();
 }

@@ -176,14 +176,11 @@ int xreg_data(char *value, int type, int mode, int overwrite, int checkEmpty)
 		if(strcmp(buffer, value) == 0)
 		{
 			offset = i - 0x15;
-
-			uint8_t *data = NULL;
+			uint8_t *data = (uint8_t *) malloc(0x17);
 
 			// Search value from value table
 			for(int i = 0x10000; i < 0x15000; i++)
 			{
-				data = (uint8_t *) malloc(0x17);
-
 				cellFsLseek(fd, i, SEEK_SET, &seek);
 				cellFsRead(fd, data, 0x17, &read);
 
@@ -227,9 +224,9 @@ int xreg_data(char *value, int type, int mode, int overwrite, int checkEmpty)
 					cellFsClose(fd);
 					return result;
 				}
-
-				free(data);
 			}
+
+			free(data);
 		}
 	}
 

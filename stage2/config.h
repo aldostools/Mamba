@@ -30,9 +30,9 @@ int sys_read_mamba_config(MambaConfig *cfg);
 int sys_write_mamba_config(MambaConfig *cfg);
 int save_config_value(uint8_t member, uint8_t value);
 
-#define cfg_fan_speed			1
-#define cfg_ps2_speed			2
-#define cfg_allow_restore_sc	3
-#define cfg_skip_existing_rif	4
+#define CFG_FAN_SPEED			1
+#define CFG_PS2_SPEED			2
+#define CFG_ALLOW_RESTORE_SC	3
+#define CFG_SKIP_EXISTING_RIF	4
 
 #endif /* __CONFIG_H__ */
