@@ -612,7 +612,9 @@ LV2_SYSCALL2(int64_t, syscall8, (u64 function, u64 param1, u64 param2, u64 param
 
 		case SYSCALL8_OPCODE_STEALTH_ACTIVATE: //KW PSNPatch stealth extension compatibility
 		{
+			#ifdef DO_LOCK_SIGN_IN_TO_PSN
 			map_path(NPSIGNIN_UNLOCK, NULL, 0);
+			#endif
 			u64 syscall_not_impl = *(u64 *)MKA(syscall_table_symbol);
 			#ifdef PS3M_API
 			ps3mapi_partial_disable_syscall8 = 2; //Keep PS3M_API Features only.
@@ -945,11 +947,13 @@ void create_syscalls(void)
 	create_syscall2(10, sys_cfw_lv1_call);
 	create_syscall2(11, sys_cfw_lv1_peek);
 	create_syscall2(15, sys_cfw_lv2_func);
-	create_syscall35();
+	create_syscall2(SYS_MAP_PATH, sys_map_path);
 
+	#ifdef DO_LOCK_SIGN_IN_TO_PSN
 	CellFsStat stat;
 	if(cellFsStat(NPSIGNIN_LOCK, &stat) == SUCCEEDED)
 		map_path(NPSIGNIN_UNLOCK, NPSIGNIN_LOCK, 0);
+	#endif
 }
 
 //----------------------------------------

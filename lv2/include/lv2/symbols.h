@@ -48,6 +48,7 @@
 #define DO_AUTO_MOUNT_DEV_BLIND
 #define DO_PARTIAL_MAP_PATH
 #define DO_CFW2OFW_FIX
+#define DO_LOCK_SIGN_IN_TO_PSN
 
 #if defined(aescbccfb_enc_symbol) && defined(aescbccfb_dec_symbol)
   #define MAKE_RIF

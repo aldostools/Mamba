@@ -535,8 +535,3 @@ void map_path_patches(int syscall)
 	if (syscall)
 		create_syscall2(SYS_MAP_PATH, sys_map_path);
 }
-
-void create_syscall35(void)
-{
-	create_syscall2(SYS_MAP_PATH, sys_map_path);
-}

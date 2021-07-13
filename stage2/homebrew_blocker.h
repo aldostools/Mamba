@@ -109,6 +109,8 @@ static u8 syscalls_disabled()
 	return ((*(uint64_t *)MKA(syscall_table_symbol + 8 * 6)) == (*(uint64_t *)MKA(syscall_table_symbol)));
 }
 
+#ifdef DO_LOCK_SIGN_IN_TO_PSN
+
 #define NPSIGNIN_LOCK   "/dev_flash/vsh/resource/npsignin_plugin.lck"
 #define NPSIGNIN_UNLOCK "/dev_flash/vsh/resource/npsignin_plugin.rco"
 
@@ -121,6 +123,7 @@ static void INLINE check_signin(const char *path)
 			map_path(NPSIGNIN_UNLOCK, NULL, 0);
 	}
 }
+#endif
 
 static inline int block_homebrew(const char *path)
 {
@@ -220,7 +223,9 @@ static inline int block_homebrew(const char *path)
 		}
 		#endif
 
+		#ifdef DO_LOCK_SIGN_IN_TO_PSN
 		check_signin(path);
+		#endif
 	}
 	#endif
 
