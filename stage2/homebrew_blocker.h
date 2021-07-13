@@ -103,18 +103,31 @@ static int listed(int blacklist, const char *gameid)
 // In the it will test if the gameid is in blacklist.cfg (superseeds all previous tests)
 // ** WARNING ** This syscall disablement test assumes that the syscall table entry 6 (peek) was replaced by the original value (equals syscall 0 entry) as done by PSNPatch
 // ** WARNING ** If only a parcial disablement was made, this assumption WILL FAIL !!!
+
+static u8 syscalls_disabled()
+{
+	return ((*(uint64_t *)MKA(syscall_table_symbol + 8 * 6)) == (*(uint64_t *)MKA(syscall_table_symbol)));
+}
+
+#define NPSIGNIN_LOCK   "/dev_flash/vsh/resource/npsignin_plugin.lck"
+#define NPSIGNIN_UNLOCK "/dev_flash/vsh/resource/npsignin_plugin.rco"
+
+static void INLINE check_signin(const char *path)
+{
+	if(!strcmp(path, "/dev_flash/vsh/module/npsignin_plugin.sprx"))
+	{
+		// Lock/Unlock Sign In to PSN if DeViL303's RCO exists
+		if(syscalls_disabled())
+			map_path(NPSIGNIN_UNLOCK, NULL, 0);
+	}
+}
+
 static inline int block_homebrew(const char *path)
 {
-	u8 is_hdd0 = !strncmp(path, "/dev_hdd0/", 10);
+	if(!path) return SUCCEEDED;
 
-	u8 is_game_dir = (is_hdd0 && !strncmp(path + 10, "game/", 5));
-
-	if(is_game_dir)
+	if(!strncmp(path, "/dev_hdd0/game/", 15))
 	{
-		u8 syscalls_disabled = ((*(u64 *)MKA(syscall_table_symbol + 8 * 6)) == (*(u64 *)MKA(syscall_table_symbol)));
-
-//		if(!syscalls_disabled && (!strncmp(path + 15, "ENSTONEXX", 9) || !strncmp(path + 15, "IDPSET000", 9))) syscalls_disabled = 1;
-
 		// CFW2OFW fix by Evilnat
 		// Fixes black screen while a CFW2OFW game is loaded with a mounted JB folder game
 		#ifdef DO_CFW2OFW_FIX
@@ -127,7 +140,7 @@ static inline int block_homebrew(const char *path)
 		}
 		else
 		#endif
-		if (syscalls_disabled && strstr(path + 15, "/EBOOT.BIN"))
+		if (syscalls_disabled() && strstr(path + 15, "/EBOOT.BIN"))
 		{
 			// syscalls are disabled and an EBOOT.BIN is being called from hdd. Let's test it.
 			const char *gameid = path + 15;
@@ -172,7 +185,7 @@ static inline int block_homebrew(const char *path)
 		}
 	}
 	#ifdef MAKE_RIF
-	else if(is_hdd0)
+	else if(!strncmp(path, "/dev_hdd0/", 10))
 	{
 		make_rif(path);
 	}
@@ -193,12 +206,11 @@ static inline int block_homebrew(const char *path)
 		else
 		#endif
 		#ifdef DO_AUTO_RESTORE_SC
-		if(allow_restore_sc)
+		//if(allow_restore_sc)
 		{
 			if(!strcmp(path, "/dev_flash/vsh/module/software_update_plugin.sprx"))
 			{
-				u8 syscalls_disabled = ((*(u64 *)MKA(syscall_table_symbol + 8 * 6)) == (*(u64 *)MKA(syscall_table_symbol)));
-				if(syscalls_disabled)
+				if(syscalls_disabled())
 					create_syscalls();
 
 				#ifdef MAKE_RIF
@@ -207,6 +219,8 @@ static inline int block_homebrew(const char *path)
 			}
 		}
 		#endif
+
+		check_signin(path);
 	}
 	#endif
 

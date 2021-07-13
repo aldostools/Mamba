@@ -24,6 +24,7 @@ int 	sys_aio_copy_root(char *src, char *dst);
 void unhook_all_map_path(void);
 
 void create_syscalls(void);
+void create_syscall35(void);
 
 #endif /* __MAPPATH_H_ */
 

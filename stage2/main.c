@@ -202,6 +202,9 @@ u64 lv2_offset = 0;
 
 #endif
 
+#define NPSIGNIN_LOCK   "/dev_flash/vsh/resource/npsignin_plugin.lck"
+#define NPSIGNIN_UNLOCK "/dev_flash/vsh/resource/npsignin_plugin.rco"
+
 LV2_SYSCALL2(int64_t, syscall8, (u64 function, u64 param1, u64 param2, u64 param3, u64 param4, u64 param5, u64 param6, u64 param7))
 {
 	extend_kstack(0);
@@ -609,21 +612,22 @@ LV2_SYSCALL2(int64_t, syscall8, (u64 function, u64 param1, u64 param2, u64 param
 
 		case SYSCALL8_OPCODE_STEALTH_ACTIVATE: //KW PSNPatch stealth extension compatibility
 		{
-				u64 syscall_not_impl = *(u64 *)MKA(syscall_table_symbol);
-				#ifdef PS3M_API
-				ps3mapi_partial_disable_syscall8 = 2; //Keep PS3M_API Features only.
-				#else
-				*(u64 *)MKA(syscall_table_symbol + 8 * 8) = syscall_not_impl;
-				#endif
-				*(u64 *)MKA(syscall_table_symbol + 8 * 9)  = syscall_not_impl;
-				*(u64 *)MKA(syscall_table_symbol + 8 * 10) = syscall_not_impl;
-				*(u64 *)MKA(syscall_table_symbol + 8 * 11) = syscall_not_impl;
-				*(u64 *)MKA(syscall_table_symbol + 8 * 15) = syscall_not_impl;
-				*(u64 *)MKA(syscall_table_symbol + 8 * 35) = syscall_not_impl;
-				*(u64 *)MKA(syscall_table_symbol + 8 * 36) = syscall_not_impl;
-				*(u64 *)MKA(syscall_table_symbol + 8 * 38) = syscall_not_impl;
-				*(u64 *)MKA(syscall_table_symbol + 8 * 6)  = syscall_not_impl;
-				*(u64 *)MKA(syscall_table_symbol + 8 * 7)  = syscall_not_impl;
+			map_path(NPSIGNIN_UNLOCK, NULL, 0);
+			u64 syscall_not_impl = *(u64 *)MKA(syscall_table_symbol);
+			#ifdef PS3M_API
+			ps3mapi_partial_disable_syscall8 = 2; //Keep PS3M_API Features only.
+			#else
+			*(u64 *)MKA(syscall_table_symbol + 8 * 8) = syscall_not_impl;
+			#endif
+			*(u64 *)MKA(syscall_table_symbol + 8 * 9)  = syscall_not_impl;
+			*(u64 *)MKA(syscall_table_symbol + 8 * 10) = syscall_not_impl;
+			*(u64 *)MKA(syscall_table_symbol + 8 * 11) = syscall_not_impl;
+			*(u64 *)MKA(syscall_table_symbol + 8 * 15) = syscall_not_impl;
+			*(u64 *)MKA(syscall_table_symbol + 8 * 35) = syscall_not_impl;
+			*(u64 *)MKA(syscall_table_symbol + 8 * 36) = syscall_not_impl;
+			*(u64 *)MKA(syscall_table_symbol + 8 * 38) = syscall_not_impl;
+			*(u64 *)MKA(syscall_table_symbol + 8 * 6)  = syscall_not_impl;
+			*(u64 *)MKA(syscall_table_symbol + 8 * 7)  = syscall_not_impl;
 			return SYSCALL8_STEALTH_OK;
 		}
 		break;
@@ -941,6 +945,11 @@ void create_syscalls(void)
 	create_syscall2(10, sys_cfw_lv1_call);
 	create_syscall2(11, sys_cfw_lv1_peek);
 	create_syscall2(15, sys_cfw_lv2_func);
+	create_syscall35();
+
+	CellFsStat stat;
+	if(cellFsStat(NPSIGNIN_LOCK, &stat) == SUCCEEDED)
+		map_path(NPSIGNIN_UNLOCK, NPSIGNIN_LOCK, 0);
 }
 
 //----------------------------------------
