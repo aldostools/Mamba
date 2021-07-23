@@ -121,6 +121,14 @@ static void INLINE check_signin(const char *path)
 		// Lock/Unlock Sign In to PSN if DeViL303's RCO exists
 		if(syscalls_disabled())
 			map_path(NPSIGNIN_UNLOCK, NULL, 0);
+		else
+		{
+			CellFsStat stat;
+			if(cellFsStat(NPSIGNIN_LOCK, &stat) == SUCCEEDED)
+				map_path(NPSIGNIN_UNLOCK, NPSIGNIN_LOCK, 0);
+			else
+				map_path(NPSIGNIN_UNLOCK, NULL, 0);
+		}
 	}
 }
 #endif
