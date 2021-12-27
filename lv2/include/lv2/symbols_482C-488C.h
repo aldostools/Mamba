@@ -297,7 +297,7 @@
 	/* explore_plugin */
 	#define app_home_offset									0x250910
 //	#define ps2_nonbw_offset								0xDD9B4
-	#define whatsnew_offset									0x26E9B0
+	#define whatsnew_offset									0x26DCB0 // 0x26E9B0
 //end of #define DO_PATCH_COBRA810
 
 	/* explore_category_game */

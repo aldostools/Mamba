@@ -385,8 +385,8 @@ static INLINE int setup_iso(void)
 	}
 	if(memcmp(buf+0x702, "mount", 5)!=0)
 	{
-		ufs_close(cfg_fd);
 		release_temp_buf();
+		ufs_close(cfg_fd);
 		return -1;
 	}
 
@@ -422,7 +422,7 @@ static INLINE int setup_iso(void)
 		ufs_read(cfg_fd, 0x800, &num_tracks, sizeof(num_tracks));
 		if (IS_2352())
 		{
-			tracks = malloc(num_tracks*sizeof(ScsiTrackDescriptor));
+			tracks = malloc(num_tracks * sizeof(ScsiTrackDescriptor));
 			ufs_read(cfg_fd, 0x801, tracks, num_tracks * sizeof(ScsiTrackDescriptor));
 			iso_size_sectors = iso_size / 2352;
 		}

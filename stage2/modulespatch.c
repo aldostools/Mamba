@@ -455,14 +455,14 @@ static SprxPatch explore_plugin_patches[] =
 	//// Devil303's What's New ///
 	{ whatsnew_offset,        0x68747470, &condition_true },
 	{ whatsnew_offset + 0x04, 0x3A2F2F77, &condition_true },
-	{ whatsnew_offset + 0x08, 0x77772E78, &condition_true },
-	{ whatsnew_offset + 0x0C, 0x6D626D6F, &condition_true },
-	{ whatsnew_offset + 0x10, 0x64732E63, &condition_true },
-	{ whatsnew_offset + 0x14, 0x6F2F7768, &condition_true },
-	{ whatsnew_offset + 0x18, 0x6174735F, &condition_true },
-	{ whatsnew_offset + 0x1C, 0x6E65772E, &condition_true },
-	{ whatsnew_offset + 0x20, 0x786D6C00, &condition_true },
-	{ whatsnew_offset + 0x24, 0x00000000, &condition_true },
+	{ whatsnew_offset + 0x08, 0x77772E64, &condition_true },
+	{ whatsnew_offset + 0x0C, 0x6576696C, &condition_true },
+	{ whatsnew_offset + 0x10, 0x3330332E, &condition_true },
+	{ whatsnew_offset + 0x14, 0x636F6D2F, &condition_true },
+	{ whatsnew_offset + 0x18, 0x77686174, &condition_true },
+	{ whatsnew_offset + 0x1C, 0x735F6E65, &condition_true },
+	{ whatsnew_offset + 0x20, 0x772E786D, &condition_true },
+	{ whatsnew_offset + 0x24, 0x6C000000, &condition_true },
  #endif
 #endif
 	{ 0 }

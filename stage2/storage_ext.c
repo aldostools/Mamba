@@ -1059,7 +1059,7 @@ static int process_get_psx_video_mode(void)
 						// detect PAL by title_id
 						if ((exe_path[4] == '_') &&
 							(exe_path[0] == 'S' || exe_path[0] == 'P') &&
-							(exe_path[1] == 'L' || exe_path[1] == 'C' ||	// SLUS, SCUS, SLPM, SLPS, SCPS, SLUD, SCUD
+							(exe_path[1] == 'L' || exe_path[1] == 'C' ||	// SLUS, SCUS, SLPM, SLPS, SCPS, SLUD, SCUD, SLKA, SCAJ
 							 exe_path[1] == 'A' || exe_path[1] == 'B' ||	// PAPX, PBPX, PCPX
 							 exe_path[1] == 'I'))							// SIPS
 								ret = (exe_path[2] == 'E');					// SLES, SCES, SCED, SLED
@@ -1079,9 +1079,7 @@ static int process_get_psx_video_mode(void)
 								}
 								else*/
 								if (strncmp(buf + 0x71, "Europe", 6) == SUCCEEDED)
-								{
 									ret = 1; // PAL
-								}
 								else
 									ret = 0; // NTSC
 							}
