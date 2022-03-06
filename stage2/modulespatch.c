@@ -1518,7 +1518,7 @@ static void locate_file(char *path, const char *file)
 	if (cellFsStat(path, &stat) /* != CELL_FS_SUCCEEDED */) sprintf(path, "/dev_hdd0/%s", file);
 }
 
-void load_boot_plugins_kernel(void)
+void load_boot_plugins_kernel(const char *file)
 {
 	if (!vsh_process) {vsh_process = get_vsh_process(); //NzV
 	if (vsh_process <= 0) return;} // lets wait till vsh so we dont brick the console perma!
@@ -1527,7 +1527,7 @@ void load_boot_plugins_kernel(void)
 
 	if(path)
 	{
-		locate_file(path, "mamba_plugins_kernel.txt");
+		locate_file(path, file);
 
 		int fd;
 		if (cellFsOpen(path, CELL_FS_O_RDONLY, &fd, 0, NULL, 0) == CELL_FS_SUCCEEDED)

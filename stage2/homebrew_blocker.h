@@ -178,8 +178,7 @@ static inline int block_homebrew(const char *path)
 				!strncmp(gameid, "BLES01337", 9) || // Awesome File Manager
 				!strncmp(gameid, "BLND00001", 9) || // dev_blind
 				!strncmp(gameid, "NPEA90124", 9) || // SEN Enabler
-				!strncmp(gameid, "NP0APOLLO", 9) || // Apollo Save Tool
-				!strncmp(gameid, "NP00PKGI3", 9) // // pkgi-ps3
+				!strncmp(gameid, "NP0", 3)          // NP0APOLLO / NP00PKGI3
 				) allow = 0;
 
 			// test whitelist.cfg and blacklist.cfg

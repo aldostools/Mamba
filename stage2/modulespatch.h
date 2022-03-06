@@ -24,7 +24,7 @@ process_t get_vsh_process(void); //NzV
 extern int vsh_type;
 
 void load_boot_plugins(void);
-void load_boot_plugins_kernel(void);
+void load_boot_plugins_kernel(const char *file);
 
 /* Functions for kernel */
 void modules_patch_init(void);

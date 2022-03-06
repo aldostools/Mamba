@@ -64,6 +64,7 @@ int create_act_dat(const char *userid);
 //VERSION
 //----------------------------------------
 
+//#define FAKE_OFW
 #define IS_CFW			1
 
 #ifdef DO_PATCH_PS2
@@ -168,6 +169,40 @@ int disable_cobra_stage()
 }
 #endif
 
+static int ps3mapi_partial_disable_syscall8 = 0;
+
+static void disable_cfw_syscalls(int partial)
+{
+	u64 syscall_not_impl = *(u64 *)MKA(syscall_table_symbol);
+	#ifdef PS3M_API
+	if(partial)
+		ps3mapi_partial_disable_syscall8 = 2; //Keep PS3M_API Features only.
+	else
+	#endif
+	*(u64 *)MKA(syscall_table_symbol + 8 * 8) = syscall_not_impl;
+	*(u64 *)MKA(syscall_table_symbol + 8 * 9)  = syscall_not_impl;
+	*(u64 *)MKA(syscall_table_symbol + 8 * 10) = syscall_not_impl;
+	*(u64 *)MKA(syscall_table_symbol + 8 * 11) = syscall_not_impl;
+	*(u64 *)MKA(syscall_table_symbol + 8 * 15) = syscall_not_impl;
+	*(u64 *)MKA(syscall_table_symbol + 8 * 35) = syscall_not_impl;
+	*(u64 *)MKA(syscall_table_symbol + 8 * 36) = syscall_not_impl;
+	*(u64 *)MKA(syscall_table_symbol + 8 * 38) = syscall_not_impl;
+	*(u64 *)MKA(syscall_table_symbol + 8 * 6)  = syscall_not_impl;
+	*(u64 *)MKA(syscall_table_symbol + 8 * 7)  = syscall_not_impl;
+}
+
+void create_syscalls(void)
+{
+	create_syscall2(8, syscall8);
+	create_syscall2(6, sys_cfw_peek);
+	create_syscall2(7, sys_cfw_poke);
+	create_syscall2(9, sys_cfw_lv1_poke);
+	create_syscall2(10, sys_cfw_lv1_call);
+	create_syscall2(11, sys_cfw_lv1_peek);
+	create_syscall2(15, sys_cfw_lv2_func);
+	create_syscall2(SYS_MAP_PATH, sys_map_path);
+}
+
 //----------------------------------------
 //SYSCALL 8 MAMBA
 //----------------------------------------
@@ -194,7 +229,6 @@ static u64 ps3mapi_key = 0;
 static u8 ps3mapi_access_tries = 0;
 static u8 ps3mapi_access_granted = 1;
 
-static int ps3mapi_partial_disable_syscall8 = 0;
 static u8 disable_cobra = 0;
 
 u64 LV2_OFFSET_ON_LV1 = 0; // 0x1000000 on 4.46, 0x8000000 on 4.76
@@ -615,21 +649,16 @@ LV2_SYSCALL2(int64_t, syscall8, (u64 function, u64 param1, u64 param2, u64 param
 			#ifdef DO_LOCK_SIGN_IN_TO_PSN
 			map_path(NPSIGNIN_UNLOCK, NULL, 0);
 			#endif
-			u64 syscall_not_impl = *(u64 *)MKA(syscall_table_symbol);
 			#ifdef PS3M_API
-			ps3mapi_partial_disable_syscall8 = 2; //Keep PS3M_API Features only.
+			disable_cfw_syscalls(1); // keep syscall 8 (partial disable)
 			#else
-			*(u64 *)MKA(syscall_table_symbol + 8 * 8) = syscall_not_impl;
+			disable_cfw_syscalls(0); // disable all syscalls
 			#endif
-			*(u64 *)MKA(syscall_table_symbol + 8 * 9)  = syscall_not_impl;
-			*(u64 *)MKA(syscall_table_symbol + 8 * 10) = syscall_not_impl;
-			*(u64 *)MKA(syscall_table_symbol + 8 * 11) = syscall_not_impl;
-			*(u64 *)MKA(syscall_table_symbol + 8 * 15) = syscall_not_impl;
-			*(u64 *)MKA(syscall_table_symbol + 8 * 35) = syscall_not_impl;
-			*(u64 *)MKA(syscall_table_symbol + 8 * 36) = syscall_not_impl;
-			*(u64 *)MKA(syscall_table_symbol + 8 * 38) = syscall_not_impl;
-			*(u64 *)MKA(syscall_table_symbol + 8 * 6)  = syscall_not_impl;
-			*(u64 *)MKA(syscall_table_symbol + 8 * 7)  = syscall_not_impl;
+			#ifdef DO_LOCK_SIGN_IN_TO_PSN
+			CellFsStat stat;
+			if(cellFsStat(NPSIGNIN_LOCK, &stat) == SUCCEEDED)
+				map_path(NPSIGNIN_UNLOCK, NPSIGNIN_LOCK, 0);
+			#endif
 			return SYSCALL8_STEALTH_OK;
 		}
 		break;
@@ -938,24 +967,6 @@ LV2_SYSCALL2(int64_t, syscall8, (u64 function, u64 param1, u64 param2, u64 param
 	return ENOSYS;
 }
 
-void create_syscalls(void)
-{
-	create_syscall2(8, syscall8);
-	create_syscall2(6, sys_cfw_peek);
-	create_syscall2(7, sys_cfw_poke);
-	create_syscall2(9, sys_cfw_lv1_poke);
-	create_syscall2(10, sys_cfw_lv1_call);
-	create_syscall2(11, sys_cfw_lv1_peek);
-	create_syscall2(15, sys_cfw_lv2_func);
-	create_syscall2(SYS_MAP_PATH, sys_map_path);
-
-	#ifdef DO_LOCK_SIGN_IN_TO_PSN
-	CellFsStat stat;
-	if(cellFsStat(NPSIGNIN_LOCK, &stat) == SUCCEEDED)
-		map_path(NPSIGNIN_UNLOCK, NPSIGNIN_LOCK, 0);
-	#endif
-}
-
 //----------------------------------------
 //MAIN
 //----------------------------------------
@@ -1018,10 +1029,15 @@ int main(void)
 		if(lv1_peekd(LV2_OFFSET_ON_LV1 + 0x3000ULL) == MKA(TOC)) break;
 	}
 
+	#ifdef FAKE_OFW
+	disable_cfw_syscalls(0);
+	#else
 	create_syscalls();
+	#endif
 
+	load_boot_plugins_kernel("boot_plugins_kernel.txt");
 	load_boot_plugins();
-	load_boot_plugins_kernel();
+	load_boot_plugins_kernel("mamba_plugins_kernel.txt");
 	init_mount_hdd0();
 
 	//map_path("/app_home", "/dev_usb000", 0);
