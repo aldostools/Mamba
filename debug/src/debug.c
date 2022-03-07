@@ -28,14 +28,11 @@ see file COPYING or http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 #include <lv2/interrupt.h>
 #include <lv2/libc.h>
 #include <lv2/symbols.h>
+#include <lv2/ctrl.h>
 
 #endif
 
 #include "printf.h"
-
-#ifdef FAN_CONTROL
-#include <lv2/ctrl.h>
-#endif
 
 #undef printf
 
@@ -44,7 +41,6 @@ see file COPYING or http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 static int bus_id;
 static int dev_id;
 
-uint64_t *ttywrite_sc;
 static u64 bus_addr;
 
 struct ethhdr
@@ -125,18 +121,10 @@ LV2_SYSCALL(int, ttyWrite, (int channel, const char* message, int length, int* w
 	if (written)
 		*written = length;
 
-	#ifdef DEBUG
-	f_desc_t f;
-	f.addr = (void*)ttywrite_sc;
-	f.toc = (void*)MKA(TOC);
-	int (*func)(int, const char *, int, int *) = (void *)&f;
-	return func(channel, message, length, written);
-	#endif
-
 	return 0;
 }
 
-LV2_SYSCALL2(int, consoleWrite, (const char* message, int length))
+LV2_SYSCALL(int, consoleWrite, (const char* message, int length))
 {
 	debug_print(message, length);
 	return 0;
@@ -147,27 +135,15 @@ void debug_install(void)
 	suspend_intr();
 	change_function(printf_symbol, debug_printf);
 	change_function(printfnull_symbol, debug_printf);
-	create_syscall2(SYS_TTY_WRITE, ttyWrite);
-	create_syscall2(SYS_CONSOLE_WRITE, consoleWrite);
+	//patch_syscall(SYS_TTY_WRITE, ttyWrite); // Fails with ProDG, reboot the PS3 twice (soft > hard)
+	patch_syscall(SYS_CONSOLE_WRITE, consoleWrite);
 	resume_intr();
-}
-
-void debug_hook()
-{
-	change_function(printf_symbol, debug_printf);
-	change_function(printfnull_symbol, debug_printf);
 }
 
 void debug_uninstall(void)
 {
 	suspend_intr();
-
-	*(uint32_t *)MKA(printf_symbol) = 0xF821FF51;
-	clear_icache((void *)MKA(printf_symbol), 4);
-
-	*(uint32_t *)MKA(printfnull_symbol) = 0x38600000;
-	clear_icache((void *)MKA(printfnull_symbol), 4);
-
+	// TODO: unpatch code here
 	resume_intr();
 }
 
@@ -175,10 +151,6 @@ void debug_uninstall(void)
 
 int64_t debug_init(void)
 {
-	uint64_t **table = (uint64_t **)MKA(syscall_table_symbol);
-	f_desc_t *f = (f_desc_t *)table[SYS_TTY_WRITE];
-	ttywrite_sc = (uint64_t *)f->addr;
-
 	s64 result;
 	u64 v2;
 
@@ -271,7 +243,7 @@ int64_t debug_print(const char* buffer, size_t msgsize)
 	u16 *p = (u16*)h_ip;
 	int i;
 
-	for (i = 0; i < 5; i++)
+	for (i=0; i<5; i++)
 		sum += *p++;
 
 	h_ip->checksum = ~(sum + (sum>>16));
@@ -286,7 +258,7 @@ int64_t debug_print(const char* buffer, size_t msgsize)
 		return ret;
 
 	while ((dbg->descr.dmac_cmd_status & GELIC_DESCR_DMA_STAT_MASK) == GELIC_DESCR_DMA_CARDOWNED);
-	return 0;
+		return 0;
 }
 
 #ifdef PS2EMU
@@ -317,9 +289,11 @@ int64_t debug_print(const char* buffer, size_t msgsize)
 void abort(void)
 {
 	_debug_printf("abort() called! Panicking.\n");
+
 	#ifdef FAN_CONTROL
-	sm_set_fan_policy(0, 1, 0);
+		sm_set_fan_policy(0, 1, 0);
 	#endif
+
 	lv1_panic(0);
 	while (1);
 }
@@ -328,9 +302,11 @@ void fatal(const char *msg)
 {
 	_debug_printf("FATAL: %s\n", msg);
 	_debug_printf("Panicking.\n");
+
 	#ifdef FAN_CONTROL
-	sm_set_fan_policy(0, 1, 0);
+		sm_set_fan_policy(0, 1, 0);
 	#endif
+
 	lv1_panic(0);
 	while (1);
 }

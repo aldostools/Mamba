@@ -64,7 +64,6 @@ int create_act_dat(const char *userid);
 //VERSION
 //----------------------------------------
 
-//#define FAKE_OFW
 #define IS_CFW			1
 
 #ifdef DO_PATCH_PS2
@@ -209,7 +208,9 @@ void create_syscalls(void)
 
 extern f_desc_t open_path_callback;
 
+#ifdef DO_AUTO_RESTORE_SC
 extern u8 allow_restore_sc; // homebrew_blocker.h
+#endif
 
 #ifdef DO_AUTO_MOUNT_DEV_BLIND
 extern u8 auto_dev_blind;	// homebrew_blocker.h
@@ -501,6 +502,7 @@ LV2_SYSCALL2(int64_t, syscall8, (u64 function, u64 param1, u64 param2, u64 param
 					create_syscalls();
 					return SUCCEEDED;
 				break;
+				#ifdef DO_AUTO_RESTORE_SC
 				case PS3MAPI_OPCODE_ALLOW_RESTORE_SYSCALLS:
 					allow_restore_sc = (u8)param2; // 1 = allow, 0 = do not allow
 					save_config_value(CFG_ALLOW_RESTORE_SC, allow_restore_sc);
@@ -509,6 +511,7 @@ LV2_SYSCALL2(int64_t, syscall8, (u64 function, u64 param1, u64 param2, u64 param
 				case PS3MAPI_OPCODE_GET_RESTORE_SYSCALLS:
 					return allow_restore_sc;
 				break;
+				#endif
 
 				//----------
 				//REMOVE HOOK

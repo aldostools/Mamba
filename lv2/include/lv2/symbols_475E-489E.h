@@ -1,43 +1,46 @@
-#if defined(FIRMWARE_475E) || defined(FIRMWARE_476E) || defined(FIRMWARE_478E) || defined(FIRMWARE_480E) || defined(FIRMWARE_481E) || defined(FIRMWARE_482E) || defined(FIRMWARE_483E) || defined(FIRMWARE_484E) || defined(FIRMWARE_485E) || defined(FIRMWARE_486E) || defined(FIRMWARE_487E) || defined(FIRMWARE_488E)
+#if defined(FIRMWARE_475E) || defined(FIRMWARE_476E) || defined(FIRMWARE_478E) || defined(FIRMWARE_480E) || defined(FIRMWARE_481E) || defined(FIRMWARE_482E) || defined(FIRMWARE_483E) || defined(FIRMWARE_484E) || defined(FIRMWARE_485E) || defined(FIRMWARE_486E) || defined(FIRMWARE_487E) || defined(FIRMWARE_488E) || defined(FIRMWARE_489E)
 
-    /* WIP: these offsets are a mix from 4.80 DEX and 4.78 DEH; they haven't been verified due the lack of a DECR system to test */
+	/* WIP: these offsets are a mix from 4.80 DEX and 4.78 DEH; they haven't been verified due the lack of a DECR system to test */
 
-    #if defined(FIRMWARE_475E)
-        #define FIRMWARE_VERSION                        0x475
-    #elif defined(FIRMWARE_476E)
-        #define FIRMWARE_VERSION                        0x476
-    #elif defined(FIRMWARE_478E)
-        #define FIRMWARE_VERSION                        0x478
-    #elif defined(FIRMWARE_480E)
-        #define FIRMWARE_VERSION                        0x480
-    #elif defined(FIRMWARE_481E)
-        #define FIRMWARE_VERSION                        0x481
-    #elif defined(FIRMWARE_482E)
-        #define FIRMWARE_VERSION                        0x482
-    #elif defined(FIRMWARE_483E)
-        #define FIRMWARE_VERSION                        0x483
-    #elif defined(FIRMWARE_484E)
-        #define FIRMWARE_VERSION                        0x484
-    #elif defined(FIRMWARE_485E)
-        #define FIRMWARE_VERSION                        0x485
-    #elif defined(FIRMWARE_486E)
-        #define FIRMWARE_VERSION                        0x486
-    #elif defined(FIRMWARE_487E)
-        #define FIRMWARE_VERSION                        0x487
-    #elif defined(FIRMWARE_488E)
-        #define FIRMWARE_VERSION                        0x488
+	#if defined(FIRMWARE_475E)
+		#define FIRMWARE_VERSION                        0x475
+	#elif defined(FIRMWARE_476E)
+		#define FIRMWARE_VERSION                        0x476
+	#elif defined(FIRMWARE_478E)
+		#define FIRMWARE_VERSION                        0x478
+	#elif defined(FIRMWARE_480E)
+		#define FIRMWARE_VERSION                        0x480
+	#elif defined(FIRMWARE_481E)
+		#define FIRMWARE_VERSION                        0x481
+	#elif defined(FIRMWARE_482E)
+		#define FIRMWARE_VERSION                        0x482
+	#elif defined(FIRMWARE_483E)
+		#define FIRMWARE_VERSION                        0x483
+	#elif defined(FIRMWARE_484E)
+		#define FIRMWARE_VERSION                        0x484
+	#elif defined(FIRMWARE_485E)
+		#define FIRMWARE_VERSION                        0x485
+	#elif defined(FIRMWARE_486E)
+		#define FIRMWARE_VERSION                        0x486
+	#elif defined(FIRMWARE_487E)
+		#define FIRMWARE_VERSION                        0x487
+	#elif defined(FIRMWARE_488E)
+		#define FIRMWARE_VERSION                        0x488
+	#elif defined(FIRMWARE_489E)
+		#define FIRMWARE_VERSION                        0x489
     #endif
     #define FIRMWARE_DEH                                FIRMWARE_VERSION
+    #define FIRMWARE_48XE
 
-    #ifdef PS3M_API
+	#ifdef PS3M_API
         //#define PS3MAPI_FW_VERSION                      FIRMWARE_VERSION
-        #define PS3MAPI_FW_TYPE                         "DEH MAMBA"
-        #define PS3MAPI_IDPS_1                          0x8000000000409A30ULL
-        #define PS3MAPI_IDPS_2                          0x800000000049CAF4ULL
-        #define PS3MAPI_PSID                            0x800000000049CB0CULL
+		#define PS3MAPI_FW_TYPE                         "DEH MAMBA"
+		#define PS3MAPI_IDPS_1                          0x8000000000409A30ULL
+		#define PS3MAPI_IDPS_2                          0x800000000049CAF4ULL
+		#define PS3MAPI_PSID                            0x800000000049CB0CULL
     #endif
 
-    /* lv2 */
+	/* lv2 */
     #define TOC                                         0x39D440
     #define open_shared_kernel_object_symbol            0x12A58
     #define close_kernel_object_handle_symbol           0x12078
@@ -154,7 +157,7 @@
     #define sm_get_fan_policy_symbol						0x268E18
     #define sm_set_fan_policy_symbol						0x26ADE0
 
-    /* hash */
+	/* hash */
     #define EXPLORE_PLUGIN_HASH                         0xacf4af2b000ec414
     #define EXPLORE_CATEGORY_GAME_HASH                  0x9cb378e600056ae1
     #define GAME_EXT_PLUGIN_HASH                        0xe274af7b0001e6c0
@@ -166,10 +169,10 @@
     #define EMULATOR_DRM_DATA_HASH                      0x75C390860001B75F
     #define LIBSYSUTIL_SAVEDATA_PSP_HASH                0x57BBC3B800003212
 
-    /* lv1 */
+	/* lv1 */
     #define vsh_pos_in_ram                              0x930000
 
-    /* vsh */
+	/* vsh */
     #define ps2tonet_patch                              0xC9578
     #define ps2tonet_size_patch                         0xC956C
     #define vmode_patch_offset                          0x44D0C8
@@ -185,19 +188,19 @@
     #define psp_drm_patchF                              0x24D5E8
     #define psp_extra_drm_patch                         0x24F644
 
-    /* explore_plugin */
+	/* explore_plugin */
     #define ps2_nonbw_offset                            0xDD9B4
 
-    /* explore_category_game */
+	/* explore_category_game */
     #define ps2_nonbw_offset2                           0x68324
 
-    /* game_ext_plugin */
+	/* game_ext_plugin */
     #define ps2_nonbw_offset3                           0x17000
 
-    /* psp_emulator */
+	/* psp_emulator */
     #define psp_set_psp_mode_offset                     0x1C18
 
-    /* emulator_api */
+	/* emulator_api */
     #define psp_read                                    0x102D8
     #define psp_read_header                             0x1125C
     #define psp_drm_patch5                              0x11080
@@ -210,7 +213,7 @@
     #define psp_product_id_patch1                       0x11320
     #define psp_product_id_patch3                       0x115F8
 
-    /* pemucorelib */
+	/* pemucorelib */
     #define psp_eboot_dec_patch                         0x5E6BC
     #define psp_prx_patch                               0x577D8
     #define psp_savedata_bind_patch1                    0x7A4BC
@@ -220,11 +223,11 @@
     #define psp_prometheus_patch                        0x12EA28
     #define prx_patch_call_lr                           0x5892C
 
-    /* emulator_drm */
+	/* emulator_drm */
     #define psp_drm_tag_overwrite                       0x4C68
     #define psp_drm_key_overwrite                       (0x27600 - 0xBE80)
 
-    /* libsysutil_savedata_psp */
+	/* libsysutil_savedata_psp */
     #define psp_savedata_patch1                         0x46CC
     #define psp_savedata_patch2                         0x46A4
     #define psp_savedata_patch3                         0x4504
@@ -232,10 +235,10 @@
     #define psp_savedata_patch5                         0x4550
     #define psp_savedata_patch6                         0x46B8
 
-    /* libfs */
+	/* libfs */
     #define aio_copy_root_offset                        0xD658
 
-    /* CEX */
+	/* CEX */
     #define cex_ps2tonet_patch                          0xC9578
     #define cex_ps2tonet_size_patch                     0xC956C
     #define cex_vmode_patch_offset                      0x44D0C8

@@ -39,12 +39,13 @@
 #include "symbols_480D.h"
 #include "symbols_481C.h"
 #include "symbols_481D.h"
-#include "symbols_482C-488C.h"
-#include "symbols_482D-488D.h"
-#include "symbols_475E-488E.h"
+#include "symbols_482C-489C.h"
+#include "symbols_482D-489D.h"
+#include "symbols_475E-489E.h"
 
+//#define FAKE_OFW
 #define DO_PHOTO_GUI
-#define DO_AUTO_RESTORE_SC
+//#define DO_AUTO_RESTORE_SC
 #define DO_AUTO_MOUNT_DEV_BLIND
 #define DO_PARTIAL_MAP_PATH
 #define DO_CFW2OFW_FIX

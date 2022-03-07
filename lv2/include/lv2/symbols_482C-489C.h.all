@@ -1,4 +1,4 @@
-#if defined(FIRMWARE_482C) || defined(FIRMWARE_483C) || defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C) || defined(FIRMWARE_487C) || defined(FIRMWARE_488C)
+#if defined(FIRMWARE_482C) || defined(FIRMWARE_483C) || defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C) || defined(FIRMWARE_487C) || defined(FIRMWARE_488C) || defined(FIRMWARE_489C)
 
 	#if	defined(FIRMWARE_482C)
 		#define FIRMWARE_VERSION							0x482
@@ -14,8 +14,11 @@
 		#define FIRMWARE_VERSION							0x487
 	#elif defined(FIRMWARE_488C)
 		#define FIRMWARE_VERSION							0x488
+	#elif defined(FIRMWARE_489C)
+		#define FIRMWARE_VERSION							0x489
 	#endif
 	#define FIRMWARE_CEX									FIRMWARE_VERSION
+	#define FIRMWARE_48XC
 
 	#ifdef PS3M_API
 		#define PS3MAPI_FW_TYPE								"CEX MAMBA"

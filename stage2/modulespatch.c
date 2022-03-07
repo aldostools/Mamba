@@ -144,10 +144,10 @@ LV2_HOOKED_FUNCTION_PRECALL_2(int, post_lv1_call_99_wrapper, (u64 *spu_obj, u64 
 static void disable_kernel_patches(void)
 {
 #ifdef DO_PATCH_COBRA810
-	#if defined(FIRMWARE_482C) || defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C) || defined(FIRMWARE_487C) || defined(FIRMWARE_488C)
+	#if defined(FIRMWARE_48XC)
 	do_patch32(MKA(patch_func8_offset2),     0x48216FB5);
 	do_patch32(MKA(lic_patch),               0x48240EED); // ignore LIC.DAT check
-	#elif defined(FIRMWARE_482D) || defined(FIRMWARE_484D) || defined(FIRMWARE_485D) || defined(FIRMWARE_486D) || defined(FIRMWARE_487D) || defined(FIRMWARE_488D)
+	#elif defined(FIRMWARE_48XD) || defined(FIRMWARE_48XE)
 	do_patch32(MKA(patch_func8_offset2),     0x4821B4BD);
 	do_patch32(MKA(lic_patch),               0x482584B5); // ignore LIC.DAT check
 	#endif
@@ -423,9 +423,9 @@ static SprxPatch game_ext_plugin_patches[] =
 	{ remote_play_offset, 0x419e0028, &condition_true },
 	//{ ps_video_error_offset, LI(R3, 0), &condition_game_ext_psx },
 	//{ ps_video_error_offset+4, BLR, &condition_game_ext_psx }, // experimental, disabled due to its issue with remote play
-#endif
-#if defined(gameboot_animation)
+	#if defined(gameboot_animation)
 	{ gameboot_animation, 0x38600002, &condition_true },
+	#endif
 #endif
 	{ 0 }
 };
@@ -708,7 +708,7 @@ static SprxPatch pemucorelib_patches[] =
 	// Prometheus
 	{ psp_prometheus_patch, '.OLD', &condition_psp_prometheus },
 
-	/*#if defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C) || defined(FIRMWARE_487C) || defined(FIRMWARE_488C)
+	/*#if defined(FIRMWARE_48XC)
 		// Extra save data patch required since some 3.60+ firmware
 		{ psp_extra_savedata_patch, LI(R31, 1), &condition_psp_iso },
 	#endif */
@@ -1142,7 +1142,7 @@ LV2_HOOKED_FUNCTION_PRECALL_SUCCESS_8(int, load_process_hooked, (process_t proce
 	// CFW2OFW fix by Evilnat
 	// Restores disc in BD drive, this fixes leftovers of previous game mounted
 	#ifdef DO_CFW2OFW_FIX
-	if (CFW2OFW_game && !strcmp(path, "/dev_flash/vsh/module/mcore.self"))
+	if (CFW2OFW_game && path && !strcmp(path, "/dev_flash/vsh/module/mcore.self"))
 	{
 		#ifdef DEBUG
 			DPRINTF("Resetting BD Drive after CFW2OFW game...\n");
@@ -1166,7 +1166,7 @@ LV2_HOOKED_FUNCTION_PRECALL_SUCCESS_8(int, load_process_hooked, (process_t proce
 			storage_ext_patches();
 		}
 	}
-	#ifndef DO_CEX2OFW_FIX
+	#ifndef DO_CFW2OFW_FIX
 	if (vsh_process)
 		unhook_function_on_precall_success(load_process_symbol, load_process_hooked, 9);
 	#endif
@@ -1643,10 +1643,10 @@ void unhook_all_modules(void)
 {
 	suspend_intr();
 
-#if defined(FIRMWARE_482C) || defined(FIRMWARE_483C) || defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C) || defined(FIRMWARE_487C) || defined(FIRMWARE_488C)
+#if defined(FIRMWARE_48XC)
 	*(u32 *)MKA(patch_func2 + patch_func2_offset) = 0x4BFDABC1;
 	clear_icache((void *)MKA(patch_func2 + patch_func2_offset), 4);
-#elif defined(FIRMWARE_482D) || defined(FIRMWARE_484D) || defined(FIRMWARE_485D) || defined(FIRMWARE_486D) || defined(FIRMWARE_487D) || defined(FIRMWARE_488D)
+#elif defined(FIRMWARE_48XD) || defined(FIRMWARE_48XE)
 	*(u32 *)MKA(patch_func2 + patch_func2_offset) = 0x4BFDAB11;
 	clear_icache((void *)MKA(patch_func2 + patch_func2_offset), 4);
 #endif
@@ -1655,7 +1655,7 @@ void unhook_all_modules(void)
 	unhook_function_with_cond_postcall(modules_verification_symbol, pre_modules_verification, 2);
 	unhook_function_with_postcall(map_process_memory_symbol, pre_map_process_memory, 7);
 
-	#ifdef DO_CEX2OFW_FIX
+	#ifdef DO_CFW2OFW_FIX
 	unhook_function_on_precall_success(load_process_symbol, load_process_hooked, 9);
 	#endif
 

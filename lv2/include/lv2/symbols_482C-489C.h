@@ -1,30 +1,33 @@
-#if defined(FIRMWARE_482C) || defined(FIRMWARE_483C) || defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C) || defined(FIRMWARE_487C) || defined(FIRMWARE_488C)
+#if defined(FIRMWARE_482C) || defined(FIRMWARE_483C) || defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C) || defined(FIRMWARE_487C) || defined(FIRMWARE_488C) || defined(FIRMWARE_489C)
 
-    #if defined(FIRMWARE_482C)
-        #define FIRMWARE_VERSION                             0x482
-    #elif defined(FIRMWARE_483C)
-        #define FIRMWARE_VERSION                             0x483
-    #elif defined(FIRMWARE_484C)
-        #define FIRMWARE_VERSION                             0x484
-    #elif defined(FIRMWARE_485C)
-        #define FIRMWARE_VERSION                             0x485
-    #elif defined(FIRMWARE_486C)
-        #define FIRMWARE_VERSION                             0x486
-    #elif defined(FIRMWARE_487C)
-        #define FIRMWARE_VERSION                             0x487
-    #elif defined(FIRMWARE_488C)
-        #define FIRMWARE_VERSION                             0x488
+	#if defined(FIRMWARE_482C)
+		#define FIRMWARE_VERSION                             0x482
+	#elif defined(FIRMWARE_483C)
+		#define FIRMWARE_VERSION                             0x483
+	#elif defined(FIRMWARE_484C)
+		#define FIRMWARE_VERSION                             0x484
+	#elif defined(FIRMWARE_485C)
+		#define FIRMWARE_VERSION                             0x485
+	#elif defined(FIRMWARE_486C)
+		#define FIRMWARE_VERSION                             0x486
+	#elif defined(FIRMWARE_487C)
+		#define FIRMWARE_VERSION                             0x487
+	#elif defined(FIRMWARE_488C)
+		#define FIRMWARE_VERSION                             0x488
+	#elif defined(FIRMWARE_489C)
+		#define FIRMWARE_VERSION                             0x489
     #endif
     #define FIRMWARE_CEX                                     FIRMWARE_VERSION
+    #define FIRMWARE_48XC
 
-    #ifdef PS3M_API
-        #define PS3MAPI_FW_TYPE                              "CEX MAMBA"
-        #define PS3MAPI_IDPS_1                               0x80000000003E2E30ULL
-        #define PS3MAPI_IDPS_2                               0x8000000000474AF4ULL
-        #define PS3MAPI_PSID                                 0x8000000000474B0CULL
+	#ifdef PS3M_API
+		#define PS3MAPI_FW_TYPE                              "CEX MAMBA"
+		#define PS3MAPI_IDPS_1                               0x80000000003E2E30ULL
+		#define PS3MAPI_IDPS_2                               0x8000000000474AF4ULL
+		#define PS3MAPI_PSID                                 0x8000000000474B0CULL
     #endif
 
-    /* lv2 */
+	/* lv2 */
     #define TOC                                              0x34FBB0
     #define open_shared_kernel_object_symbol                 0x12410
     #define close_kernel_object_handle_symbol                0x11A30
@@ -187,7 +190,7 @@
 
     #define get_path_by_fd_symbol							0x29c180
 
-    /* hash */
+	/* hash */
 //    #define EXPLORE_PLUGIN_HASH                         0xACF4AF2B000EC481
 //    #define EXPLORE_CATEGORY_GAME_HASH                  0x9CB378E600056AE5
 //    #define GAME_EXT_PLUGIN_HASH                        0xE274AF7B0001E594
@@ -199,10 +202,10 @@
 //    #define EMULATOR_DRM_DATA_HASH                      0x75C390860001B75F
 //    #define LIBSYSUTIL_SAVEDATA_PSP_HASH                0x57BBC3B800003212
 
-    /* lv1 */
+	/* lv1 */
     #define vsh_pos_in_ram                              0x910000
 
-    /* vsh */
+	/* vsh */
     #define ps2tonet_patch                              0xC4E34
     #define ps2tonet_size_patch                         0xC4E28
     #define vmode_patch_offset                          0x4431DC
@@ -218,10 +221,10 @@
     #define psp_drm_patchF                              0x243A94
     #define psp_extra_drm_patch                         0x245AF0
 
-    /* explore_plugin */
+	/* explore_plugin */
     #define ps2_nonbw_offset                            0xDD9B4
 
-    /* explore_category_game */
+	/* explore_category_game */
     #define ps2_nonbw_offset2                           0x68324
 
 	/* LV2 POKE	*/
@@ -324,10 +327,10 @@
 
 	/* premo_game_plugin */
 	#define pcremote_play_offset2							0xc8fc
-    /* psp_emulator */
+	/* psp_emulator */
     #define psp_set_psp_mode_offset                     0x1C18
 
-    /* emulator_api */
+	/* emulator_api */
     #define psp_read                                    0x102D8
     #define psp_read_header                             0x1125C
     #define psp_drm_patch5                              0x11080
@@ -340,7 +343,7 @@
     #define psp_product_id_patch1                       0x11320
     #define psp_product_id_patch3                       0x115F8
 
-    /* pemucorelib */
+	/* pemucorelib */
     #define psp_eboot_dec_patch                         0x5E6BC
     #define psp_prx_patch                               0x577D8
     #define psp_savedata_bind_patch1                    0x7A4BC
@@ -350,11 +353,11 @@
     #define psp_prometheus_patch                        0x12EA28
     #define prx_patch_call_lr                           0x5892C
 
-    /* emulator_drm */
+	/* emulator_drm */
     #define psp_drm_tag_overwrite                       0x4C68
     #define psp_drm_key_overwrite                       (0x27600 - 0xBE80)
 
-    /* libsysutil_savedata_psp */
+	/* libsysutil_savedata_psp */
     #define psp_savedata_patch1                         0x46CC
     #define psp_savedata_patch2                         0x46A4
     #define psp_savedata_patch3                         0x4504
@@ -362,10 +365,10 @@
     #define psp_savedata_patch5                         0x4550
     #define psp_savedata_patch6                         0x46B8
 
-    /* libfs */
+	/* libfs */
     #define aio_copy_root_offset                        0xD658
 
-    /* rebug */
+	/* rebug */
     #define EXPLORE_PLUGIN_REBUG_HASH                   0xACF4AF2B000ECC91
     #define EXPLORE_CATEGORY_GAME_REBUG_HASH            0x9CB3396E00056CE9
     #define GAME_EXT_PLUGIN_REBUG_HASH                  0xE274AF7B0001E5D3
