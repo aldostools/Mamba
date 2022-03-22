@@ -8,12 +8,18 @@
 #include <lv2/lv2.h>
 #include <lv2/symbols.h>
 
-#define SYSM_OBJ_OFFSET 		0x8000000000347E40ULL
+#if defined (FIRMWARE_48XC)
+	#define SYSM_OBJ_OFFSET 		0x8000000000347E40ULL
+#elif defined (FIRMWARE_48XD)
+	#define SYSM_OBJ_OFFSET 		0x800000000036DC50ULL
+#endif
 
 #define SINGLE_BEEP 			0x6
 #define DOUBLE_BEEP 			0x36
 #define TRIPLE_BEEP 			0x1B6
 #define CONTINUOUS_BEEP			0xFFFF
+
+#ifdef SYSM_OBJ_OFFSET
 
 uint64_t *sysm_obj;
 
@@ -53,5 +59,7 @@ static INLINE int sm_set_fan_policy(uint8_t unk, uint8_t mode, uint8_t speed)
 
 	return 0;
 }
+
+#endif //#if def SYSM_OBJ_OFFSET
 
 #endif /* __LV2_CTRL_H__ */

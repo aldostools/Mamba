@@ -273,9 +273,6 @@
 	#define patch_func8_offset2								0x59FE4
 	#define patch_func9_offset								0x5E0C8
 	#define mem_base2										0x3D90
-	#define sm_get_temperature_symbol						0x269A84
-	#define sm_set_fan_policy_symbol						0x26ADE0
-	#define sm_get_fan_policy_symbol						0x268E18
 	#define ECDSA_1											0x5D794
 	#define ECDSA_2											0x2F46D4
 	#define fix_80010009									0x5E0B4
@@ -289,6 +286,15 @@
 	#define ECDSA_FLAG										0x49CA80 //	TODO
 	#define sysmem_obj										0x49CC38 //	TODO
 	#define qa_eeprom_offset								0x48c0a	 //	TODO
+
+    #define sm_get_fan_policy_symbol						0x268E18 //cex: 0x26293C
+    #define sm_ring_buzzer_symbol							0x269858 //cex: 0x26337C
+    #define sm_get_temperature_symbol						0x269A84 //cex: 0x2635A8
+    #define sm_set_fan_policy_symbol						0x26ADE0 //cex: 0x264734
+
+    #define sm_get_temperature_patch 						0xC728
+    #define sm_get_fan_policy_patch 						0x9EB8
+    #define sm_set_fan_policy_patch 						0xA3B4
 
 	/* RAP Activation */
 	#define SHA1_init_symbol								0x2F0228
