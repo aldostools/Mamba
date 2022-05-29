@@ -30,6 +30,7 @@
     #define memcpy_symbol                                    0x81FF4
     #define memset_symbol                                    0x51DF8
     #define memcmp_symbol                                    0x51108
+    #define sys_tty_write_symbol                             0x2A4408
     #define printf_symbol                                    0x2A6828
     #define printfnull_symbol                                0x2AB2AC
     #define sprintf_symbol                                   0x53220

@@ -1094,7 +1094,17 @@ LV2_PATCHED_FUNCTION(int, modules_patching, (u64 *arg1, u32 *arg2))
 				{
 					if (*patch->condition)
 					{
-						buf[patch->offset/4] = patch->data;
+						u32 data = patch->data;
+						#ifdef DO_PATCH_COBRA810
+						if(forced_video_mode == 2)
+						{
+							if(patch->offset == ps1_emu_get_region_offset)
+								data = LI(R29, 0x85);
+							if(patch->offset == ps1_netemu_get_region_offset)
+								data = LI(R3, 0x85);
+						}
+						#endif
+						buf[patch->offset/4] = data;
 						#ifdef DEBUG
 						DPRINTF("Offset: 0x%08X | Data: 0x%08X\n", (u32)patch->offset, (u32)patch->data);
 						#endif
@@ -1432,7 +1442,7 @@ int read_text_line(int fd, char *line, unsigned int size, int *eof)
 		u8 ch;
 		u64 r;
 
-		if ((cellFsRead(fd, &ch, 1, &r) != CELL_FS_SUCCEEDED) || (r != 1))
+		if ((cellFsRead(fd, &ch, 1, &r) /* != CELL_FS_SUCCEEDED */) || (r != 1))
 		{
 			*eof = 1;
 			break;

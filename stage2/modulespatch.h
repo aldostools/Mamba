@@ -11,6 +11,7 @@ extern u8 condition_psp_keys;
 //extern u8 condition_psp_change_emu;
 extern u8 condition_psp_prometheus;
 extern u8 condition_apphome; //needed libfs patch (JB FORMAT GAME)
+extern u8 forced_video_mode;
 
 typedef struct
 {

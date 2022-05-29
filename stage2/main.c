@@ -207,6 +207,7 @@ void create_syscalls(void)
 //----------------------------------------
 
 extern f_desc_t open_path_callback;
+extern u8 forced_video_mode;
 
 #ifdef DO_AUTO_RESTORE_SC
 extern u8 allow_restore_sc; // homebrew_blocker.h
@@ -722,6 +723,11 @@ LV2_SYSCALL2(int64_t, syscall8, (u64 function, u64 param1, u64 param2, u64 param
 		case SYSCALL8_OPCODE_UMOUNT_DISCFILE:
 			return sys_storage_ext_umount_discfile();
 		break;
+
+		case SYSCALL8_OPCODE_FORCE_VIDEO_MODE:
+			if(param1 < 3)
+				forced_video_mode = param1; // 0 = auto-detect, 1 = NTSC, 2 = PAL
+			return SUCCEEDED;
 
 		//--------------------------
 		// PSP EMULATION

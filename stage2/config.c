@@ -183,20 +183,20 @@ int sys_write_mamba_config(MambaConfig *cfg)
 	check_and_correct(cfg);
 
 	#ifdef FAN_CONTROL
-	set_fan_speed = config.fan_speed;
-	set_ps2_speed = config.ps2_speed;
+	config.fan_speed = set_fan_speed;
+	config.ps2_speed = set_ps2_speed;
 	#endif
 	#ifdef DO_AUTO_RESTORE_SC
-	allow_restore_sc = config.allow_restore_sc;
+	config.allow_restore_sc = allow_restore_sc;
 	#endif
 	#ifdef DO_PHOTO_GUI
-	photo_gui = config.photo_gui;
+	config.photo_gui = photo_gui;
 	#endif
 	#ifdef DO_AUTO_MOUNT_DEV_BLIND
-	auto_dev_blind = config.auto_dev_blind;
+	config.auto_dev_blind = auto_dev_blind;
 	#endif
 	#ifdef MAKE_RIF
-	skip_existing_rif = config.skip_existing_rif;
+	config.skip_existing_rif = skip_existing_rif;
 	#endif
 /*	cfg->checksum = checksum(cfg);
 	copy_size = cfg->size - sizeof(config.size);
@@ -204,8 +204,8 @@ int sys_write_mamba_config(MambaConfig *cfg)
 		copy_size = 0;
 
 	memcpy(&config.checksum, &cfg->checksum, copy_size);*/
-	bd_video_region  = config.bd_video_region;
-	dvd_video_region = config.dvd_video_region;
+	config.bd_video_region = bd_video_region;
+	config.dvd_video_region = dvd_video_region;
 
 	return write_mamba_config();
 }
