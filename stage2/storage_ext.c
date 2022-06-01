@@ -2192,7 +2192,7 @@ static int process_cd_iso_scsi_cmd(u8 *indata, u64 inlen, u8 *outdata, u64 outle
 			}
 			else
 			{
-				u8 *p = buf;
+				u8 *p = buf; extend_kstack(0);
 
 				for (int i = 0; i < length; i++)
 				{
@@ -2219,15 +2219,15 @@ static int process_cd_iso_scsi_cmd(u8 *indata, u64 inlen, u8 *outdata, u64 outle
 
 					// custom subchannel
 					ret = UNDEFINED;
-					const u32 lba_start = 13500; // 3 min * 60 secs * 75 frames
-					if(subqfd != UNDEFINED && lba >= lba_start)
+					const u32 lba_start = 13350; // 2 min * 58 secs * 75 frames
+					if((subqfd != UNDEFINED) && (lba >= lba_start))
 					{
 						size_t r = (lba - lba_start) * sizeof(SubChannelQ);
 						if(r < sub_size)
 						{
 							cellFsLseek(subqfd, r, SEEK_SET, &r);
 							ret = cellFsRead(subqfd, (void *)subq, sizeof(SubChannelQ), &r);
-							if(subq->control_adr <= 0) ret = UNDEFINED;
+							if(subq->control_adr <= 0 || r != sizeof(SubChannelQ)) ret = UNDEFINED;
 						}
 					}
 
@@ -2318,8 +2318,6 @@ static INLINE void do_video_mode_patch(void)
 
 	if (p == vsh_process)
 	{
-		u32 patch = 0;
-
 		if (effective_disctype == DEVICE_TYPE_PSX_CD)
 		{
 			if (video_mode != 2)
@@ -2334,6 +2332,9 @@ static INLINE void do_video_mode_patch(void)
 			if (video_mode >= 0)
 				video_mode = UNDEFINED;
 		}
+		//return; // exit without patch video mode (handled by patched bios using forced_video_mode)
+
+		u32 patch = 0;
 
 		if (video_mode >= 0)
 		{
