@@ -58,6 +58,25 @@ Version of mamba that includes ps3m_api_core by NzV and ps2, psp iso support by 
 		. Updated ps3mapi_load_process_modules to load custom modules and system modules (by haxxxen)
 		. Added ps3mapi_get_process_module_info
 	. Increased from 24 to 32 the max number of map paths by aldo
+	. Support for CD sectors: 2352, 2048, 2336, 2448, 2328, 2340, 2368
+
+- New features in 8.4:
+	. Fixed debug payload (from Cobra 8.3 by Evilnat)
+	. Added PS3MAPI_OPCODE_RING_BUZZER (from Cobra 8.3 by Evilnat)
+	. Support for CFW2OFW FIX (from Cobra 8.3 by Evilnat)
+ 	. Lock/Unlock Sign In to PSN if DeViL303's RCO exists (from Cobra 8.3 by Evilnat/DeViL303/aldo)
+		Checks for /dev_flash/vsh/resource/npsignin_plugin.lck
+	. Support for LibCrypt Subchannel Data (LSD format) on PSX images (by aldo/Agrippa)
+	. Patch PSX BIOS with product code 0x85 for PAL games (PSX images) (by aldo/Agrippa)
+	. Forced video mode including PAL/NTSC words in file name of PSX images (by aldo/Agrippa)
+	. New opcode to force video mode (by aldo/Agrippa)
+	. Load kernel plugins before & after load VSH plugins (by aldo)
+		/dev_hdd0/boot_plugins_kernel.txt loads before
+		/dev_hdd0/mamba_plugins_kernel.txt loads after
+	. Fixed reading of config file on startup (by aldo)
+	. Simplified blacklist of NP0APOLLO / NP00PKGI3 just checking NP0 (by aldo)
+	. Support mount fake PNG files (ISO with PNG header of 64KB) using PhotoGUI integration.
+		These files can be listed/copied/renamed/deleted by XMB photos manager
 
 ----------------------------------------------------------------------
 ADD MAMBA TO YOUR BACKUP MANAGER

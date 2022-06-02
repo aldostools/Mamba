@@ -145,7 +145,10 @@ static event_queue_t proxy_result_queue;
 
 int disc_emulation = EMU_OFF;
 
-static MSF lsd[32];
+#define LC_SECTORS	32
+#define LSD_STRUCT	15
+
+static MSF lsd[LC_SECTORS];
 static u32 lsd_start;
 static u32 lsd_end;
 
@@ -2227,12 +2230,12 @@ static int process_cd_iso_scsi_cmd(u8 *indata, u64 inlen, u8 *outdata, u64 outle
 					if((subqfd != UNDEFINED) && (lba2 >= lsd_start) && (lba2 <= lsd_end))
 					{
 						size_t r;
-						for(u8 n = 0; n < 32; n++)
+						for(u8 n = 0; n < LC_SECTORS; n++)
 						{
 							if(lsd[n].amin > subq->amin) break;
 							if((subq->amin == lsd[n].amin) && (subq->asec == lsd[n].asec) && (subq->aframe == lsd[n].aframe))
 							{
-								cellFsLseek(subqfd, (n * 15) + sizeof(MSF), SEEK_SET, &r);
+								cellFsLseek(subqfd, (n * LSD_STRUCT) + sizeof(MSF), SEEK_SET, &r);
 								ret = cellFsRead(subqfd, (void *)subq, sizeof(SubChannelQ), &r);
 								if(subq->control_adr <= 0 || r != sizeof(SubChannelQ)) ret = UNDEFINED;
 								break;
@@ -3229,6 +3232,7 @@ static int mount_ps_cd(char *file, unsigned int trackscount, ScsiTrackDescriptor
 
 			if(cd_sector_size == 2352)
 			{
+				///////// Open LSD (LibCrypt Subchannel Data) for protected games /////// AV:2022
 				char file_ext[5];
 				strcpy(file_ext, ext);
 
@@ -3239,22 +3243,32 @@ static int mount_ps_cd(char *file, unsigned int trackscount, ScsiTrackDescriptor
 					strcpy(ext, ".LSD");
 					ret = cellFsStat(file, &stat);
 				}
-				if((ret == CELL_FS_SUCCEEDED) && (stat.st_size == (32 * 15)))
+				if((ret == CELL_FS_SUCCEEDED) && (stat.st_size == (LC_SECTORS * LSD_STRUCT)))
 				{
 					ret = cellFsOpen(file, CELL_FS_O_RDONLY, &subqfd, 0, NULL, 0);
-					for(u8 n = 0; n < 32; n++)
+					if(ret == CELL_FS_SUCCEEDED)
 					{
 						size_t r;
-						cellFsLseek(subqfd, n * 15, SEEK_SET, &r);
-						ret = cellFsRead(subqfd, &lsd[n], sizeof(MSF), &r);
-						if(ret) break;
+						for(u8 n = 0; n < LC_SECTORS; n++)
+						{
+							cellFsLseek(subqfd, n * LSD_STRUCT, SEEK_SET, &r);
+							ret = cellFsRead(subqfd, &lsd[n], sizeof(MSF), &r);
+							if(ret) break;
+						}
 					}
-					lsd_start = msf_to_lba(lsd[00]);
-					lsd_end   = msf_to_lba(lsd[31]);
 				}
-				if(ret)
+				if (subqfd != UNDEFINED)
 				{
-					subqfd = UNDEFINED;
+					if(ret == CELL_FS_SUCCEEDED)
+					{
+						lsd_start = msf_to_lba(lsd[0]);
+						lsd_end   = msf_to_lba(lsd[LC_SECTORS - 1]);
+					}
+					else
+					{
+						cellFsClose(subqfd);
+						subqfd = UNDEFINED;
+					}
 				}
 				strcpy(ext, file_ext);
 
