@@ -206,6 +206,13 @@ typedef struct _ScsiCmdReadCd
 	u8 control;
 } __attribute__((packed)) ScsiCmdReadCd;
 
+typedef struct _MSF
+{
+	u8 amin;
+	u8 asec;
+	u8 aframe;
+} __attribute__((packed)) MSF;
+
 typedef struct _SubChannelQ
 {
 	u8 control_adr;
@@ -315,15 +322,13 @@ static INLINE void lba_to_msf_bcd(u64 lba, u8 *m, u8 *s, u8 *f)
 	*s = itob(*s);
 	*f = itob(*f);
 }
-/*
-static inline u64 msf_to_lba(u8 m, u8 s, u8 f)
+
+static inline u32 msf_to_lba(MSF msf)
 {
-	u64 lba = m;
-	lba = (lba*60)+s;
-	lba = (lba*75)+f;
-	return lba;
+	u32 lba = (msf.amin * 60) + msf.asec;
+	return (lba * 75) + msf.aframe;
 }
-*/
+
 #ifdef DEBUG
 
 static const char * get_scsi_cmd_name(u8 cmd) __attribute__((unused));

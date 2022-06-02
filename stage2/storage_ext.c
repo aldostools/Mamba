@@ -145,7 +145,10 @@ static event_queue_t proxy_result_queue;
 
 int disc_emulation = EMU_OFF;
 
-static size_t sub_size = 0;
+static MSF lsd[32];
+static u32 lsd_start;
+static u32 lsd_end;
+
 static int subqfd = UNDEFINED;
 static int discfd = UNDEFINED;
 static int total_emulation = 0;
@@ -2219,15 +2222,21 @@ static int process_cd_iso_scsi_cmd(u8 *indata, u64 inlen, u8 *outdata, u64 outle
 
 					// custom subchannel
 					ret = UNDEFINED;
-					const u32 lba_start = 13350; // 2 min * 58 secs * 75 frames
-					if((subqfd != UNDEFINED) && (lba >= lba_start))
+					u32 lba2 = lba + 150;
+					lba_to_msf_bcd(lba2, &subq->amin, &subq->asec, &subq->aframe);
+					if((subqfd != UNDEFINED) && (lba2 >= lsd_start) && (lba2 <= lsd_end))
 					{
-						size_t r = (lba - lba_start) * sizeof(SubChannelQ);
-						if(r < sub_size)
+						size_t r;
+						for(u8 n = 0; n < 32; n++)
 						{
-							cellFsLseek(subqfd, r, SEEK_SET, &r);
-							ret = cellFsRead(subqfd, (void *)subq, sizeof(SubChannelQ), &r);
-							if(subq->control_adr <= 0 || r != sizeof(SubChannelQ)) ret = UNDEFINED;
+							if(lsd[n].amin > subq->amin) break;
+							if((subq->amin == lsd[n].amin) && (subq->asec == lsd[n].asec) && (subq->aframe == lsd[n].aframe))
+							{
+								cellFsLseek(subqfd, (n * 15) + sizeof(MSF), SEEK_SET, &r);
+								ret = cellFsRead(subqfd, (void *)subq, sizeof(SubChannelQ), &r);
+								if(subq->control_adr <= 0 || r != sizeof(SubChannelQ)) ret = UNDEFINED;
+								break;
+							}
 						}
 					}
 
@@ -2241,7 +2250,7 @@ static int process_cd_iso_scsi_cmd(u8 *indata, u64 inlen, u8 *outdata, u64 outle
 						if (user_data)
 							lba_to_msf_bcd(lba, &subq->min, &subq->sec, &subq->frame);
 
-						lba_to_msf_bcd(lba + 150, &subq->amin, &subq->asec, &subq->aframe);
+						//lba_to_msf_bcd(lba + 150, &subq->amin, &subq->asec, &subq->aframe);
 						subq->crc = calculate_subq_crc((u8 *)subq);
 					}
 
@@ -2987,7 +2996,6 @@ static INLINE void do_umount_discfile(void)
 	{
 		cellFsClose(subqfd);
 		subqfd = UNDEFINED;
-		sub_size = 0;
 	}
 
 	if (discfile)
@@ -3224,22 +3232,29 @@ static int mount_ps_cd(char *file, unsigned int trackscount, ScsiTrackDescriptor
 				char file_ext[5];
 				strcpy(file_ext, ext);
 
-				strcpy(ext, ".sch");
+				strcpy(ext, ".lsd");
 				ret = cellFsStat(file, &stat);
 				if(ret)
 				{
-					strcpy(ext, ".SCH");
+					strcpy(ext, ".LSD");
 					ret = cellFsStat(file, &stat);
 				}
-				if(ret == CELL_FS_SUCCEEDED)
+				if((ret == CELL_FS_SUCCEEDED) && (stat.st_size == (32 * 15)))
 				{
 					ret = cellFsOpen(file, CELL_FS_O_RDONLY, &subqfd, 0, NULL, 0);
-					sub_size = stat.st_size;
+					for(u8 n = 0; n < 32; n++)
+					{
+						size_t r;
+						cellFsLseek(subqfd, n * 15, SEEK_SET, &r);
+						ret = cellFsRead(subqfd, &lsd[n], sizeof(MSF), &r);
+						if(ret) break;
+					}
+					lsd_start = msf_to_lba(lsd[00]);
+					lsd_end   = msf_to_lba(lsd[31]);
 				}
 				if(ret)
 				{
 					subqfd = UNDEFINED;
-					sub_size = 0;
 				}
 				strcpy(ext, file_ext);
 
