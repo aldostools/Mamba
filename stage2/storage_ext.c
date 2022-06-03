@@ -2236,8 +2236,8 @@ static int process_cd_iso_scsi_cmd(u8 *indata, u64 inlen, u8 *outdata, u64 outle
 							if((subq->amin == lsd[n].amin) && (subq->asec == lsd[n].asec) && (subq->aframe == lsd[n].aframe))
 							{
 								cellFsLseek(subqfd, (n * LSD_STRUCT) + sizeof(MSF), SEEK_SET, &r);
-								ret = cellFsRead(subqfd, (void *)subq, sizeof(SubChannelQ), &r);
-								if(subq->control_adr <= 0 || r != sizeof(SubChannelQ)) ret = UNDEFINED;
+								ret = cellFsRead(subqfd, (void *)subq, LSD_STRUCT - sizeof(MSF), &r);
+								if(subq->control_adr <= 0 || r != LSD_STRUCT - sizeof(MSF)) ret = UNDEFINED;
 								break;
 							}
 						}
