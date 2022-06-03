@@ -3232,7 +3232,7 @@ static int mount_ps_cd(char *file, unsigned int trackscount, ScsiTrackDescriptor
 
 			if(cd_sector_size == 2352)
 			{
-				///////// Open LSD (LibCrypt Subchannel Data) for protected games /////// AV:2022
+				///////// Open LSD (LibCrypt Subchannel Data) for protected PAL games /////// AV:2022-06-02
 				char file_ext[5];
 				strcpy(file_ext, ext);
 
@@ -3246,6 +3246,7 @@ static int mount_ps_cd(char *file, unsigned int trackscount, ScsiTrackDescriptor
 				if((ret == CELL_FS_SUCCEEDED) && (stat.st_size == (LC_SECTORS * LSD_STRUCT)))
 				{
 					ret = cellFsOpen(file, CELL_FS_O_RDONLY, &subqfd, 0, NULL, 0);
+					// Read list of LibCrypt sectors in MSF
 					if(ret == CELL_FS_SUCCEEDED)
 					{
 						size_t r;
@@ -3261,11 +3262,13 @@ static int mount_ps_cd(char *file, unsigned int trackscount, ScsiTrackDescriptor
 				{
 					if(ret == CELL_FS_SUCCEEDED)
 					{
+						// Set LibCrypt range
 						lsd_start = msf_to_lba(lsd[0]);
 						lsd_end   = msf_to_lba(lsd[LC_SECTORS - 1]);
 					}
 					else
 					{
+						// Close LSD file
 						cellFsClose(subqfd);
 						subqfd = UNDEFINED;
 					}
