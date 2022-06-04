@@ -217,7 +217,7 @@ int save_file(const char *path, void *buf, size_t size)
 	return FAILED;
 }
 
-//////////////////// PROCESS PROXY COMMANDS (NETISO / NTFS) /////////////////////
+//////////////////// PROCESS READ ISO COMMANDS /////////////////////
 
 static INLINE void get_next_read(int64_t discoffset, u64 bufsize, u64 *fileoffset, u64 *readsize, int *file)
 {
@@ -423,9 +423,9 @@ static INLINE int process_read_iso_cmd(ReadIsoCmd *cmd)
 static INLINE int process_read_cd_iso2048_cmd(ReadIsoCmd *cmd)
 {
 	u8 *readbuf, *ptr;
-	u64 sector;
+	u64 sector, v;
 	u32 remaining, bufsize;
-	int iskernel, ret, doseek;
+	int iskernel, ret;
 
 	sector = cmd->offset / 2048;
 	remaining = cmd->size / 2048;
@@ -444,38 +444,24 @@ static INLINE int process_read_cd_iso2048_cmd(ReadIsoCmd *cmd)
 		return ret;
 
 	ptr = cmd->buf;
-	doseek = 1;
+	ret = cellFsLseek(discfd, base_offset + (sector * cd_sector_size), SEEK_SET, &v);
+	if (ret) // (ret != SUCCEEDED)
+		remaining = 0;
 
 	while (remaining > 0)
 	{
-		u64 v;
 		u32 readsize = MIN(remaining, bufsize);
-		int read = 1;
 
 		if (sector >= discfile_cd->num_sectors)
 		{
-			read = 0;
+			v = 0;
 		}
 		else
-		{
-			if (doseek)
-			{
-				ret = cellFsLseek(discfd, base_offset + (sector * cd_sector_size), SEEK_SET, &v);
-				if (ret) // (ret != SUCCEEDED)
-					break;
-
-				doseek = 0;
-			}
-		}
-
-		if (read)
 		{
 			ret = cellFsRead(discfd, readbuf, readsize * cd_sector_size, &v);
 			if (ret) // (ret != SUCCEEDED)
 				break;
 		}
-		else
-			v = 0;
 
 		if (v < (readsize * cd_sector_size))
 		{
@@ -511,9 +497,9 @@ static INLINE int process_read_cd_iso2352_cmd(ReadCdIso2352Cmd *cmd)
 	void *readbuf;
 	u8 *buf;
 	u8 *ptr;
-	u64 sector;
+	u64 sector, v;
 	u32 remaining, bufsize;
-	int iskernel, ret, doseek, cache;
+	int iskernel, ret, cache;
 
 	ret = SUCCEEDED;
 	sector = cmd->start_sector;
@@ -604,13 +590,13 @@ static INLINE int process_read_cd_iso2352_cmd(ReadCdIso2352Cmd *cmd)
 	}
 
 	ptr = buf;
-	doseek = 1;
+	ret = cellFsLseek(discfd, base_offset + (sector * cd_sector_size), SEEK_SET, &v);
+	if (ret) // (ret != SUCCEEDED)
+		remaining = 0;
 
 	while (remaining > 0)
 	{
-		u64 v;
 		u32 readsize;
-		int read = 1;
 
 		if (cache)
 		{
@@ -623,34 +609,18 @@ static INLINE int process_read_cd_iso2352_cmd(ReadCdIso2352Cmd *cmd)
 
 		if (sector >= discfile_cd->num_sectors)
 		{
-			read = 0;
+			v = 0;
 		}
 		else
-		{
-			if (doseek)
-			{
-				ret = cellFsLseek(discfd, base_offset + (sector * cd_sector_size), SEEK_SET, &v);
-				if (ret) // (ret != SUCCEEDED)
-					break;
-
-				doseek = 0;
-			}
-		}
-
-		if (read)
 		{
 			ret = cellFsRead(discfd, readbuf, readsize * cd_sector_size, &v);
 			if (ret) // (ret != SUCCEEDED)
 				break;
-
-			if (v < (readsize * cd_sector_size))
-			{
-				memset(readbuf+v, 0, (readsize * cd_sector_size)-v);
-			}
 		}
-		else
+
+		if (v < (readsize * cd_sector_size))
 		{
-			memset(readbuf, 0, readsize * cd_sector_size);
+			memset(readbuf + v, 0, (readsize * cd_sector_size) - v);
 		}
 
 		if (!cache)
@@ -679,7 +649,6 @@ static INLINE int process_read_cd_iso2352_cmd(ReadCdIso2352Cmd *cmd)
 
 		remaining -= readsize;
 		sector += readsize;
-
 	}
 
 	if (!iskernel)
@@ -726,6 +695,8 @@ static int process_read_disc_cmd(ReadDiscCmd *cmd)
 
 	return ret;
 }
+
+//////////////////// PROCESS PROXY COMMANDS (NETISO / NTFS) /////////////////////
 
 static int process_proxy_cmd(u64 command, process_t process, u8 *buf, u64 offset, u32 size)
 {
@@ -921,6 +892,38 @@ static int process_fake_storage_event_cmd(FakeStorageEventCmd *cmd)
 	return ret;
 }
 
+////////////// READ LSD SECTORS ////////////////////
+static void read_libcrypt_sectors(const char *file)
+{
+	int ret = cellFsOpen(file, CELL_FS_O_RDONLY, &subqfd, 0, NULL, 0);
+	// Read list of LibCrypt sectors in MSF
+	if(ret == CELL_FS_SUCCEEDED)
+	{
+		size_t r;
+		for(u8 n = 0; n < LC_SECTORS; n++)
+		{
+			cellFsLseek(subqfd, n * LSD_STRUCT, SEEK_SET, &r);
+			ret = cellFsRead(subqfd, &lsd[n], sizeof(MSF), &r);
+			if(ret) break;
+		}
+	}
+	if (subqfd != UNDEFINED)
+	{
+		if(ret == CELL_FS_SUCCEEDED)
+		{
+			// Set LibCrypt range
+			lsd_start = msf_to_lba(lsd[0]);
+			lsd_end   = msf_to_lba(lsd[LC_SECTORS - 1]);
+		}
+		else
+		{
+			// Close LSD file
+			cellFsClose(subqfd);
+			subqfd = UNDEFINED;
+		}
+	}
+}
+
 ////////////// PROCESS PSX VIDEO MODE //////////////
 static void get_cd_sector_size(unsigned int trackscount)
 {
@@ -982,10 +985,10 @@ static int read_psx_sector(void *dma, void *buf, u64 sector)
 	}
 	else if (discfd >= 0)
 	{
-		u64 x;
+		u64 v;
 
-		cellFsLseek(discfd, base_offset + (sector * cd_sector_size) + 0x18, SEEK_SET, &x);
-		return cellFsRead(discfd, buf, 2048, &x);
+		cellFsLseek(discfd, base_offset + (sector * cd_sector_size) + 0x18, SEEK_SET, &v);
+		return cellFsRead(discfd, buf, 2048, &v);
 	}
 	else if (discfile_proxy)
 	{
@@ -1070,6 +1073,12 @@ static int process_get_psx_video_mode(void)
 							 exe_path[1] == 'A' || exe_path[1] == 'B' ||	// PAPX, PBPX, PCPX
 							 exe_path[1] == 'I'))							// SIPS
 								ret = (exe_path[2] == 'E');					// SLES, SCES, SCED, SLED
+
+						if(subqfd == UNDEFINED)
+						{
+							sprintf(buf, "/dev_hdd0/tmp/lsd/%s.lsd", exe_path);
+							read_libcrypt_sectors(buf);
+						}
 
 						// detect PAL by PSX EXE
 						if(ret == UNDEFINED)
@@ -2610,14 +2619,10 @@ static void fake_reinsert(unsigned int disctype)
 	cmd.param = (u64)(disctype)<<32;
 	cmd.device = BDVD_DRIVE;
 
-	cmd.event = 4;
-	process_fake_storage_event_cmd(&cmd);
-	cmd.event = 8;
-	process_fake_storage_event_cmd(&cmd);
-	cmd.event = 7;
-	process_fake_storage_event_cmd(&cmd);
-	cmd.event = 3;
-	process_fake_storage_event_cmd(&cmd);
+	cmd.event = 4; process_fake_storage_event_cmd(&cmd);
+	cmd.event = 8; process_fake_storage_event_cmd(&cmd);
+	cmd.event = 7; process_fake_storage_event_cmd(&cmd);
+	cmd.event = 3; process_fake_storage_event_cmd(&cmd);
 }
 
 #ifdef DO_CFW2OFW_FIX
@@ -2824,8 +2829,8 @@ static void build_netemu_params(u8 *ps2_soft, u8 *ps2_net)
 	strcpy((char *)ps2_net + 9, "--COBRA--");
 	memcpy(ps2_net+0x2A, ps2_soft+0x118, 6);
 
-	u64 static_one = {0x054c026840000000};
-	u64 static_two = {0x3600043504082225};
+	const u64 static_one = {0x054c026840000000};
+	const u64 static_two = {0x3600043504082225};
 
 	// netemu ps2bootparam.dat has a format very similar to softemu sm arguments
 	ps2_soft[11] = 3;
@@ -3245,33 +3250,7 @@ static int mount_ps_cd(char *file, unsigned int trackscount, ScsiTrackDescriptor
 				}
 				if((ret == CELL_FS_SUCCEEDED) && (stat.st_size == (LC_SECTORS * LSD_STRUCT)))
 				{
-					ret = cellFsOpen(file, CELL_FS_O_RDONLY, &subqfd, 0, NULL, 0);
-					// Read list of LibCrypt sectors in MSF
-					if(ret == CELL_FS_SUCCEEDED)
-					{
-						size_t r;
-						for(u8 n = 0; n < LC_SECTORS; n++)
-						{
-							cellFsLseek(subqfd, n * LSD_STRUCT, SEEK_SET, &r);
-							ret = cellFsRead(subqfd, &lsd[n], sizeof(MSF), &r);
-							if(ret) break;
-						}
-					}
-				}
-				if (subqfd != UNDEFINED)
-				{
-					if(ret == CELL_FS_SUCCEEDED)
-					{
-						// Set LibCrypt range
-						lsd_start = msf_to_lba(lsd[0]);
-						lsd_end   = msf_to_lba(lsd[LC_SECTORS - 1]);
-					}
-					else
-					{
-						// Close LSD file
-						cellFsClose(subqfd);
-						subqfd = UNDEFINED;
-					}
+					read_libcrypt_sectors(file);
 				}
 				strcpy(ext, file_ext);
 
@@ -3758,7 +3737,7 @@ int sys_storage_ext_mount_discfile_proxy(sys_event_port_t result_port, sys_event
 	#ifdef DEBUG
 	else
 	{
-		DPRINTF("Cannot open even port %x (ret=%x)\n", result_port, ret);
+		DPRINTF("Cannot open event port %x (ret=%x)\n", result_port, ret);
 	}
 	#endif
 
@@ -3855,8 +3834,6 @@ int sys_storage_ext_mount_encrypted_image(char *image, char *mount_point, char *
 #ifdef DO_PATCH_PS2
 static INLINE void patch_ps2emu_entry(int ps2emu_type)
 {
-	int patch_count = 0;
-
 	if (ps2emu_type == PS2EMU_SW)
 	{
 		condition_ps2softemu = 1;
@@ -3864,33 +3841,28 @@ static INLINE void patch_ps2emu_entry(int ps2emu_type)
 		return;
 	}
 
+	int patch_count = 0;
+
 	// Patch needed to support PS2 CD-R(W) and DVD+-R(W). Not necessary for isos.
 	// Needed but not enough: patches at ps2 emus are necessary too!
 	// Patch address may be different in different models
+	u64 ps2_auth_patch = 0x409E00702FBE0001;
 	for (u64 search_addr = 0x160000; search_addr < 0x300000; search_addr += 4)
 	{
-		if (lv1_peekd(search_addr) == 0x409E00702FBE0001)
+		if (lv1_peekd(search_addr) == ps2_auth_patch)
 		{
+			search_addr += 0x10;
 			#ifdef DEBUG
-			DPRINTF("PS2 auth patch at HV:%lx\n", search_addr+0x10);
+			if(patch_count)
+				DPRINTF("PS2 unauth patch at HV:%lx\n", search_addr);
+			else
+				DPRINTF("PS2 auth patch at HV:%lx\n", search_addr);
 			#endif
-			lv1_pokew(search_addr + 0x10, LI(R3, 0x29));
-
-			patch_count++;
+			lv1_pokew(search_addr, LI(R3, 0x29));
+			if (++patch_count == 2)
+				break;
+			ps2_auth_patch =  0x38800002409C0014;
 		}
-
-		else if (lv1_peekd(search_addr) == 0x38800002409C0014)
-		{
-			#ifdef DEBUG
-			DPRINTF("PS2 unauth patch at HV:%lx\n", search_addr+0x10);
-			#endif
-			lv1_pokew(search_addr + 0x10, LI(R3, 0x29));
-
-			patch_count++;
-		}
-
-		if (patch_count == 2)
-			break;
 	}
 }
 #endif
@@ -3903,11 +3875,11 @@ void storage_ext_init(void)
 
 	mutex_create(&mutex, SYNC_PRIORITY, SYNC_NOT_RECURSIVE);
 	event_port_create(&command_port, EVENT_PORT_LOCAL);
-	event_port_create(&result_port, EVENT_PORT_LOCAL);
+	event_port_create(&result_port,  EVENT_PORT_LOCAL);
 	event_queue_create(&command_queue, SYNC_PRIORITY, 1, 1);
-	event_queue_create(&result_queue, SYNC_PRIORITY, 1, 1);
+	event_queue_create(&result_queue,  SYNC_PRIORITY, 1, 1);
 	event_port_connect(command_port, command_queue);
-	event_port_connect(result_port, result_queue);
+	event_port_connect(result_port,  result_queue);
 
 	thread_t dispatch_thread;
 	ppu_thread_create(&dispatch_thread, dispatch_thread_entry, 0, -0x1D8, 0x4000, 0, THREAD_NAME);
@@ -3930,7 +3902,7 @@ void storage_ext_patches(void)
 	// Hooking it would be enough for the other two to work, but anyways for reading efficiency let's hook those as well.
 	hook_function_with_cond_postcall(read_bdvd0_symbol, emu_read_bdvd0, 8);
 	hook_function_with_cond_postcall(read_bdvd1_symbol, emu_read_bdvd1, 4); // iso9660 driver func
-	hook_function_with_cond_postcall(read_bdvd2_symbol, emu_read_bdvd2, 3);	 // udf driver func
+	hook_function_with_cond_postcall(read_bdvd2_symbol, emu_read_bdvd2, 3); // udf driver func
 
 	// High level functions
 	hook_function_with_cond_postcall(storage_read_symbol, emu_storage_read, 7);
