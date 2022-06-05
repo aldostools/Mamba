@@ -148,9 +148,7 @@ int disc_emulation = EMU_OFF;
 #define LC_SECTORS	32
 #define LSD_STRUCT	15
 
-static MSF lsd[LC_SECTORS];
-static u32 lsd_start;
-static u32 lsd_end;
+static u16 lsd[LC_SECTORS];
 
 static int subqfd = UNDEFINED;
 static int discfd = UNDEFINED;
@@ -896,31 +894,21 @@ static int process_fake_storage_event_cmd(FakeStorageEventCmd *cmd)
 static void read_libcrypt_sectors(const char *file)
 {
 	int ret = cellFsOpen(file, CELL_FS_O_RDONLY, &subqfd, 0, NULL, 0);
+	if(ret) return;
 	// Read list of LibCrypt sectors in MSF
-	if(ret == CELL_FS_SUCCEEDED)
+	size_t r; MSF msf;
+	for(u8 n = 0; n < LC_SECTORS; n++)
 	{
-		size_t r;
-		for(u8 n = 0; n < LC_SECTORS; n++)
-		{
-			cellFsLseek(subqfd, n * LSD_STRUCT, SEEK_SET, &r);
-			ret = cellFsRead(subqfd, &lsd[n], sizeof(MSF), &r);
-			if(ret) break;
-		}
+		cellFsLseek(subqfd, n * LSD_STRUCT, SEEK_SET, &r);
+		ret = cellFsRead(subqfd, &msf, sizeof(MSF), &r);
+		if(ret) break;
+		lsd[n] = msf_to_lba(msf);
 	}
-	if (subqfd != UNDEFINED)
+	if(ret)
 	{
-		if(ret == CELL_FS_SUCCEEDED)
-		{
-			// Set LibCrypt range
-			lsd_start = msf_to_lba(lsd[0]);
-			lsd_end   = msf_to_lba(lsd[LC_SECTORS - 1]);
-		}
-		else
-		{
-			// Close LSD file
-			cellFsClose(subqfd);
-			subqfd = UNDEFINED;
-		}
+		// Close LSD file
+		cellFsClose(subqfd);
+		subqfd = UNDEFINED;
 	}
 }
 
@@ -2235,15 +2223,14 @@ static int process_cd_iso_scsi_cmd(u8 *indata, u64 inlen, u8 *outdata, u64 outle
 					// custom subchannel
 					ret = UNDEFINED;
 					u32 lba2 = lba + 150;
-					lba_to_msf_bcd(lba2, &subq->amin, &subq->asec, &subq->aframe);
-					if((subqfd != UNDEFINED) && (lba2 >= lsd_start) && (lba2 <= lsd_end))
+					if((subqfd != UNDEFINED) && (lba2 >= lsd[0]) && (lba2 <= lsd[31]))
 					{
-						size_t r;
 						for(u8 n = 0; n < LC_SECTORS; n++)
 						{
-							if(lsd[n].amin > subq->amin) break;
-							if((subq->amin == lsd[n].amin) && (subq->asec == lsd[n].asec) && (subq->aframe == lsd[n].aframe))
+							if(lsd[n] >  lba2) break;
+							if(lsd[n] == lba2)
 							{
+								size_t r;
 								cellFsLseek(subqfd, (n * LSD_STRUCT) + sizeof(MSF), SEEK_SET, &r);
 								ret = cellFsRead(subqfd, (void *)subq, LSD_STRUCT - sizeof(MSF), &r);
 								if(subq->control_adr <= 0 || r != LSD_STRUCT - sizeof(MSF)) ret = UNDEFINED;
@@ -2255,14 +2242,14 @@ static int process_cd_iso_scsi_cmd(u8 *indata, u64 inlen, u8 *outdata, u64 outle
 					if(ret)
 					{
 						ScsiTrackDescriptor *track = find_track_by_lba(lba);
-						subq->control_adr = ((track->adr_control << 4)&0xF0) | (track->adr_control >> 4);
+						subq->control_adr = ((track->adr_control << 4) & 0xF0) | (track->adr_control >> 4);
 						subq->track_number = track->track_number;
 						subq->index_number = 1;
 
 						if (user_data)
 							lba_to_msf_bcd(lba, &subq->min, &subq->sec, &subq->frame);
 
-						//lba_to_msf_bcd(lba + 150, &subq->amin, &subq->asec, &subq->aframe);
+						lba_to_msf_bcd(lba2, &subq->amin, &subq->asec, &subq->aframe);
 						subq->crc = calculate_subq_crc((u8 *)subq);
 					}
 
