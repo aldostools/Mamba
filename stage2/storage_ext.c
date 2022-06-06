@@ -146,8 +146,9 @@ static event_queue_t proxy_result_queue;
 int disc_emulation = EMU_OFF;
 
 #define LC_SECTORS	32
-#define LSD_STRUCT	15
 
+static u8  lsd_header; // 0(lsd) / 4(sbi)
+static u8  lsd_struct; // 15(lsd)/14(sbi)
 static u16 lsd[LC_SECTORS];
 
 static int subqfd = UNDEFINED;
@@ -533,19 +534,19 @@ static INLINE int process_read_cd_iso2352_cmd(ReadCdIso2352Cmd *cmd)
 			}
 			else
 			{
-				copy_ptr = discfile_cd->cache+((-dif) * cd_sector_size);
-				copy_size = MIN(remaining, CD_CACHE_SIZE+dif);
+				copy_ptr = discfile_cd->cache + ((-dif) * cd_sector_size);
+				copy_size = MIN(remaining, CD_CACHE_SIZE + dif);
 			}
 
 			if (copy_ptr)
 			{
 				if (iskernel)
 				{
-					memcpy(buf+(copy_offset * cd_sector_size), copy_ptr, copy_size * cd_sector_size);
+					memcpy(buf + (copy_offset * cd_sector_size), copy_ptr, copy_size * cd_sector_size);
 				}
 				else
 				{
-					copy_to_process(cmd->process, copy_ptr, buf+(copy_offset * cd_sector_size), copy_size * cd_sector_size);
+					copy_to_process(cmd->process, copy_ptr, buf + (copy_offset * cd_sector_size), copy_size * cd_sector_size);
 				}
 
 				if (remaining == copy_size)
@@ -878,7 +879,7 @@ int device_event_func(event_port_t port, u64 event, u64 param, u64 device);
 
 static int process_fake_storage_event_cmd(FakeStorageEventCmd *cmd)
 {
-	u64 *ptr = (u64 *)(*(u64 *)MKA(TOC+device_event_rtoc_entry_1));
+	u64 *ptr = (u64 *)(*(u64 *)MKA(TOC + device_event_rtoc_entry_1));
 	ptr = (u64 *)ptr[0];
 
 	event_port_t port = (event_port_t)ptr[0x40/8];
@@ -895,14 +896,20 @@ static void read_libcrypt_sectors(const char *file)
 {
 	int ret = cellFsOpen(file, CELL_FS_O_RDONLY, &subqfd, 0, NULL, 0);
 	if(ret) return;
+
+	if(strstr(file, ".sbi"))
+		lsd_struct = 14, lsd_header = 4;
+	else
+		lsd_struct = 15, lsd_header = 0;
+
 	// Read list of LibCrypt sectors in MSF
 	size_t r; MSF msf;
 	for(u8 n = 0; n < LC_SECTORS; n++)
 	{
-		cellFsLseek(subqfd, n * LSD_STRUCT, SEEK_SET, &r);
+		cellFsLseek(subqfd, lsd_header + (n * lsd_struct), SEEK_SET, &r);
 		ret = cellFsRead(subqfd, &msf, sizeof(MSF), &r);
 		if(ret) break;
-		lsd[n] = msf_to_lba(msf);
+		lsd[n] = msf_bcd_to_lba(msf);
 	}
 	if(ret)
 	{
@@ -910,6 +917,10 @@ static void read_libcrypt_sectors(const char *file)
 		cellFsClose(subqfd);
 		subqfd = UNDEFINED;
 	}
+	if(lsd_header)
+		lsd_header = 8;
+	else
+		lsd_header = 3;
 }
 
 ////////////// PROCESS PSX VIDEO MODE //////////////
@@ -1067,6 +1078,11 @@ static int process_get_psx_video_mode(void)
 							sprintf(buf, "/dev_hdd0/tmp/lsd/%s.lsd", exe_path);
 							read_libcrypt_sectors(buf);
 						}
+						if(subqfd == UNDEFINED)
+						{
+							sprintf(buf, "/dev_hdd0/tmp/sbi/%s.sbi", exe_path);
+							read_libcrypt_sectors(buf);
+						}
 
 						// detect PAL by PSX EXE
 						if(ret == UNDEFINED)
@@ -1077,7 +1093,7 @@ static int process_get_psx_video_mode(void)
 
 							if ((sector != 0) && (read_psx_sector(dma, buf, sector) == SUCCEEDED))
 							{
-								/*if (strncmp(buf+0x71, "North America", 13) == 0 || strncmp(buf+0x71, "Japan", 5) == 0)
+								/*if (strncmp(buf + 0x71, "North America", 13) == 0 || strncmp(buf + 0x71, "Japan", 5) == 0)
 								{
 									ret = 0;
 								}
@@ -1788,7 +1804,7 @@ static INLINE ScsiTrackDescriptor *find_track_by_lba(u32 lba)
 
 	return NULL;
 }
-
+/*
 static u16 q_crc_lut[256] =
 {
 	0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50A5, 0x60C6, 0x70E7, 0x8108,
@@ -1833,6 +1849,7 @@ static INLINE u16 calculate_subq_crc(u8 *data)
 
 	return ~crc;
 }
+*/
 
 static int process_cd_iso_scsi_cmd(u8 *indata, u64 inlen, u8 *outdata, u64 outlen, int is2048)
 {
@@ -2223,17 +2240,20 @@ static int process_cd_iso_scsi_cmd(u8 *indata, u64 inlen, u8 *outdata, u64 outle
 					// custom subchannel
 					ret = UNDEFINED;
 					u32 lba2 = lba + 150;
-					if((subqfd != UNDEFINED) && (lba2 >= lsd[0]) && (lba2 <= lsd[31]))
+					if(subqfd != UNDEFINED)
 					{
-						for(u8 n = 0; n < LC_SECTORS; n++)
+						u8 n = LC_SECTORS, max = LC_SECTORS;
+						if(lba2 <= lsd[15] && lba2 >= lsd[00]) n = 0, max = 16; else // min 3
+						if(lba2 <= lsd[31] && lba2 >= lsd[16]) n = 16; // min 9
+						for(; n < max; n++)
 						{
 							if(lsd[n] >  lba2) break;
 							if(lsd[n] == lba2)
 							{
 								size_t r;
-								cellFsLseek(subqfd, (n * LSD_STRUCT) + sizeof(MSF), SEEK_SET, &r);
-								ret = cellFsRead(subqfd, (void *)subq, LSD_STRUCT - sizeof(MSF), &r);
-								if(subq->control_adr <= 0 || r != LSD_STRUCT - sizeof(MSF)) ret = UNDEFINED;
+								cellFsLseek(subqfd, lsd_header + (n * lsd_struct), SEEK_SET, &r);
+								ret = cellFsRead(subqfd, (void *)subq, 10, &r);
+								if(subq->control_adr <= 0 || r != 10) ret = UNDEFINED;
 								break;
 							}
 						}
@@ -2250,7 +2270,7 @@ static int process_cd_iso_scsi_cmd(u8 *indata, u64 inlen, u8 *outdata, u64 outle
 							lba_to_msf_bcd(lba, &subq->min, &subq->sec, &subq->frame);
 
 						lba_to_msf_bcd(lba2, &subq->amin, &subq->asec, &subq->aframe);
-						subq->crc = calculate_subq_crc((u8 *)subq);
+						//subq->crc = calculate_subq_crc((u8 *)subq);
 					}
 
 					p += sizeof(SubChannelQ);
@@ -2814,7 +2834,7 @@ static void build_netemu_params(u8 *ps2_soft, u8 *ps2_net)
 	memcpy(ps2_net, ps2_soft, 8);
 	ps2_net[8] = 3;
 	strcpy((char *)ps2_net + 9, "--COBRA--");
-	memcpy(ps2_net+0x2A, ps2_soft+0x118, 6);
+	memcpy(ps2_net + 0x2A, ps2_soft + 0x118, 6);
 
 	const u64 static_one = {0x054c026840000000};
 	const u64 static_two = {0x3600043504082225};
@@ -3232,14 +3252,15 @@ static int mount_ps_cd(char *file, unsigned int trackscount, ScsiTrackDescriptor
 				ret = cellFsStat(file, &stat);
 				if(ret)
 				{
-					strcpy(ext, ".LSD");
+					strcpy(ext, ".sbi");
 					ret = cellFsStat(file, &stat);
 				}
-				if((ret == CELL_FS_SUCCEEDED) && (stat.st_size == (LC_SECTORS * LSD_STRUCT)))
+				if(ret == CELL_FS_SUCCEEDED)
 				{
 					read_libcrypt_sectors(file);
 				}
 				strcpy(ext, file_ext);
+				////////////////////////////////////
 
 				// force video by title id in file name
 				if(strstr(file, "NTSC"))
@@ -3662,9 +3683,9 @@ int sys_storage_ext_mount_discfile_proxy(sys_event_port_t result_port, sys_event
 	// -- AV: cd sector size
 	get_cd_sector_size(trackscount);
 	trackscount &= 0xff;
-	// --
 	//DPRINTF("CD Sector size: %i\n", cd_sector_size);
 	//DPRINTF("Track count: %i\n", trackscount);
+	// --
 
 	if (emu_type == EMU_PSX)
 	{

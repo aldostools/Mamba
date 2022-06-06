@@ -120,4 +120,3 @@ static INLINE void dump_stack_trace4(uint64_t *stack, unsigned int n)
 #endif
 
 #endif /* __COMMON_H__ */
-

@@ -17,12 +17,3 @@ _start:
 	b	read_config_size
 	b	decrypt_config
 	b	cdvd_read_patched
-
-
-	
-
-
-	
-
-	
-	

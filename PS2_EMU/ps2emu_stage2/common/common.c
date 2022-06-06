@@ -23,7 +23,7 @@ static INLINE void my_memcpy(uint8_t *dst, uint8_t *src, int size)
 
 static INLINE void my_memcpy2(uint8_t *dst, uint8_t *src, int size)
 {
-	for (int i = size-1; i >= 0; i--)
+	for (int i = size - 1; i >= 0; i--)
 		dst[i] = src[i];
 }
 
@@ -31,16 +31,16 @@ static INLINE int cd_iso_read2048(uint8_t *buf, uint32_t lba, uint32_t length)
 {
 	if (IS_2352())
 	{
-		uint32_t capacity = length*2048;
-		uint32_t fit = capacity/2352;
-		uint32_t rem = (length-fit);
+		uint32_t capacity = length * 2048;
+		uint32_t fit = capacity / 2352;
+		uint32_t rem = (length - fit);
 		uint32_t i;
 		uint8_t *in = buf;
 		uint8_t *out = buf;
 
 		if (fit > 0)
 		{
-			ufs_read(iso_fd, base_offset + (lba*2352), buf, fit*2352);
+			ufs_read(iso_fd, base_offset + (lba * 2352), buf, fit * 2352);
 
 			for (i = 0; i < fit; i++)
 			{
@@ -53,14 +53,14 @@ static INLINE int cd_iso_read2048(uint8_t *buf, uint32_t lba, uint32_t length)
 
 		for (i = 0; i < rem; i++)
 		{
-			ufs_read(iso_fd, base_offset + (lba*2352)+24, out, 2048);
+			ufs_read(iso_fd, base_offset + (lba * 2352) + 24, out, 2048);
 			out += 2048;
 			lba++;
 		}
 	}
 	else
 	{
-		ufs_read(iso_fd, base_offset + (lba*2048), buf, length*2048);
+		ufs_read(iso_fd, base_offset + (lba * 2048), buf, length * 2048);
 	}
 
 	return 0;
@@ -78,16 +78,16 @@ static INLINE int cd_iso_read2340(uint8_t *buf, uint32_t lba, uint32_t length)
 {
 	if (IS_2352())
 	{
-		uint32_t capacity = length*2340;
-		uint32_t fit = capacity/2352;
-		uint32_t rem = (length-fit);
+		uint32_t capacity = length * 2340;
+		uint32_t fit = capacity / 2352;
+		uint32_t rem = (length - fit);
 		uint32_t i;
 		uint8_t *in = buf;
 		uint8_t *out = buf;
 
 		if (fit > 0)
 		{
-			ufs_read(iso_fd, base_offset + (lba*2352), buf, fit*2352);
+			ufs_read(iso_fd, base_offset + (lba * 2352), buf, fit * 2352);
 
 			for (i = 0; i < fit; i++)
 			{
@@ -100,28 +100,28 @@ static INLINE int cd_iso_read2340(uint8_t *buf, uint32_t lba, uint32_t length)
 
 		for (i = 0; i < rem; i++)
 		{
-			ufs_read(iso_fd, base_offset + (lba*2352)+12, out, 2340);
+			ufs_read(iso_fd, base_offset + (lba * 2352) + 12, out, 2340);
 			out += 2340;
 			lba++;
 		}
 	}
 	else
 	{
-		ufs_read(iso_fd, base_offset + (lba*2048), buf, length*2048);
+		ufs_read(iso_fd, base_offset + (lba * 2048), buf, length * 2048);
 
-		uint8_t *in = buf+(2048*(length-1));
-		uint8_t *out = buf+(2340*(length-1));
+		uint8_t *in  = buf + (2048 * (length - 1));
+		uint8_t *out = buf + (2340 * (length - 1));
 
-		lba = lba+length-1;
+		lba = lba + length - 1;
 
 		for (int i = 0; i < length; i++, in -= 2048, out -= 2340, lba--)
 		{
-			my_memcpy2(out+12, in, 2048);
+			my_memcpy2(out + 12, in, 2048);
 
-			lba_to_msf_bcd(lba+150, &out[0], &out[1], &out[2]);
+			lba_to_msf_bcd(lba + 150, &out[0], &out[1], &out[2]);
 			out[3] = 2;
-			memset(out+4, 0, 8);
-			memset(out+2060, 0, 280);
+			memset(out + 4, 0, 8);
+			memset(out + 2060, 0, 280);
 		}
 	}
 
@@ -132,27 +132,27 @@ static INLINE int cd_iso_read2352(uint8_t *buf, uint32_t lba, uint32_t length)
 {
 	if (IS_2352())
 	{
-		ufs_read(iso_fd, base_offset + (lba*2352), buf, length*2352);
+		ufs_read(iso_fd, base_offset + (lba * 2352), buf, length * 2352);
 	}
 	else
 	{
-		ufs_read(iso_fd, base_offset + (lba*2048), buf, length*2048);
+		ufs_read(iso_fd, base_offset + (lba * 2048), buf, length * 2048);
 
-		uint8_t *in = buf+(2048*(length-1));
-		uint8_t *out = buf+(2352*(length-1));
+		uint8_t *in  = buf + (2048 * (length - 1));
+		uint8_t *out = buf + (2352 * (length - 1));
 
-		lba = lba+length-1;
+		lba = lba + length - 1;
 
 		for (int i = 0; i < length; i++, in -= 2048, out -= 2352, lba--)
 		{
-			my_memcpy2(out+24, in, 2048);
+			my_memcpy2(out + 24, in, 2048);
 
 			out[0] = out[11] = 0;
-			memset(out+1, 0xFF, 10);
-			lba_to_msf_bcd(lba+150, &out[12], &out[13], &out[14]);
+			memset(out + 1, 0xFF, 10);
+			lba_to_msf_bcd(lba + 150, &out[12], &out[13], &out[14]);
 			out[15] = 2;
-			memset(out+16, 0, 8);
-			memset(out+2072, 0, 280);
+			memset(out + 16, 0, 8);
+			memset(out + 2072, 0, 280);
 		}
 	}
 
@@ -168,7 +168,7 @@ static INLINE ScsiTrackDescriptor *find_track_by_lba(uint32_t lba)
 		uint32_t track_start = tracks[i].track_start_addr;
 		uint32_t track_end;
 
-		if (i == (n-1))
+		if (i == (n - 1))
 		{
 			track_end = iso_size_sectors;
 		}
@@ -199,12 +199,12 @@ static INLINE int cd_iso_read2364(uint8_t *buf, uint32_t lba, uint32_t length)
 		sector_size = 2048;
 	}
 
-	ufs_read(iso_fd, base_offset + (lba*sector_size), buf, length*sector_size);
+	ufs_read(iso_fd, base_offset + (lba * sector_size), buf, length * sector_size);
 
-	uint8_t *in = buf+(sector_size*(length-1));
-	uint8_t *out = buf+(2364*(length-1));
+	uint8_t *in  = buf + (sector_size * (length - 1));
+	uint8_t *out = buf + (2364 * (length - 1));
 
-	lba = lba+length-1;
+	lba = lba + length - 1;
 
 	for (int i = 0; i < length; i++, in -= sector_size, out -= 2364, lba--)
 	{
@@ -212,21 +212,21 @@ static INLINE int cd_iso_read2364(uint8_t *buf, uint32_t lba, uint32_t length)
 
 		if (sector_size == 2048)
 		{
-			my_memcpy2(out+24, in, 2048);
+			my_memcpy2(out + 24, in, 2048);
 
 			out[0] = out[11] = 0;
-			memset(out+1, 0xFF, 10);
-			lba_to_msf_bcd(lba+150, &out[12], &out[13], &out[14]);
+			memset(out + 1, 0xFF, 10);
+			lba_to_msf_bcd(lba + 150, &out[12], &out[13], &out[14]);
 			out[15] = 2;
-			memset(out+16, 0, 8);
-			memset(out+2072, 0, 280);
+			memset(out + 16, 0, 8);
+			memset(out + 2072, 0, 280);
 		}
 		else
 		{
 			my_memcpy2(out, in, 2352);
 		}
 
-		subq = (SubChannelQ *)(out+2352);
+		subq = (SubChannelQ *)(out + 2352);
 		memset(subq, 0, sizeof(SubChannelQ));
 
 		if (sector_size == 2048)
@@ -250,7 +250,7 @@ static INLINE int cd_iso_read2364(uint8_t *buf, uint32_t lba, uint32_t length)
 
 		subq->index_number = 1;
 		lba_to_msf_bcd(lba, &subq->min, &subq->sec, &subq->frame);
-		lba_to_msf_bcd(lba+150, &subq->amin, &subq->asec, &subq->aframe);
+		lba_to_msf_bcd(lba + 150, &subq->amin, &subq->asec, &subq->aframe);
 	}
 
 	return 0;
@@ -258,7 +258,7 @@ static INLINE int cd_iso_read2364(uint8_t *buf, uint32_t lba, uint32_t length)
 
 static INLINE int dvd_iso_read2048(uint8_t *buf, uint64_t lba, uint32_t length)
 {
-	ufs_read(iso_fd, base_offset + (lba*2048), buf, length*2048);
+	ufs_read(iso_fd, base_offset + (lba * 2048), buf, length * 2048);
 	return 0;
 }
 
@@ -270,16 +270,16 @@ static INLINE int dvd_iso_read2064(uint8_t *buf, uint64_t lba, uint32_t length)
 		return 0;
 	}
 
-	ufs_read(iso_fd, base_offset + (lba*2048), buf, length*2048);
+	ufs_read(iso_fd, base_offset + (lba * 2048), buf, length * 2048);
 
-	uint8_t *in = buf+(2048*(length-1));
-	uint8_t *out = buf+(2064*(length-1));
+	uint8_t *in  = buf + (2048 * (length - 1));
+	uint8_t *out = buf + (2064 * (length - 1));
 
-	lba = lba+length-1;
+	lba = lba + length - 1;
 
 	for (int i = 0; i < length; i++, in -= 2048, out -= 2064, lba--)
 	{
-		my_memcpy2(out+12, in, 2048);
+		my_memcpy2(out + 12, in, 2048);
 
 		// It seems the ps2emu only cares about the sector ID...
 		uint32_t id;
@@ -295,8 +295,8 @@ static INLINE int dvd_iso_read2064(uint8_t *buf, uint64_t lba, uint32_t length)
 		}
 
 		*(uint32_t *)out = id;
-		memset(out+4, 0, 8);
-		memset(out+2060, 0, 4);
+		memset(out + 4, 0, 8);
+		memset(out + 2060, 0, 4);
 	}
 
 	return 0;
@@ -356,8 +356,8 @@ static void check_double_layer(void)
 
 static INLINE int setup_iso(void)
 {
-	int disable_chk=ufs_open(0, "/tmp/loadoptical");
-	if(disable_chk>=0)
+	int disable_chk = ufs_open(0, "/tmp/loadoptical");
+	if(disable_chk >= 0)
 	{
 		ufs_close(disable_chk);
 		return -2;
@@ -377,13 +377,13 @@ static INLINE int setup_iso(void)
 		return -2;
 	}
 
-	if (memcmp(buf+1, "/dev_hdd0/", 10) != 0)
+	if (memcmp(buf + 1, "/dev_hdd0/", 10) != 0)
 	{
 		release_temp_buf();
 		ufs_close(cfg_fd);
 		return -1;
 	}
-	if(memcmp(buf+0x702, "mount", 5)!=0)
+	if(memcmp(buf + 0x702, "mount", 5)!=0)
 	{
 		release_temp_buf();
 		ufs_close(cfg_fd);
@@ -614,23 +614,23 @@ static INLINE int process_scsi_cmd_iso(uint8_t *cmd, uint8_t *out, uint64_t outl
 			full_tracks[2].session_number = 1;
 			full_tracks[2].adr_control = 0x10;
 			full_tracks[2].point = 0xA2;
-			lba_to_msf(iso_size_sectors+150, &full_tracks[2].pmin, &full_tracks[2].psec, &full_tracks[2].pframe);
+			lba_to_msf(iso_size_sectors + 150, &full_tracks[2].pmin, &full_tracks[2].psec, &full_tracks[2].pframe);
 
 			for (int i = 0; i < ntracks; i++)
 			{
-				full_tracks[3+i].session_number = 1;
+				full_tracks[3 + i].session_number = 1;
 
 				if (IS_2352())
 				{
-					full_tracks[3+i].adr_control = tracks[i].adr_control;
-					full_tracks[3+i].point = tracks[i].track_number;
-					lba_to_msf(tracks[i].track_start_addr+150, &full_tracks[3+i].pmin, &full_tracks[3+i].psec, &full_tracks[3+i].pframe);
+					full_tracks[3 + i].adr_control = tracks[i].adr_control;
+					full_tracks[3 + i].point = tracks[i].track_number;
+					lba_to_msf(tracks[i].track_start_addr + 150, &full_tracks[3 + i].pmin, &full_tracks[3 + i].psec, &full_tracks[3 + i].pframe);
 				}
 				else
 				{
-					full_tracks[3+i].adr_control = 0x14;
-					full_tracks[3+i].point = 1;
-					full_tracks[3+i].psec = 2; // 150 frames
+					full_tracks[3 + i].adr_control = 0x14;
+					full_tracks[3 + i].point = 1;
+					full_tracks[3 + i].psec = 2; // 150 frames
 				}
 
 				DPRINTF("Track %d  %x\n", tracks[i].track_number, tracks[i].track_start_addr);
@@ -706,16 +706,16 @@ static INLINE int process_scsi_cmd_iso(uint8_t *cmd, uint8_t *out, uint64_t outl
 
 static INLINE void optical_dvd_read_2064(uint8_t *buf, uint64_t lba, uint32_t length)
 {
-	uint8_t *in = buf+(2048*(length-1));
-	uint8_t *out = buf+(2064*(length-1));
+	uint8_t *in  = buf + (2048 * (length - 1));
+	uint8_t *out = buf + (2064 * (length - 1));
 
-	lba = lba+length-1;
+	lba = lba + length - 1;
 
 	//DPRINTF("Read 2064 %x %x\n", lba, length);
 
 	for (int i = 0; i < length; i++, in -= 2048, out -= 2064, lba--)
 	{
-		my_memcpy2(out+12, in, 2048);
+		my_memcpy2(out + 12, in, 2048);
 
 		// It seems the ps2emu only cares about the sector ID...
 		uint32_t id;
@@ -731,8 +731,8 @@ static INLINE void optical_dvd_read_2064(uint8_t *buf, uint64_t lba, uint32_t le
 		}
 
 		*(uint32_t *)out = id;
-		memset(out+4, 0, 8);
-		memset(out+2060, 0, 4);
+		memset(out + 4, 0, 8);
+		memset(out + 2060, 0, 4);
 	}
 }
 
