@@ -446,6 +446,9 @@ LV2_SYSCALL2(int64_t, syscall8, (u64 function, u64 param1, u64 param2, u64 param
 					return ENOSYS;
 					#endif
 					break;
+				case PS3MAPI_OPCODE_PROC_PAGE_FREE:
+					return ps3mapi_process_page_free((process_id_t)param2, param3, (u64 *)param4);
+					break;
 				//----------
 				//MODULE
 				//----------
