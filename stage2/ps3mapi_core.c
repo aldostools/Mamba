@@ -179,7 +179,7 @@ int ps3mapi_get_process_mem(process_id_t pid, u64 addr, char *buf, int size)
 
 // TheRouletteBoi
 #ifdef mmapper_flags_temp_patch
-int ps3mapi_process_page_allocate(process_id_t pid, u64 size, u64 page_size, u64 flags, u64 is_executable, u64 *page_address)
+int ps3mapi_process_page_allocate(process_id_t pid, u64 size, u64 page_size, u64 flags, u64 is_executable, u64 *page_table)
 {
 	process_t process = ps3mapi_internal_get_process_by_pid(pid);
 
@@ -188,7 +188,15 @@ int ps3mapi_process_page_allocate(process_id_t pid, u64 size, u64 page_size, u64
 
 	int ret;
 	void *kbuf, *vbuf;
-	ret = page_allocate(process, size, flags, page_size, &kbuf);
+	if (page_size > 0)
+	{
+		ret = page_allocate(process, size, flags, page_size, &kbuf);
+	}
+	else
+	{
+		ret = page_allocate_auto(process, size, &kbuf);
+	}
+
 	if (ret) // (ret != SUCCEEDED)
 	{
 		return ENOMEM;
@@ -221,8 +229,10 @@ int ps3mapi_process_page_allocate(process_id_t pid, u64 size, u64 page_size, u64
 		clear_icache((void *)addr, 4);
 	}
 
-	u64 temp_address = (u64)vbuf;
-	ret = copy_to_user(&temp_address, get_secure_user_ptr(page_address), sizeof(u64));
+	u64 temp_table[2];
+	temp_table[0] = (u64)vbuf;
+	temp_table[1] = (u64)kbuf;
+	ret = copy_to_user(temp_table, get_secure_user_ptr(page_table), sizeof(u64)*2);
 
 	if (ret) // (ret != SUCCEEDED)
 	{
@@ -234,6 +244,26 @@ int ps3mapi_process_page_allocate(process_id_t pid, u64 size, u64 page_size, u64
 	return SUCCEEDED;
 }
 #endif
+
+int ps3mapi_process_page_free(process_id_t pid, u64 flags, u64 *page_table)
+{
+	process_t process = ps3mapi_internal_get_process_by_pid(pid);
+
+	if (process <= 0)
+		return ESRCH;
+
+	u64 temp_table[2];
+	int ret = copy_from_user(get_secure_user_ptr(page_table), temp_table, sizeof(u64)*2);
+	if (ret) // (ret != SUCCEEDED)
+		return EINVAL;
+
+	u64 *vbuf = temp_table[0];
+	u64 *kbuf = temp_table[1];
+	page_unexport_from_proc(process, vbuf);
+	page_free(process, kbuf, flags);
+
+	return SUCCEEDED;
+}
 
 //-----------------------------------------------
 //MODULES
