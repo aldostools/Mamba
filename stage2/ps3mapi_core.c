@@ -257,8 +257,8 @@ int ps3mapi_process_page_free(process_id_t pid, u64 flags, u64 *page_table)
 	if (ret) // (ret != SUCCEEDED)
 		return EINVAL;
 
-	u64 *vbuf = temp_table[0];
-	u64 *kbuf = temp_table[1];
+	u64 *vbuf = (u64 *)temp_table[0];
+	u64 *kbuf = (u64 *)temp_table[1];
 	page_unexport_from_proc(process, vbuf);
 	page_free(process, kbuf, flags);
 
