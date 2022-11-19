@@ -45,7 +45,6 @@ typedef u32 process_id_t;
 int ps3mapi_get_all_processes_pid(process_id_t *pid_list);
 int ps3mapi_get_process_name_by_pid(process_id_t pid, char *name);
 int ps3mapi_get_process_by_pid(process_id_t pid, process_t process);
-int ps3mapi_process_kill_by_pid(process_id_t pid);
 int ps3mapi_get_current_process_critical(process_t process);
 int ps3mapi_get_current_process(process_t process);
 

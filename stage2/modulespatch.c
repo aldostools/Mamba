@@ -451,7 +451,7 @@ static SprxPatch explore_plugin_patches[] =
  #ifdef ps2_nonbw_offset
  	{ ps2_nonbw_offset, LI(0, 1), &condition_ps2softemu },
  #endif
- #ifdef whatsnew_offset
+ #if 0 //#ifdef whatsnew_offset
 	//// Devil303's What's New ///
 	{ whatsnew_offset,        0x68747470, &condition_true },
 	{ whatsnew_offset + 0x04, 0x3A2F2F77, &condition_true },
