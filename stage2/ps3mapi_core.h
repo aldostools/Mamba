@@ -18,7 +18,7 @@
 //CORE
 //----------------------------------------------------------
 
-#define PS3MAPI_CORE_VERSION			 			0x0123
+#define PS3MAPI_CORE_VERSION			 			0x0124
 #define PS3MAPI_CORE_MINVERSION			 			0x0111
 #define PS3MAPI_FW_VERSION							FIRMWARE_VERSION
 
