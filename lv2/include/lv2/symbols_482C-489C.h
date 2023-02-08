@@ -223,7 +223,11 @@
     #define psp_extra_drm_patch                         0x245AF0
 
 	/* explore_plugin */
+    #if defined(FIRMWARE_489C)
+    #define ps2_nonbw_offset                            0xDD9BC
+    #else
     #define ps2_nonbw_offset                            0xDD9B4
+    #endif
 
 	/* explore_category_game */
     #define ps2_nonbw_offset2                           0x68324
@@ -233,12 +237,17 @@
 
 	#define DO_PATCH_COBRA810
 	#define VSH_HASH						0xb6b6d000002e0000
-	#define BDP_DISC_CHECK_PLUGIN_HASH		0x9940000000003000
 	#define EXPLORE_PLUGIN_HASH				0xc50d0000000e0000
 	#define EXPLORE_CATEGORY_GAME_HASH		0xde52d00000050000
 	#define PS1_EMU_HASH					0xcc28400000090000
 	#define PS1_NETEMU_HASH 				0xcc284000000b0000
 	#define GAME_EXT_PLUGIN_HASH			0xcc26800000010000
+	#define PSP_EMULATOR_HASH				0xcc29b00000020000
+	#define PEMUCORELIB_HASH				0x40425000000c0000
+	#define EMULATOR_API_HASH				0x8409f00000010000
+	#define EMULATOR_DRM_HASH				0xbbb8800000005000
+	#define EMULATOR_DRM_DATA_HASH			0x2f3ab00000010000
+	#define BDP_DISC_CHECK_PLUGIN_HASH		0x9940000000003000
 	#define LIBFS_EXTERNAL_HASH				0x05fd000000006000
 	#define NAS_PLUGIN_HASH					0xc50d000000020000
 	#define BDP_BDMV_HASH					0xcc28700000370000
@@ -248,11 +257,6 @@
 	#define PREMO_PLUGIN_HASH				0x1000000000010000
 	#define PREMO_GAME_PLUGIN_HASH			0x5bc3000000010000
 //	#define BASIC_PLUGINS_HASH				0x55f4700000010000
-	#define PSP_EMULATOR_HASH				0xcc29b00000020000
-	#define PEMUCORELIB_HASH				0x40425000000c0000
-	#define EMULATOR_API_HASH				0x8409f00000010000
-	#define EMULATOR_DRM_HASH				0xbbb8800000005000
-	#define EMULATOR_DRM_DATA_HASH			0x2f3ab00000010000
 	#define LIBSYSUTIL_SAVEDATA_PSP_HASH	0x0dfdc00000003000
 
 	/* bdp_disccheck_plugin */
@@ -370,9 +374,16 @@
     #define aio_copy_root_offset                        0xD658
 
 	/* rebug */
+    #if defined(FIRMWARE_489C)
+    #define EXPLORE_PLUGIN_REBUG_HASH                   0xc50d0000000e0000
+    #define EXPLORE_CATEGORY_GAME_REBUG_HASH            0xde52d00000050000
+    #define GAME_EXT_PLUGIN_REBUG_HASH                  0xcc2680000001e000
+    #else
     #define EXPLORE_PLUGIN_REBUG_HASH                   0xACF4AF2B000ECC91
     #define EXPLORE_CATEGORY_GAME_REBUG_HASH            0x9CB3396E00056CE9
     #define GAME_EXT_PLUGIN_REBUG_HASH                  0xE274AF7B0001E5D3
+	#endif
+
     #define dex_ps2_nonbw_offset                        0xDDDC4
     #define dex_ps2_nonbw_offset2                       0x68264
     #define dex_ps2_nonbw_offset3                       0x172F0
