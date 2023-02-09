@@ -43,7 +43,7 @@
 #include "symbols_482D-489D.h"
 #include "symbols_475E-489E.h"
 
-#define FAKE_OFW
+//#define FAKE_OFW
 #define DO_PHOTO_GUI
 //#define DO_AUTO_RESTORE_SC
 #define DO_AUTO_MOUNT_DEV_BLIND
