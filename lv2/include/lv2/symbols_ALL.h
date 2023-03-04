@@ -6232,13 +6232,19 @@
 	#define cex_psp_extra_drm_patch                     0x2457A4
 #endif
 
-#ifdef FIRMWARE_480C
+#if defined(FIRMWARE_480C) || defined(FIRMWARE_490C)
 
-	#define FIRMWARE_VERSION                                 0x480
+	#ifdef FIRMWARE_480C
+		#define FIRMWARE_VERSION                             0x480
+	#elif FIRMWARE_490C
+		#define FIRMWARE_VERSION                             0x490
+	#endif
+
 	#define FIRMWARE_CEX                                     FIRMWARE_VERSION
 
 	#ifdef PS3M_API
-		#define PS3MAPI_FW_VERSION                           0x480
+		#define PS3MAPI_FW_VERSION                           FIRMWARE_VERSION
+
 		#define PS3MAPI_FW_TYPE                              "CEX MAMBA"
 		#define PS3MAPI_IDPS_1                               0x80000000003E2E30ULL
 		#define PS3MAPI_IDPS_2                               0x8000000000474AF4ULL
@@ -8504,7 +8510,7 @@
 	#define dex_psp_extra_drm_patch                     0x24D318
 #endif
 
-#if defined(FIRMWARE_484D) || defined(FIRMWARE_485D) || defined(FIRMWARE_486D) || defined(FIRMWARE_487D) || defined(FIRMWARE_488D)|| defined(FIRMWARE_489D)
+#if defined(FIRMWARE_484D) || defined(FIRMWARE_485D) || defined(FIRMWARE_486D) || defined(FIRMWARE_487D) || defined(FIRMWARE_488D)|| defined(FIRMWARE_489D) || defined(FIRMWARE_490D)
 
 	#if defined(FIRMWARE_484D)
   	#define FIRMWARE_VERSION                               0x484
@@ -8518,6 +8524,8 @@
   	#define FIRMWARE_VERSION                               0x488
 	#elif defined(FIRMWARE_489D)
   	#define FIRMWARE_VERSION                               0x489
+	#elif defined(FIRMWARE_490D)
+  	#define FIRMWARE_VERSION                               0x490
     #endif
 	#define FIRMWARE_DEX                                     FIRMWARE_VERSION
 	#define FIRMWARE_48XD

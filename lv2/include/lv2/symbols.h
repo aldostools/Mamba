@@ -39,9 +39,9 @@
 #include "symbols_480D.h"
 #include "symbols_481C.h"
 #include "symbols_481D.h"
-#include "symbols_482C-489C.h"
-#include "symbols_482D-489D.h"
-#include "symbols_475E-489E.h"
+#include "symbols_482C-490C.h"
+#include "symbols_482D-490D.h"
+#include "symbols_475E-490E.h"
 
 //#define FAKE_OFW
 #define DO_PHOTO_GUI

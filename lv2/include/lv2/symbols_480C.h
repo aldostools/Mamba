@@ -1,6 +1,11 @@
-#ifdef FIRMWARE_480C
+#if defined(FIRMWARE_480C) || defined(FIRMWARE_490C)
 
-    #define FIRMWARE_VERSION                                 0x480
+    #ifdef FIRMWARE_480C
+        #define FIRMWARE_VERSION                             0x480
+    #elif FIRMWARE_490C
+        #define FIRMWARE_VERSION                             0x490
+    #endif
+
     #define FIRMWARE_CEX                                     FIRMWARE_VERSION
 
     #ifdef PS3M_API

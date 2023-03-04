@@ -1,4 +1,4 @@
-#if defined(FIRMWARE_475E) || defined(FIRMWARE_476E) || defined(FIRMWARE_478E) || defined(FIRMWARE_480E) || defined(FIRMWARE_481E) || defined(FIRMWARE_482E) || defined(FIRMWARE_483E) || defined(FIRMWARE_484E) || defined(FIRMWARE_485E) || defined(FIRMWARE_486E) || defined(FIRMWARE_487E) || defined(FIRMWARE_488E) || defined(FIRMWARE_489E)
+#if defined(FIRMWARE_475E) || defined(FIRMWARE_476E) || defined(FIRMWARE_478E) || defined(FIRMWARE_480E) || defined(FIRMWARE_481E) || defined(FIRMWARE_482E) || defined(FIRMWARE_483E) || defined(FIRMWARE_484E) || defined(FIRMWARE_485E) || defined(FIRMWARE_486E) || defined(FIRMWARE_487E) || defined(FIRMWARE_488E) || defined(FIRMWARE_489E) || defined(FIRMWARE_490E)
 
 	/* WIP: these offsets are a mix from 4.80 DEX and 4.78 DEH; they haven't been verified due the lack of a DECR system to test */
 
@@ -28,6 +28,8 @@
 		#define FIRMWARE_VERSION                        0x488
 	#elif defined(FIRMWARE_489E)
 		#define FIRMWARE_VERSION                        0x489
+	#elif defined(FIRMWARE_490E)
+		#define FIRMWARE_VERSION                        0x490
     #endif
     #define FIRMWARE_DEH                                FIRMWARE_VERSION
     #define FIRMWARE_48XE
