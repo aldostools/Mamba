@@ -233,7 +233,6 @@
     #define ps2_nonbw_offset2                           0x68324
 
 	/* LV2 POKE	*/
-	#define hash_checked_area								0x352230
 
 	#define DO_PATCH_COBRA810
 	#define VSH_HASH						0xb6b6d000002e0000

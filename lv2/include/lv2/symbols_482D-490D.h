@@ -313,7 +313,6 @@
 	#define thread_info_symbol								0x3A4A30
 
 	/* LV2 POKE	*/
-	#define hash_checked_area								0x378960
 
 	#define rsx_syscall_check								0x7e4c
 	#define unk_func2_unregister_service					0x9e900

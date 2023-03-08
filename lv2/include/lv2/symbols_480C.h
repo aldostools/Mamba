@@ -1,11 +1,6 @@
-#if defined(FIRMWARE_480C) || defined(FIRMWARE_490C)
+#if defined(FIRMWARE_480C)
 
-    #ifdef FIRMWARE_480C
-        #define FIRMWARE_VERSION                             0x480
-    #elif FIRMWARE_490C
-        #define FIRMWARE_VERSION                             0x490
-    #endif
-
+    #define FIRMWARE_VERSION                                 0x480
     #define FIRMWARE_CEX                                     FIRMWARE_VERSION
 
     #ifdef PS3M_API
@@ -126,20 +121,36 @@
     #define shutdown_patch_offset                            0xAAB8
     #define shutdown_copy_params_call                        0xAACC
 
+#define VSH_HASH						0xb6b6d000002e3000
+#define BDP_DISC_CHECK_PLUGIN_HASH		0x9940000000003000
+//#define BASIC_PLUGINS_HASH			0x55f4700000010000
+#define EXPLORE_PLUGIN_HASH				0xc50d0000000ec000
+#define EXPLORE_CATEGORY_GAME_HASH		0xde52d00000056000
+#define PS1_EMU_HASH					0xcc2840000009b000
+#define PS1_NETEMU_HASH 				0xcc284000000be000
+#define GAME_EXT_PLUGIN_HASH			0xcc2680000001e000
+#define PSP_EMULATOR_HASH				0xcc29b00000023000
+#define PEMUCORELIB_HASH				0x40425000000c0000
+#define EMULATOR_API_HASH				0x8409f0000001b000
+#define EMULATOR_DRM_HASH				0xbbb8800000005000
+#define EMULATOR_DRM_DATA_HASH			0x2f3ab0000001b000
+#define LIBSYSUTIL_SAVEDATA_PSP_HASH	0x0dfdc00000003000
+#define LIBFS_EXTERNAL_HASH				0x05fd000000006000
+
     /* hash */
-    #define EXPLORE_PLUGIN_HASH                         0xACF4AF2B000EC469
-    #define EXPLORE_CATEGORY_GAME_HASH                  0x9CB378E600056AE5
-    #define GAME_EXT_PLUGIN_HASH                        0xE274AF7B0001E5C4
-    #define LIBFS_EXTERNAL_HASH                         0x5BC7BCE800006477
-    #define PSP_EMULATOR_HASH                           0x7BE641F500023793
-    #define PEMUCORELIB_HASH                            0xF349A563000C0D6C
-    #define EMULATOR_API_HASH                           0xA9F5B37A0001BB45
-    #define EMULATOR_DRM_HASH                           0xA324DC4A00005399
-    #define EMULATOR_DRM_DATA_HASH                      0x75C390860001B75F
-    #define LIBSYSUTIL_SAVEDATA_PSP_HASH                0x57BBC3B800003212
+//    #define EXPLORE_PLUGIN_HASH                         0xACF4AF2B000EC469
+//    #define EXPLORE_CATEGORY_GAME_HASH                  0x9CB378E600056AE5
+//    #define GAME_EXT_PLUGIN_HASH                        0xE274AF7B0001E5C4
+//    #define LIBFS_EXTERNAL_HASH                         0x5BC7BCE800006477
+//    #define PSP_EMULATOR_HASH                           0x7BE641F500023793
+//    #define PEMUCORELIB_HASH                            0xF349A563000C0D6C
+//    #define EMULATOR_API_HASH                           0xA9F5B37A0001BB45
+//    #define EMULATOR_DRM_HASH                           0xA324DC4A00005399
+//    #define EMULATOR_DRM_DATA_HASH                      0x75C390860001B75F
+//    #define LIBSYSUTIL_SAVEDATA_PSP_HASH                0x57BBC3B800003212
 
     /* lv1 */
-    #define vsh_pos_in_ram                              0x910000
+    #define vsh_pos_in_ram                              0//x910000
 
     /* vsh */
     #define ps2tonet_patch                              0xC4E34
@@ -211,6 +222,7 @@
     #define EXPLORE_PLUGIN_REBUG_HASH                   0xACF4AF2B000ECC8A
     #define EXPLORE_CATEGORY_GAME_REBUG_HASH            0x9CB3396E00056CE9
     #define GAME_EXT_PLUGIN_REBUG_HASH                  0xE274AF7B0001E5DB
+
     #define dex_ps2_nonbw_offset                        0xDDDC4
     #define dex_ps2_nonbw_offset2                       0x68264
     #define dex_ps2_nonbw_offset3                       0x172F0
