@@ -1,4 +1,4 @@
-#if	defined(FIRMWARE_482D) || defined(FIRMWARE_483D) || defined(FIRMWARE_484D) || defined(FIRMWARE_485D) || defined(FIRMWARE_486D) || defined(FIRMWARE_487D) || defined(FIRMWARE_488D) || defined(FIRMWARE_489D) || defined(FIRMWARE_490D)
+#if	defined(FIRMWARE_482D) || defined(FIRMWARE_483D) || defined(FIRMWARE_484D) || defined(FIRMWARE_485D) || defined(FIRMWARE_486D) || defined(FIRMWARE_487D) || defined(FIRMWARE_488D) || defined(FIRMWARE_489D) || defined(FIRMWARE_490D) || defined(FIRMWARE_491D) || defined(FIRMWARE_492D) || defined(FIRMWARE_493D)
 
 	#if	defined(FIRMWARE_482D)
 		#define FIRMWARE_VERSION							0x482
@@ -18,6 +18,12 @@
 		#define FIRMWARE_VERSION							0x489
 	#elif defined(FIRMWARE_490D)
 		#define FIRMWARE_VERSION							0x490
+	#elif defined(FIRMWARE_491D)
+		#define FIRMWARE_VERSION							0x491
+	#elif defined(FIRMWARE_492D)
+		#define FIRMWARE_VERSION							0x492
+	#elif defined(FIRMWARE_493D)
+		#define FIRMWARE_VERSION							0x493
 	#endif
 	#define FIRMWARE_DEX									FIRMWARE_VERSION
     #define FIRMWARE_48XD

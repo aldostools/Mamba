@@ -225,6 +225,9 @@ static INLINE void get_next_read(int64_t discoffset, u64 bufsize, u64 *fileoffse
 	*readsize = bufsize;
 	*fileoffset = 0;
 
+	if (!discfile)
+		return;
+
 	for (int i = 0; i < discfile->count; i++)
 	{
 		u64 last = base + discfile->sizes[i];
@@ -239,7 +242,7 @@ static INLINE void get_next_read(int64_t discoffset, u64 bufsize, u64 *fileoffse
 				*readsize = bufsize;
 
 			*file = i;
-			*fileoffset = discoffset-base;
+			*fileoffset = discoffset - base;
 			return;
 		}
 
@@ -253,6 +256,9 @@ static INLINE void get_next_read(int64_t discoffset, u64 bufsize, u64 *fileoffse
 
 static INLINE int process_read_iso_cmd(ReadIsoCmd *cmd)
 {
+	if (!cmd || !discfile)
+		return FAILED;
+
 	void *readbuf;
 	u8 *ptr;
 	u64 remaining, bufsize, offset;
@@ -1472,7 +1478,7 @@ LV2_HOOKED_FUNCTION_PRECALL_SUCCESS_2(int, post_storage_get_device_info, (u64 de
 			{
 				device_info->sector_count = (discfile_proxy->tracks) ? discfile_proxy->size/cd_sector_size : discfile_proxy->size/2048;
 			}
-			else
+			else if (discfile && device_info)
 			{
 				device_info->sector_count = discfile->totalsize / device_info->sector_size;
 			}
@@ -1692,6 +1698,11 @@ LV2_HOOKED_FUNCTION_COND_POSTCALL_7(int, emu_sys_storage_async_read, (sys_device
 
 static int process_generic_iso_scsi_cmd(u8 *indata, u64 inlen, u8 *outdata, u64 outlen)
 {
+	if (!indata || !outdata)
+	{
+		return FAILED;
+	}
+
 	memset(outdata, 0, outlen);
 
 	switch (indata[0])
@@ -1855,6 +1866,11 @@ static int process_cd_iso_scsi_cmd(u8 *indata, u64 inlen, u8 *outdata, u64 outle
 {
 	if (inlen < 1)
 		return SUCCEEDED;
+
+	if (!indata || !outdata)
+	{
+		return FAILED;
+	}
 
 	switch (indata[0])
 	{
@@ -2262,9 +2278,14 @@ static int process_cd_iso_scsi_cmd(u8 *indata, u64 inlen, u8 *outdata, u64 outle
 					if(ret)
 					{
 						ScsiTrackDescriptor *track = find_track_by_lba(lba);
-						subq->control_adr = ((track->adr_control << 4) & 0xF0) | (track->adr_control >> 4);
-						subq->track_number = track->track_number;
-						subq->index_number = 1;
+						if (!track)
+							memset(subq, 0, sizeof(*subq)); // 2026-10-30 by drokkmods
+						else
+						{
+							subq->control_adr = ((track->adr_control << 4) & 0xF0) | (track->adr_control >> 4);
+							subq->track_number = track->track_number;
+							subq->index_number = 1;
+						}
 
 						if (user_data)
 							lba_to_msf_bcd(lba, &subq->min, &subq->sec, &subq->frame);
@@ -2447,7 +2468,7 @@ static int process_cmd(unsigned int command, void *indata, u64 inlen, void *outd
 				{
 					ret = (discfile_proxy->tracks) ? discfile_proxy->size/cd_sector_size : discfile_proxy->size/2048;
 				}
-				else
+				else if (discfile)
 				{
 					ret = discfile->totalsize / 2048;
 				}
@@ -3152,6 +3173,9 @@ static int mount_common(unsigned int filescount, char *files[])
 	int ret = check_files_and_allocate(filescount, files);
 	if (ret) // (ret != SUCCEEDED)
 		return ret;
+
+	if (!discfile)
+		return FAILED;
 
 	discfile->cached_sector = NULL;
 	discfile->cached_offset = 0;

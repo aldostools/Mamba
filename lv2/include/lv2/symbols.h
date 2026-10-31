@@ -46,9 +46,9 @@
 
 #if defined (FIRMWARE_490C)
 	#define SYSM_OBJ_OFFSET 		0x8000000000347E30ULL
-#elif defined (FIRMWARE_48XC)
+#elif defined (FIRMWARE_48XC) || defined (FIRMWARE_49XC)
 	#define SYSM_OBJ_OFFSET 		0x8000000000347E40ULL
-#elif defined (FIRMWARE_48XD)
+#elif defined (FIRMWARE_48XD) || defined (FIRMWARE_49XD)
 	#define SYSM_OBJ_OFFSET 		0x800000000036DC50ULL
 #endif
 

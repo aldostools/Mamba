@@ -8156,7 +8156,7 @@
 	#define cex_psp_extra_drm_patch                     0x245AF0
 #endif
 
-#if defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C) || defined(FIRMWARE_487C) || defined(FIRMWARE_488C) || defined(FIRMWARE_489C)
+#if defined(FIRMWARE_484C) || defined(FIRMWARE_485C) || defined(FIRMWARE_486C) || defined(FIRMWARE_487C) || defined(FIRMWARE_488C) || defined(FIRMWARE_489C) || defined(FIRMWARE_491C) || defined(FIRMWARE_492C) || defined(FIRMWARE_493C)
 
 	#if defined(FIRMWARE_484C)
   	#define FIRMWARE_VERSION                               0x484
@@ -8170,9 +8170,19 @@
   	#define FIRMWARE_VERSION                               0x488
 	#elif defined(FIRMWARE_489C)
   	#define FIRMWARE_VERSION                               0x489
+	#elif defined(FIRMWARE_491C)
+  	#define FIRMWARE_VERSION                               0x491
+	#elif defined(FIRMWARE_492C)
+  	#define FIRMWARE_VERSION                               0x492
+	#elif defined(FIRMWARE_493C)
+  	#define FIRMWARE_VERSION                               0x493
     #endif
 	#define FIRMWARE_CEX                                     FIRMWARE_VERSION
-	#define FIRMWARE_48XC
+	#if defined(FIRMWARE_491C) || defined(FIRMWARE_492C) || defined(FIRMWARE_493C)
+		#define FIRMWARE_48XC
+	#else
+		#define FIRMWARE_48XC
+	#endif
 
 	#ifdef PS3M_API
 		#define PS3MAPI_FW_VERSION                           FIRMWARE_VERSION
@@ -8510,7 +8520,7 @@
 	#define dex_psp_extra_drm_patch                     0x24D318
 #endif
 
-#if defined(FIRMWARE_484D) || defined(FIRMWARE_485D) || defined(FIRMWARE_486D) || defined(FIRMWARE_487D) || defined(FIRMWARE_488D)|| defined(FIRMWARE_489D) || defined(FIRMWARE_490D)
+#if defined(FIRMWARE_484D) || defined(FIRMWARE_485D) || defined(FIRMWARE_486D) || defined(FIRMWARE_487D) || defined(FIRMWARE_488D)|| defined(FIRMWARE_489D) || defined(FIRMWARE_490D) || defined(FIRMWARE_491D) || defined(FIRMWARE_492D) || defined(FIRMWARE_493D)
 
 	#if defined(FIRMWARE_484D)
   	#define FIRMWARE_VERSION                               0x484
@@ -8526,6 +8536,12 @@
   	#define FIRMWARE_VERSION                               0x489
 	#elif defined(FIRMWARE_490D)
   	#define FIRMWARE_VERSION                               0x490
+	#elif defined(FIRMWARE_491D)
+  	#define FIRMWARE_VERSION                               0x491
+	#elif defined(FIRMWARE_492D)
+  	#define FIRMWARE_VERSION                               0x492
+	#elif defined(FIRMWARE_493D)
+  	#define FIRMWARE_VERSION                               0x493
     #endif
 	#define FIRMWARE_DEX                                     FIRMWARE_VERSION
 	#define FIRMWARE_48XD
